@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "common.h"
 using namespace std;
+using namespace Tokens;
 
 /**
  * Token 的一个简单实现，只有类型和文本值两个属性
