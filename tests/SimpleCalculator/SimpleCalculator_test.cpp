@@ -40,7 +40,7 @@ void test_case_3() {
 
     SimpleCalculator *calculator = new SimpleCalculator();
     string script = "2+";
-    cout << script << ", 应该有语法错误。";
+    cout << script << ", 应该有语法错误。" << endl;
     calculator->evaluate(script);
 }
 
@@ -49,12 +49,28 @@ void test_case_4() {
 
     SimpleCalculator *calculator = new SimpleCalculator();
     string script = "2+3+4";
-    cout << script << ", 结合性出现错误。";
+    cout << script << ", 结合性出现错误。" << endl;
+    calculator->evaluate(script);
+}
+
+void test_case_5() {
+
+    SimpleCalculator *calculator = new SimpleCalculator();
+    string script = "5+3*4+1*9+3";
+    cout << script << endl;
+    calculator->evaluate(script);
+}
+
+void test_case_6() {
+
+    SimpleCalculator *calculator = new SimpleCalculator();
+    string script = "2*3*5";
+    cout << script << endl;
     calculator->evaluate(script);
 }
 
 int main() {
 
-    test_case_2();
+    test_case_5();
     return 0;
 }

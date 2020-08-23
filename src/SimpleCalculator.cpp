@@ -31,7 +31,7 @@ int SimpleCalculator::evaluate(ASTNode *node, string indent)
     int result = 0;
     ASTNodeType type = node->getType();
     std::cout << indent <<  "Calculating: " << type << std::endl;
-    
+
     ASTNode *child1;
     ASTNode *child2;
     int value1 = 0;
@@ -96,6 +96,10 @@ SimpleASTNode* SimpleCalculator::prog(TokenReader *tokens)
     return node;
 }
 
+/**
+ * 递归下降
+ *  上级文法嵌套下级文法，上级算法调用下级算法。表现在生成AST中，上级算法生成上级节点，下级算法生成下级节点
+ */
 SimpleASTNode* SimpleCalculator::intDeclare(TokenReader *tokens)
 {
     SimpleASTNode *node = NULL;
@@ -111,7 +115,7 @@ SimpleASTNode* SimpleCalculator::intDeclare(TokenReader *tokens)
             node = new SimpleASTNode(ASTNodeType::IntDeclaration, token->getText());
             token = tokens->peek(); // 预读
 
-            if (token != NULL && token->getType() == TokenType::Assignment) {
+            if (token != NULL && token->getType() == TokenType::Assignment) {   // 匹配表达式
                 tokens->read();      // 消耗掉等号
                 SimpleASTNode *child = additive(tokens); // 匹配一个表达式
                 if (child == NULL) {
@@ -190,19 +194,19 @@ SimpleASTNode* SimpleCalculator::primary(TokenReader *tokens)
     Token *token = tokens->peek();
 
     if (token != NULL) {
-        if (token->getType() == TokenType::IntLiteral) {
+        if (token->getType() == TokenType::IntLiteral) {    // 整型字面量
             token = tokens->read();
             node = new SimpleASTNode(ASTNodeType::IntLiteral, token->getText());
-        } else if (token->getType() == TokenType::Identifier) {
+        } else if (token->getType() == TokenType::Identifier) { // 标识符
             token = tokens->read();
             node = new SimpleASTNode(ASTNodeType::Identifier, token->getText());
-        } else if (token->getType() == TokenType::LeftParen) {
+        } else if (token->getType() == TokenType::LeftParen) {  // (
             tokens->read();
             node = additive(tokens);
 
             if (node != NULL) {
                 token = tokens->peek();
-                if (token != NULL && token->getType() == TokenType::RightParen) {
+                if (token != NULL && token->getType() == TokenType::RightParen) {   // )
                     tokens->read();
                 } else {
                     throw "expecting right parenthesis";
