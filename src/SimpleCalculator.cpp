@@ -31,6 +31,7 @@ int SimpleCalculator::evaluate(ASTNode *node, string indent)
     int result = 0;
     ASTNodeType type = node->getType();
     std::cout << indent <<  "Calculating: " << type << std::endl;
+    
     ASTNode *child1;
     ASTNode *child2;
     int value1 = 0;

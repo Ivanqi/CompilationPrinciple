@@ -1,7 +1,7 @@
 #ifndef SIMPLECALCULATOR_H
 #define SIMPLECALCULATOR_H
 #include "ASTNode.h"
-#include "common.h"
+#include "Token.h"
 using namespace Tokens;
 using namespace ASTNodes;
 /**

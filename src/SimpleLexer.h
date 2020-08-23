@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "common.h"
+#include "Token.h"
 using namespace std;
 using namespace Tokens;
 
