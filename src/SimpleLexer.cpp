@@ -121,4 +121,5 @@ void SimpleLexer::dump(SimpleTokenReader *tokenReader)
     while ((token = tokenReader->read()) != NULL) {
         cout << token->getText() << "\t\t" << token->getType() << endl;
     }
+    tokenReader->setPosition(0);
 }

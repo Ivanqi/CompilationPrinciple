@@ -3,92 +3,97 @@
 #include <exception>
 #include <assert.h>
 
-// void SimpleCalculator::evaluate(string script)
-// {
-//     try {
-//         ASTNode tree = parse(script);
+void SimpleCalculator::evaluate(string script)
+{
+    try {
+        ASTNode *tree = parse(script);
 
-//         dumpAST(tree, "");
-//         evaluate(tree, "");
+        dumpAST(tree, "");
+        evaluate(tree, "");
 
-//     } catch (exception &e) {
-//         cout << e.what() << endl;
-//     }
-// }
+    } catch (exception &e) {
+        cout << e.what() << endl;
+    }
+}
 
-// ASTNode SimpleCalculator::parse(string code)
-// {
-//     SimpleLexer lexer = new SimpleLexer();
-//     TokenReader tokens = lexer.tokenize(code);
+ASTNode* SimpleCalculator::parse(string code)
+{
+    SimpleLexer *lexer = new SimpleLexer();
+    TokenReader *tokens = lexer->tokensize(code);
 
-//     ASTNode rootNode = prog(tokens);
+    ASTNode *rootNode = prog(tokens);
 
-//     return rootNode;
-// };
+    return rootNode;
+};
 
-// int SimpleCalculator::evaluate(ASTNode node, string indent)
-// {
-//     int result = 0;
-//     cout << indent <<  "Calculating: " << node.getType() << endl; 
+int SimpleCalculator::evaluate(ASTNode *node, string indent)
+{
+    int result = 0;
+    ASTNodeType type = node->getType();
+    std::cout << indent <<  "Calculating: " << type << std::endl;
+    ASTNode *child1;
+    ASTNode *child2;
+    int value1 = 0;
+    int value2 = 0;
 
-//     switch (node.getType()) {
-//         case Program:
-//             for (ASTNode child : node.getChildren()) {
-//                 result = evaluate(child, indent + "\t");
-//             }
-//             break;
+    switch (type) {
+        case ASTNodeType::Program:
+            for (ASTNode *child : node->getChildren()) {
+                result = evaluate(child, indent + "\t");
+            }
+            break;
 
-//         case Additive:
-//             ASTNode child1 = node.getChildren()[0];
-//             int value1 = evaluate(child1, indent + "\t");
-//             ASTNode child2 = node.getChildren()[1];
+        case ASTNodeType::Additive:
+            child1 = node->getChildren()[0];
+            value1 = evaluate(child1, indent + "\t");
+            child2 = node->getChildren()[1];
 
-//             int value2 = evaluate(child2, indent + "\t");
-//             if (node.getText() == "+") {
-//                 result = value1 + value2;
-//             } else {
-//                 result = value1 - value2;
-//             }
-//             break;
+            value2 = evaluate(child2, indent + "\t");
+            if (node->getText() == "+") {
+                result = value1 + value2;
+            } else {
+                result = value1 - value2;
+            }
+            break;
 
-//         case Multiplicative:
-//             child1 = node.getChildren()[0];
-//             value1 = evaluate(child1, indent + "\t");
+        case ASTNodeType::Multiplicative:
+            child1 = node->getChildren()[0];
+            value1 = evaluate(child1, indent + "\t");
 
-//             child2 = node.getChildren()[1];
-//             value2 = evaluate(child2, indent + "\t");
+            child2 = node->getChildren()[1];
+            value2 = evaluate(child2, indent + "\t");
 
-//             if (node.getText() == "*") {
-//                 result = value1 * value2;
-//             } else {
-//                 result = value1 / value2;
-//             }
-//             break;
+            if (node->getText() == "*") {
+                result = value1 * value2;
+            } else {
+                result = value1 / value2;
+            }
+            break;
         
-//         case IntLiteral:
-//             result = (int) node.getText();
-//             break;
+        case ASTNodeType::IntLiteral:
+            result = atoi(node->getText().c_str());
+            break;
         
-//         default:
-//             break;
-//     }
+        default:
+            break;
+    }
 
-//     cout << indent << " Result: " << result << endl;
-//     return result;
-// }
+    std::cout << indent << " Result: " << result << std::endl;
+    return result;
+}
 
-// SimpleASTNode SimpleCalculator::prog(TokenReader tokens)
-// {
-//     SimpleASTNode node = new SimpleASTNode(ASTNodeType::Program, "Calculator");
+SimpleASTNode* SimpleCalculator::prog(TokenReader *tokens)
+{
+    SimpleASTNode *node = new SimpleASTNode(ASTNodeType::Program, "Calculator");
 
-//     SimpleASTNode child = additive(tokens);
+    SimpleASTNode *child = additive(tokens);
 
-//     if (child != NULL) {
-//         node.addChild(child);
-//     }
+    if (child != NULL) {
+        node->addChild(child);
+    }
 
-//     return node;
-// }
+    return node;
+}
 
 SimpleASTNode* SimpleCalculator::intDeclare(TokenReader *tokens)
 {
@@ -108,9 +113,8 @@ SimpleASTNode* SimpleCalculator::intDeclare(TokenReader *tokens)
             if (token != NULL && token->getType() == TokenType::Assignment) {
                 tokens->read();      // 消耗掉等号
                 SimpleASTNode *child = additive(tokens); // 匹配一个表达式
-                assert(child != NULL);
                 if (child == NULL) {
-                    // throw "invalide variable initialization, expecting an expression";
+                    throw "invalide variable initialization, expecting an expression";
                 } else {
                     node->addChild(child);
                 }
@@ -125,7 +129,7 @@ SimpleASTNode* SimpleCalculator::intDeclare(TokenReader *tokens)
             if (token != NULL && token->getType() == TokenType::SemiColon) {
                 tokens->read();
             } else {
-                // throw "invalid statement, expecting semicolon";
+                throw "invalid statement, expecting semicolon";
             }
         }
     }
@@ -136,6 +140,22 @@ SimpleASTNode* SimpleCalculator::additive(TokenReader *tokens)
 {
     SimpleASTNode *child1 = multiplicative(tokens);
     SimpleASTNode *node = child1;
+
+    Token *token = tokens->peek();
+    if (child1 != NULL && token != NULL) {
+        if (token->getType() == TokenType::Plus || token->getType() == TokenType::Minus) {
+            token = tokens->read();
+            SimpleASTNode *child2 = additive(tokens);
+
+            if (child2 != NULL) {
+                node = new SimpleASTNode(ASTNodeType::Additive, token->getText());
+                node->addChild(child1);
+                node->addChild(child2);
+            } else {
+                throw "invalid additive expression, expecting the right part.";
+            }
+        }
+    }
 
     return node;
 }
@@ -156,7 +176,7 @@ SimpleASTNode* SimpleCalculator::multiplicative(TokenReader *tokens)
                 node->addChild(child1);
                 node->addChild(child2);
             } else {
-                // throw "invalid mutiplicative expression, expecting the right part.";
+                throw "invalid mutiplicative expression, expecting the right part.";
             }
         }
     }
@@ -184,10 +204,10 @@ SimpleASTNode* SimpleCalculator::primary(TokenReader *tokens)
                 if (token != NULL && token->getType() == TokenType::RightParen) {
                     tokens->read();
                 } else {
-                    // throw "expecting right parenthesis";
+                    throw "expecting right parenthesis";
                 }
             } else {
-                // throw  "expecting an additive expression inside parenthesis";
+                throw  "expecting an additive expression inside parenthesis";
             }
         }
     }
@@ -197,9 +217,13 @@ SimpleASTNode* SimpleCalculator::primary(TokenReader *tokens)
 
 void SimpleCalculator::dumpAST(ASTNode *node, string indent)
 {
-    cout << indent << node->getType() + " " + node->getText() << endl;
+    if (node != NULL) {
+        ASTNodeType type = node->getType();
+        string text = node->getText();
+        cout << indent <<  type << " " << text << endl;
 
-    for (ASTNode *child: node->getChildren()) {
-        dumpAST(child, indent + "\t");
+        for (ASTNode *child: node->getChildren()) {
+            dumpAST(child, indent + "\t");
+        }
     }
 }

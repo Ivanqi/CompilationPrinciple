@@ -13,7 +13,6 @@ class SimpleASTNode: public ASTNode
     public:
         SimpleASTNode *parent;
         vector<ASTNode*> children;
-        vector<ASTNode*> readonlyChildren;
         ASTNodeType nodeType;
         string text;
 
@@ -29,7 +28,7 @@ class SimpleASTNode: public ASTNode
 
         vector<ASTNode*> getChildren()
         {
-            return readonlyChildren;
+            return children;
         }
 
         ASTNodeType getType()
@@ -55,24 +54,24 @@ class SimpleCalculator
         /**
          * 执行脚本，并打印输出AST和求值过程
          */
-        // void evaluate(string script);
+        void evaluate(string script);
 
         /**
          * 解析脚本，并返回根节点
          */
-        // ASTNode parse(string code);
+        ASTNode* parse(string code);
 
         /**
          * 对某个AST节点求值，并打印求值过程
          * @param node
          * @param indent 打印输出时的缩进量，用tab控制
          */
-        // int evaluate(ASTNode node, string indent);
+        int evaluate(ASTNode *node, string indent);
 
         /**
          * 语法解析: 根节点
          */
-        // SimpleASTNode prog(TokenReader tokens);
+        SimpleASTNode* prog(TokenReader *tokens);
 
         /**
          * 整型变量声明语句，如:
