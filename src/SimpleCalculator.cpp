@@ -87,7 +87,7 @@ SimpleASTNode* SimpleCalculator::prog(TokenReader *tokens)
 {
     SimpleASTNode *node = new SimpleASTNode(ASTNodeType::Program, "Calculator");
 
-    SimpleASTNode *child = additive(tokens);
+    SimpleASTNode *child = additive2(tokens);
 
     if (child != NULL) {
         node->addChild(child);
@@ -117,7 +117,7 @@ SimpleASTNode* SimpleCalculator::intDeclare(TokenReader *tokens)
 
             if (token != NULL && token->getType() == TokenType::Assignment) {   // 匹配表达式
                 tokens->read();      // 消耗掉等号
-                SimpleASTNode *child = additive(tokens); // 匹配一个表达式
+                SimpleASTNode *child = additive2(tokens); // 匹配一个表达式
                 if (child == NULL) {
                     throw "invalide variable initialization, expecting an expression";
                 } else {
@@ -141,6 +141,7 @@ SimpleASTNode* SimpleCalculator::intDeclare(TokenReader *tokens)
     return node;
 }
 
+// 没有能解决左递归。所以用右递归先执行
 SimpleASTNode* SimpleCalculator::additive(TokenReader *tokens)
 {
     SimpleASTNode *child1 = multiplicative(tokens);
@@ -162,6 +163,31 @@ SimpleASTNode* SimpleCalculator::additive(TokenReader *tokens)
         }
     }
 
+    return node;
+}
+
+// 解决左递归
+SimpleASTNode* SimpleCalculator::additive2(TokenReader *tokens)
+{
+    SimpleASTNode *child1 = multiplicative(tokens); // 应用add规则
+    SimpleASTNode *node = child1;
+
+    if (child1 != NULL) {
+        while (true) {
+            Token *token = tokens->peek();   // 循环应用add'
+            if (token != NULL && (token->getType() == TokenType::Plus || token->getType() == TokenType::Minus)) {
+                token = tokens->read();      // 读出加号
+                SimpleASTNode *child2 = multiplicative(tokens); // 计算下级节点
+                node = new SimpleASTNode(ASTNodeType::Additive, token->getText());
+
+                node->addChild(child1);
+                node->addChild(child2);
+                child1 = node;
+            } else {
+                break;
+            }
+        }
+    }
     return node;
 }
  

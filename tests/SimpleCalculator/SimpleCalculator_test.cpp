@@ -71,6 +71,6 @@ void test_case_6() {
 
 int main() {
 
-    test_case_5();
+    test_case_2();
     return 0;
 }

@@ -85,6 +85,11 @@ class SimpleCalculator
          */
         SimpleASTNode* additive(TokenReader *tokens);
 
+         /**
+         * 语法解析：加法表达式2
+         */
+        SimpleASTNode* additive2(TokenReader *tokens);
+
         /**
          * 语法解析：乘法表达式
          */
