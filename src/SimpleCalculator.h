@@ -4,49 +4,6 @@
 #include "Token.h"
 using namespace Tokens;
 using namespace ASTNodes;
-/**
- * 一个简单的AST节点的实现
- * 属性包括：类型，文本值，父节点，子节点
- */
-class SimpleASTNode: public ASTNode
-{
-    public:
-        SimpleASTNode *parent;
-        vector<ASTNode*> children;
-        ASTNodeType nodeType;
-        string text;
-
-        SimpleASTNode(ASTNodeType nodeType, string text): nodeType(nodeType), text(text)
-        {
-
-        }
-
-        ASTNode* getParent()
-        {
-            return parent;
-        }
-
-        vector<ASTNode*> getChildren()
-        {
-            return children;
-        }
-
-        ASTNodeType getType()
-        {
-            return nodeType;
-        }
-
-        string getText()
-        {
-            return text;
-        }
-
-        void addChild(SimpleASTNode *child)
-        {
-            children.push_back(child);
-            child->parent = this;
-        }
-};
 
 class SimpleCalculator
 {
