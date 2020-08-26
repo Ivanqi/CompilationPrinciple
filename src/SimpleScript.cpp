@@ -1,6 +1,7 @@
 #include <iostream>
 #include <exception>
 #include "SimpleScript.h"
+#include "SimpleParser.h"
 
 using namespace std;
 
@@ -112,7 +113,7 @@ void SimpleScript::REPL(int argc, char* argv[])
 
     cout << "Simple script language!" << endl;
 
-    // SimpleLexer *parser = new SimpleLexer();
+    SimpleParser *parser = new SimpleParser();
     SimpleScript *script = new SimpleScript();
     
     string reader;
@@ -120,24 +121,32 @@ void SimpleScript::REPL(int argc, char* argv[])
     string scriptText;
     cout << "\n>";  // 提示符
 
-    // while (true) {
-    //     try {
-    //         cin >> reader;
-    //         string line = trim(reader);
-    //         if (line == "exit();") {
-    //             cout << "Good Bye!" << endl;
-    //             break;
-    //         }
+    while (true) {
+        try {
+            cin >> reader;
+            string line = trim(reader);
+            if (line == "exit();") {
+                cout << "Good Bye!" << endl;
+                break;
+            }
 
-    //         scriptText += line + "\n";
-    //         if (endsWith(line, ";")) {
-    //             ASTNode *tree = parser->
-    //         }
-        
-    //     } catch (exception &e) {
-    //         cout << e.what() << endl;
-    //         cout << "\n>";  // 提示符
-    //         scriptText = "";
-    //     }
-    // }
+            scriptText += line + "\n";
+            if (endsWith(line, ";")) {
+                ASTNode *tree = parser->parse(scriptText);
+                if (verbose) {
+                    parser->dumpAST(tree, "");
+                }
+
+                script->evaluate(tree, "");
+
+                cout << "\n>";  // 提示符
+
+                scriptText = "";
+            }
+        } catch (exception &e) {
+            cout << e.what() << endl;
+            cout << "\n>";  // 提示符
+            scriptText = "";
+        }
+    }
 }

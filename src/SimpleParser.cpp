@@ -34,6 +34,7 @@ SimpleASTNode* SimpleParser::prog(TokenReader *tokens)
     return node;
 }
 
+// 赋值语句，如 age = 10 * 2
 SimpleASTNode* SimpleParser::assignmentStatement(TokenReader *tokens)
 {
     SimpleASTNode *node = NULL;
@@ -43,7 +44,7 @@ SimpleASTNode* SimpleParser::assignmentStatement(TokenReader *tokens)
         token = tokens->read();     // 读入标识符
         node = new SimpleASTNode(ASTNodeType::AssignmentStmt, token->getText());
         
-        token = tokens->peek(); // 预读，看看下面是不是等号
+        token = tokens->peek();     // 预读，看看下面是不是等号
         if (token != NULL && token->getType() == TokenType::Assignment) {
             tokens->read();
             SimpleASTNode *child = additive(tokens);
@@ -128,6 +129,7 @@ SimpleASTNode* SimpleParser::intDeclare(TokenReader *tokens)
             }
         }
     }
+    return node;
 }
 
 // 加法表达式
@@ -139,7 +141,7 @@ SimpleASTNode* SimpleParser::additive(TokenReader *tokens)
     if (child1 != NULL) {
         while (true) {                              // 循环应用add' 规则
             Token *token = tokens->peek();
-            if (token != NULL && (token->getType() == TokenType::Plus || TokenType::Minus)) {
+            if (token != NULL && (token->getType() == TokenType::Plus || token->getType() == TokenType::Minus)) {
                 token = tokens->read();             // 读出加号
                 SimpleASTNode *child2 = multiplicative(tokens); // 计算下级节点
                 if (child2 != NULL) {
