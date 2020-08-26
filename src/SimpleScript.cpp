@@ -63,9 +63,10 @@ int SimpleScript::evaluate(ASTNode *node, string indent)
 
             if (variables.find(varName) != variables.end()) {
                 int value = variables[varName];
-                    result = value;
+                result = value;
             } else {
-                throw "unknown variable: " + varName;
+                errMsg = "unknown variable: " + varName;
+                return result;
             }
             break;
         
@@ -73,7 +74,8 @@ int SimpleScript::evaluate(ASTNode *node, string indent)
         case ASTNodeType::AssignmentStmt:
             varName = node->getText();
             if (variables.find(varName) == variables.end()) {
-                throw "unknown variable: " + varName;
+                errMsg = "unknown variable: " + varName;
+                return result;
             }
             // 接下来执行下面的代码
         
@@ -96,17 +98,22 @@ int SimpleScript::evaluate(ASTNode *node, string indent)
     if (verbose) {
         cout << indent << "Result: " << result << endl;;
     } else if (indent == "") {  // 顶层语句
+        if (!errMsg.empty()) {
+            throw errMsg;
+        }
         if (node->getType() == ASTNodeType::IntDeclaration || node->getType() == ASTNodeType::AssignmentStmt) {
             cout << node->getText() + ": " << result << endl;;
         } else if (node->getType() != ASTNodeType::Program){
             cout << result << endl;
         }
     }
+
+    return result;
 }
 
 void SimpleScript::REPL(int argc, char* argv[])
 {
-    if (argc > 0 && strcmp(argv[0], "-v")) {
+    if (argc > 1 && strcmp(argv[1], "-v") == 0) {
         verbose = true;
         cout << "verbose mode" << endl;
     }
@@ -143,10 +150,15 @@ void SimpleScript::REPL(int argc, char* argv[])
 
                 scriptText = "";
             }
-        } catch (exception &e) {
-            cout << e.what() << endl;
+        } catch (const char *s) {
+            cout << s << endl;
             cout << "\n>";  // 提示符
             scriptText = "";
+        } catch (string s) {
+            cout << s << endl;
+            cout << "\n>";  // 提示符
+            scriptText = "";
+            errMsg = "";
         }
     }
 }

@@ -11,8 +11,8 @@ void test_case_1(SimpleParser *parser) {
         ASTNode *tree = parser->parse(script);
         parser->dumpAST(tree, "");
 
-    } catch(exception &e) {
-       cout << e.what() << endl;
+    } catch (const char *s) {
+        cout << s << endl;
     }
 }
 
@@ -23,9 +23,9 @@ void test_case_2(SimpleParser *parser) {
         string script = "2+3+;";
         cout << "解析：" << script << endl;
         ASTNode *tree = parser->parse(script);
-        // parser->dumpAST(tree, "");
-    } catch (exception &e) {
-        cout << e.what() << endl;
+        parser->dumpAST(tree, "");
+    } catch (const char *s) {
+        cout << s << endl;
     }
 }
 
@@ -37,14 +37,18 @@ void test_case_3(SimpleParser *parser) {
         cout << "解析：" << script << endl;
         ASTNode *tree = parser->parse(script);
         parser->dumpAST(tree, "");
-    } catch (exception &e) {
-        cout << e.what() << endl;
+    } catch (const char *s) {
+        cout << s << endl;
     }
 }
 
 int main() {
 
     SimpleParser *parser = new SimpleParser();
+    test_case_1(parser);
+    cout << endl;
     test_case_2(parser);
+    cout << endl;
+    test_case_3(parser);
     return 0;
 }

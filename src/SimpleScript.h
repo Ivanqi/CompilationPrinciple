@@ -12,7 +12,7 @@ class SimpleScript
     public:
         unordered_map<string, int> variables;
         bool verbose = false;
-        
+        string errMsg;
 
         /**
          * 遍历AST, 计算值
@@ -24,13 +24,13 @@ class SimpleScript
         void REPL(int argc, char* argv[]);
     
     private:
-        string& trim(string &s)
+        string trim(string s)
         {
             if (s.empty()) {
                 return s;
             }
-
-            s.erase(0, s.find_last_not_of(" "));
+            
+            s.erase(0, s.find_first_not_of(" "));
             s.erase(s.find_last_not_of(" ") + 1);
             return s;
         }
