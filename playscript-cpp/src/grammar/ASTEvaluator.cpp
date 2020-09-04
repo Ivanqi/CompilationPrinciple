@@ -1,6 +1,21 @@
 #include "ASTEvaluator.h"
 
 /**
+ * 栈帧入栈
+ * 其中最重要的任务，是要保证栈帧的parentFrame设置正确，否则
+ * 1. 随着栈的变深，查找变量的性能降低
+ * 2. 甚至有可能找错栈帧，比如在递归(直接或间接)的场景下
+ */
+void ASTEvaluator::pushStack(StackFrame *frame)
+{
+    if (stacks.size() > 0) {
+        //从栈顶到栈底依次查找
+        for (int i = stacks.size() - 1; i > 0; i--) {
+        }
+    }
+}
+
+/**
  * ExpressionContext 是 AST中表达式的节点
  *  也叫做Context,意思是你能从中取出这个节点所有上下文信息，包括父节点，子节点
  *  其中，每个子节点的名称跟语法中的名称是一致的，比如 加减法语法规则

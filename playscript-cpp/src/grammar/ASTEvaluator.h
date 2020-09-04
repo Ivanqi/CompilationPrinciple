@@ -2,10 +2,17 @@
 #pragma once
 
 #include "PlayScriptBaseVisitor.h"
+#include <stack>
+#include "StackFrame.h"
 
 class ASTEvaluator: public PlayScriptBaseVisitor 
-{
+{  
+    private:
+        stack<StackFrame*> stacks;
+
     public:
+        void pushStack(StackFrame *frame);
+
         virtual antlrcpp::Any visitExpression(PlayScriptParser::ExpressionContext *ctx) override;
 
         virtual antlrcpp::Any visitPrimary(PlayScriptParser::PrimaryContext *ctx) override;
