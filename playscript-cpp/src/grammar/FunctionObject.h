@@ -27,4 +27,9 @@ class FunctionObject: public PlayObject
             this->function = function;
         }
 
+        Variable* getReceiver()
+        {
+            return receiver;
+        }
+
 };

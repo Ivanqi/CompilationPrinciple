@@ -8,7 +8,14 @@
 class ASTEvaluator: public PlayScriptBaseVisitor 
 {  
     private:
-        stack<StackFrame*> stacks;
+        std::stack<StackFrame*> stacks;
+
+        void dumpStackFrame();
+
+    protected:
+        bool traceStackFrame = false;
+
+        bool traceFunctionCall = false;
 
     public:
         void pushStack(StackFrame *frame);
