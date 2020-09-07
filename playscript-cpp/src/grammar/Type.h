@@ -1,3 +1,5 @@
+#ifndef TYPE_H
+#define TYPE_H
 
 #pragma once
 
@@ -17,3 +19,5 @@ class Type
          */
         bool isType(Type *type);
 };
+
+#endif

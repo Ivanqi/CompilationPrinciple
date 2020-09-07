@@ -8,7 +8,7 @@
 class ASTEvaluator: public PlayScriptBaseVisitor 
 {  
     private:
-        std::stack<StackFrame*> stacks;
+        // std::stack<StackFrame*> stacks;
 
         void dumpStackFrame();
 
@@ -18,7 +18,7 @@ class ASTEvaluator: public PlayScriptBaseVisitor
         bool traceFunctionCall = false;
 
     public:
-        void pushStack(StackFrame *frame);
+        // void pushStack(StackFrame *frame);
 
         virtual antlrcpp::Any visitExpression(PlayScriptParser::ExpressionContext *ctx) override;
 

@@ -3,28 +3,32 @@
 #include "PlayScriptLexer.h"
 #include "PlayScriptParser.h"
 #include "ASTEvaluator.h"
+#include "PlayScriptCompiler.h"
 
 using namespace antlr4;
 using namespace std;
 
 int main(int argc, const char* argv[]) {
     const char* filepath = argv[1];
-    std::ifstream ifs;
-    ifs.open(filepath);
 
-    ANTLRInputStream input(ifs);
-    PlayScriptLexer lexer(&input);
-    CommonTokenStream tokens(&lexer);
+    PlayScriptCompiler compiler;
+    compiler.compile(filepath, true, true);
+    // std::ifstream ifs;
+    // ifs.open(filepath);
 
-    tokens.fill();
-    for (auto token : tokens.getTokens()) {
-        std::cout << token->toString() << std::endl;
-    }
+    // ANTLRInputStream input(ifs);
+    // PlayScriptLexer lexer(&input);
+    // CommonTokenStream tokens(&lexer);
 
-    PlayScriptParser parser(&tokens);
-    tree::ParseTree *tree = parser.prog();
+    // tokens.fill();
+    // for (auto token : tokens.getTokens()) {
+    //     std::cout << token->toString() << std::endl;
+    // }
 
-    cout << tree->toStringTree(&parser) << endl;
+    // PlayScriptParser parser(&tokens);
+    // tree::ParseTree *tree = parser.prog();
+
+    // cout << tree->toStringTree(&parser) << endl;
 
     return 0;
 }
