@@ -39,13 +39,13 @@ class AnnotatedTree
         map<ParserRuleContext, Symbol> symbolOfNode;
 
         // AST 节点对应的Scope。 如for, 函数调用会启动新的Scope
-        map<ParserRuleContext, Scope> node2Scope;
+        map<ParserRuleContext*, Scope*> node2Scope;
 
         // 用于做类型推断，每个节点推断出来的类型
         map<ParserRuleContext, Type> typeOfNode;
 
         // 命名空间
-        NameSapce namespaces;
+        NameSpace *namespaces;
 
         // 语义分析过程中生成的信息，包括普通信息，警告和错误
         vector<CompilationLog*> logs;
@@ -60,9 +60,9 @@ class AnnotatedTree
          * 
          */
 
-        AnnotatedTree()
-        {
-        }
+        // AnnotatedTree()
+        // {
+        // }
 
         
 };

@@ -22,6 +22,7 @@ set(src_dir
     src/grammar/PlayScriptVisitor.cpp
     src/grammar/ASTEvaluator.h
     src/grammar/ASTEvaluator.cpp
+    src/grammar/PlayScriptCompiler.cpp
 )
 
 file(GLOB antrl-cpp-src
