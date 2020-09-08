@@ -2,15 +2,18 @@
 #define FUNCTIONTYPE_H
 // #pragma once
 
-// #include <vector>
+#include <vector>
 #include "Type.h"
-class FunctionType: public Type
+namespace play
 {
-//     public:
-//         Type* getReturnType();
+    class FunctionType: public Type
+    {
+        public:
+            virtual Type* getReturnType() = 0;
 
-//         std::vector<Type*> getParamTypes();
+            virtual std::vector<Type*> getParamTypes() = 0;
 
-//         bool matchParameterTypes(std::vector<Type> paramTypes);
+            virtual bool matchParameterTypes(std::vector<Type*> paramTypes) = 0;
+    };
 };
 #endif

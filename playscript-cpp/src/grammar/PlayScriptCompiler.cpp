@@ -1,5 +1,6 @@
 #include "PlayScriptCompiler.h"
 #include "TypeAndScopeScanner.h"
+using namespace play;
 
 AnnotatedTree* PlayScriptCompiler::compile(const char* script, bool verbose, bool ast_dump)
 {

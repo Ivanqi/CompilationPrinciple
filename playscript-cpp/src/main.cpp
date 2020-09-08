@@ -7,12 +7,15 @@
 
 using namespace antlr4;
 using namespace std;
+using namespace play;
 
 int main(int argc, const char* argv[]) {
     const char* filepath = argv[1];
 
     PlayScriptCompiler compiler;
     compiler.compile(filepath, true, true);
+
+    
     // std::ifstream ifs;
     // ifs.open(filepath);
 

@@ -9,10 +9,14 @@
 #include "PlayScriptLexer.h"
 #include "PlayScriptParser.h"
 
-class PlayScriptCompiler
+namespace play 
 {
-    public:
-        AnnotatedTree* compile(const char* script, bool verbose, bool ast_dump);
+    class PlayScriptCompiler
+    {
+        public:
+            AnnotatedTree* compile(const char* script, bool verbose, bool ast_dump);
+    };
 };
+
 
 #endif

@@ -1,19 +1,33 @@
-// #pragma once
-// #include "PlayScriptBaseVisitor.h"
-// #include "Variable.h"
-// #include "Class.h"
+#ifndef THIS_H
+#define THIS_H
 
-// // 用来表示this 关键字的符号
-// class This: public Variable
-// {
-//     public:
-//         This(Class *theClass, PlayScriptParser::ExpressionContext *ctx): Variable(typeid(this).name(), theClass, ctx)
-//         {
+#pragma once
+#include "Variable.h"
+#include "Class.h"
+#include "ParserRuleContext.h"
+using namespace antlr4;
 
-//         }
+namespace play
+{
+    class Class;
 
-//         Class* Class()
-//         {
-//             return (Class*) enclosingScope;
-//         }
-// };
+    // 用来表示this 关键字的符号
+    class This: public Variable
+    {
+        public:
+
+            This(Class *theClass, ParserRuleContext *ctx)
+            {
+                Scope *tmp = dynamic_cast<Scope*>(theClass);
+                // Variable("xxxx", tmp, ctx);
+            }
+
+        private:
+            // Class* Class()
+            // {
+            //     return (Class*) enclosingScope;
+            // }
+    };
+};
+
+#endif

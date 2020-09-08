@@ -5,45 +5,47 @@
 // #include "Scope.h"
 #include "ParserRuleContext.h"
 using namespace antlr4;
-
-class Scope;
-
-class Symbol
+namespace play
 {
-    protected:
-        // 符号的名称
-        std::string name;
+    class Scope;
 
-        // 所属于作用域
-        Scope *enclosingScope;
+    class Symbol
+    {
+        protected:
+            // 符号的名称
+            std::string name;
 
-        // 可见性，比如public还是private
-        int visibility = 0;
+            // 所属于作用域
+            Scope *enclosingScope;
 
-        // Symbol 关联的AST节点
-        ParserRuleContext *ctx;
+            // 可见性，比如public还是private
+            int visibility = 0;
 
-    
-    public:
-        std::string getName()
-        {
-            return name;
-        }
+            // Symbol 关联的AST节点
+            ParserRuleContext *ctx;
 
-        Scope* getEnclosingScope()
-        {
-            return enclosingScope;
-        }
+        
+        public:
+            std::string getName()
+            {
+                return name;
+            }
 
-        void setEnclosingScope(Scope *sc)
-        {
-            enclosingScope = sc;
-        }
+            Scope* getEnclosingScope()
+            {
+                return enclosingScope;
+            }
 
-        void setCtx(ParserRuleContext *x)
-        {
-            ctx = x;
-        }
+            void setEnclosingScope(Scope *sc)
+            {
+                enclosingScope = sc;
+            }
 
+            void setCtx(ParserRuleContext *x)
+            {
+                ctx = x;
+            }
+
+    };
 };
 #endif

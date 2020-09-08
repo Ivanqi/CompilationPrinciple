@@ -7,29 +7,32 @@
 #include "ParserRuleContext.h"
 using namespace antlr4;
 
-class BlockScope: public Scope
+namespace play
 {
-    private:
-        int index;
+    class BlockScope: public Scope
+    {
+        private:
+            int index;
 
-    public:
-        BlockScope()
-        {
-            index = 1;
-            this->name = "block" + std::to_string(index++);
-        }
+        public:
+            BlockScope()
+            {
+                index = 1;
+                this->name = "block" + std::to_string(index++);
+            }
 
-        BlockScope(Scope *enclosingScope, ParserRuleContext *ctx)
-        {
-            index = 1;
-            this->name = "block" + std::to_string(index++);
-            this->enclosingScope = enclosingScope;
-            this->ctx = ctx;
-        }
+            BlockScope(Scope *enclosingScope, ParserRuleContext *ctx)
+            {
+                index = 1;
+                this->name = "block" + std::to_string(index++);
+                this->enclosingScope = enclosingScope;
+                this->ctx = ctx;
+            }
 
-        std::string toString()
-        {
-            return "Block" + name;
-        }
+            std::string toString()
+            {
+                return "Block" + name;
+            }
+    };
 };
 #endif
