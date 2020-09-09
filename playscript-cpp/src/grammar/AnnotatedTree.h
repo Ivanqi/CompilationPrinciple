@@ -7,9 +7,6 @@
 #include "tree/ParseTree.h"
 #include "Type.h"
 #include "Symbol.h"
-#include "NameSpace.h"
-#include "CompilationLog.h"
-#include "Function.h"
 
 #include <vector>
 #include <map>
@@ -17,10 +14,14 @@
 
 using namespace antlr4;
 using namespace antlr4::tree;
+
 using namespace std;
 
 namespace play 
 {
+    class CompilationLog;
+    class NameSpace;
+    class Function;
     /**
      * 注释树
      *  语义分析的结果都放在这里。跟AST的节点建立关联。包括
@@ -50,7 +51,7 @@ namespace play
             NameSpace *namespaces;
 
             // 语义分析过程中生成的信息，包括普通信息，警告和错误
-            vector<CompilationLog*> logs;
+            vector<CompilationLog> logs;
 
             // 在构造函数里，引用的this(). 第二个函数是被调用的构造函数
             map<Function, Function> thisConstructorRef;
@@ -58,13 +59,48 @@ namespace play
             // 在构造函数里，引用的super(), 第二个函数是被调用的构造函数
             map<Function, Function> superConstructorRef;
 
-            /**
-             * 
-             */
-
             // AnnotatedTree()
             // {
             // }
+
+        protected:
+            void log(std::string message, int type, ParserRuleContext *ctx);
+
+            void log(std::string message, ParserRuleContext *ctx);
+
+            /**
+             * 是否有编译错误
+             */
+            bool hasCompilationError();
+
+            // 通过名称查找Variable.逐级Scope查找
+            Variable* lookupVariable(Scope *scope, std::string idName);
+
+            // 通过名称查找Class。逐级Scope查找。
+            Class* lookupClass(Scope *scope, std::string idName);
+
+            Type* lookupType(std::string idName);
+
+            // 通过方法的名称和方法签名查找Function。逐级Scope查找。
+            Function* lookupFunction(Scope *scope, std::string idName, std::vector<Type*> paramTypes);
+
+            // 查找函数型变量，逐级查找
+            Variable* lookupFunctionVariable(Scope *scope, std::string idName, std::vector<Type*> paramTypes);
+
+            // 逐级查找函数（或方法）。仅通过名字查找。如果有重名的，返回第一个就算了。//TODO 未来应该报警。
+            Function* lookupFunction(Scope *scope, std::string name);
+
+            /**
+             * 查找某节点所在的Scope
+             * 算法：逐级查找父节点，找到一个对应着Scope的上级节点
+             */
+            Scope* enclosingScopeOfNode(ParserRuleContext *node);
+        
+        private:
+            // 对于类，需要连父类也查找
+            Function* getMethodOnlyByName(Class *theClass, std::string name);
+
+            Function* getFunctionOnlyByName(Scope *scope, std::string name);
     };
 };
 

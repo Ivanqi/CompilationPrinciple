@@ -1,11 +1,12 @@
 #ifndef FUNCTIONTYPE_H
 #define FUNCTIONTYPE_H
-// #pragma once
+#pragma once
 
 #include <vector>
 #include "Type.h"
 namespace play
 {
+    class Type;
     class FunctionType: public Type
     {
         public:

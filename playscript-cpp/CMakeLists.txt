@@ -23,6 +23,16 @@ set(src_dir
     src/grammar/ASTEvaluator.h
     src/grammar/ASTEvaluator.cpp
     src/grammar/PlayScriptCompiler.cpp
+    src/grammar/Symbol.cpp
+    src/grammar/Scope.cpp
+    src/grammar/Variable.cpp
+    src/grammar/NameSpace.cpp
+    src/grammar/Function.cpp
+    src/grammar/TypeAndScopeScanner.cpp
+    src/grammar/BlockScope.cpp
+    src/grammar/Class.cpp
+    src/grammar/This.cpp
+    src/grammar/AnnotatedTree.cpp
 )
 
 file(GLOB antrl-cpp-src

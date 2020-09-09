@@ -25,7 +25,7 @@ AnnotatedTree* PlayScriptCompiler::compile(const char* script, bool verbose, boo
         //优点：1.代码清晰; 2.允许使用声明之前，这在支持面向对象，递归函数等特征时是必须的
         //parse1: 类型和Scope
         
-        TypeAndScopeScanner pass1(at);
+        // TypeAndScopeScanner pass1(at);
 
         return at;
 }

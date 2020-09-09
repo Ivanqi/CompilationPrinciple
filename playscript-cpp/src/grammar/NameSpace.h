@@ -19,45 +19,17 @@ namespace play
             std::vector<NameSpace*> subNameSpaces;
 
         public:
-            NameSpace(std::string name, Scope *enclosingScope, ParserRuleContext *ctx)
-            {
-                this->name = name;
-                this->enclosingScope = enclosingScope;
-                this->ctx = ctx;
-            }
+            NameSpace(std::string name, Scope *enclosingScope, ParserRuleContext *ctx);
 
-            std::string getName()
-            {
-                return name;
-            }
+            std::string getName();
 
-            std::vector<NameSpace*> getSubNameSpaces()
-            {
-                return subNameSpaces;
-            }
+            std::vector<NameSpace*> getSubNameSpaces();
 
-            void addSubNameSpace(NameSpace *child)
-            {
-                child->setParent(this);
-                subNameSpaces.push_back(child);
-            }
+            void addSubNameSpace(NameSpace *child);
 
-            void removeSubNameSpace(NameSpace *child)
-            {
-                child->setParent(NULL);
-                std::vector<NameSpace*>::iterator itor;
-                // O(n)
-                for (itor = subNameSpaces.begin(); itor != subNameSpaces.end(); itor++) {
-                    if (*itor == child) {
-                        itor = subNameSpaces.erase(itor);
-                    }
-                }
-            }
+            void removeSubNameSpace(NameSpace *child);
 
-            void setParent(NameSpace *pa)
-            {
-                parent = pa;
-            }
+            void setParent(NameSpace *pa);
     };
 };
 #endif

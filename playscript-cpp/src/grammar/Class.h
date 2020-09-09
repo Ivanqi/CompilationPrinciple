@@ -6,78 +6,45 @@
 #include <algorithm>
 #include "Scope.h"
 #include "Type.h"
-#include "This.h"
-// #include "Super.h"
-// #include "PlayScriptBaseVisitor.h"
-// #include "DefaultConstructor.h"
+
 #include "ParserRuleContext.h"
 using namespace antlr4;
 
 namespace play
 {
-    class Class: public Scope, Type
+    class This;
+    class Super;
+    class DefaultConstructor;
+
+    class Class: public Scope, public Type
     {
         private:
             Class *parentClass;
 
-            // This *thisRef;
+            This *thisRef;
 
-    //         Super *superRef;
+            Super *superRef;
 
-    //         DefaultConstructor *defaultConstructor;
-
+            DefaultConstructor *defaultConstructor;
         
         protected:
             // 最顶层的基类
-            static play::Class *rootClass;
+            Class *rootClass;
 
-    //         Class* getParentClass()
-    //         {
-    //             return parentClass;
-    //         }
+        public:
+            Class* getParentClass();
 
-    //         void setParentClass(Class* theClass)
-    //         {
-    //             parentClass = theClass;
+            void setParentClass(Class* theClass);
 
-    //             // 其实superRef引用的也是自己
-    //             superRef = new Super(parentClass, ctx);
-    //             superRef->type = parentClass;
-    //         }
+            This* getThis();
 
-    //         This* getThis()
-    //         {
-    //             return thisRef;
-    //         }
+            Super* getSuper();
 
-    //         Super* getSuper()
-    //         {
-    //             return superRef;
-    //         }
+            // 是否包含某个Variable， 包括自身及父类
+            Variable* getVariable(std::string name);
 
-    //         // 是否包含某个Variable， 包括自身及父类
-    //         Variable* getVariable(std::string name)
-    //         {
-    //             Variable *rtn = Scope::getVariable(name);
-
-    //             if (rtn == NULL && parentClass != NULL) {
-    //                 rtn = parentClass->getVariable(name);   // TODO 是否要检查visibility
-    //             }
-
-    //             return rtn;
-    //         }
-
-    //         // 是否包含某个Class
-    //         Class* getClass(std::string name)
-    //         {
-    //             Class *rtn = Scope::getClass(name);
-
-    //             if (rtn == NULL && parentClass != NULL) {
-    //                 rtn = parentClass->getClass(name);
-    //             }
-
-    //             return rtn;
-    //         }
+            // // 是否包含某个Class
+            Class* getClass(std::string name);
 
     //         // 找到某个构造函数。不需要往父类去找，在本级找就行类
     //         Function* findConstructos(std::vector<Type*> paramTypes)
@@ -140,45 +107,18 @@ namespace play
     //         } 
 
         public:
-            Class(std::string, ParserRuleContext *ctx)
-            {
-                this->name = name;
-                this->ctx = ctx;
+            Class(std::string, ParserRuleContext *ctx);
 
-                // thisRef = new This(this, ctx);
-                // thisRef->type = this;
+            std::string getName();
 
-                // rootClass = new paly::Class("Object", NULL);
-            }
-
-            std::string getName()
-            {
-                return name;
-            }
-
-            Scope* getEnclosingScope()
-            {
-                return enclosingScope;
-            }
-
+            Scope* getEnclosingScope();
 
             /**
              * 当自身是目标类型的子类型的时候，返回true
              * @param type 目标类型
              * @return
              */
-            bool isType(Type *type)
-            {
-                // if (this == type) {
-                //     return true;
-                // }
-
-                // Class *tmp = dynamic_cast<Class*>(type);
-                // if (tmp != NULL) {
-                //     return ((Class *)type)->isAncestor(this);
-                // }
-                return false;
-            }
+            bool isType(Type *type);
 
     //         /**
     //          * 本类型是不是另一个类型的祖先类型

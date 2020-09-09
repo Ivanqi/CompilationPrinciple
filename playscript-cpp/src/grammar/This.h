@@ -3,30 +3,25 @@
 
 #pragma once
 #include "Variable.h"
-#include "Class.h"
+#include "Scope.h"
 #include "ParserRuleContext.h"
 using namespace antlr4;
 
 namespace play
 {
-    class Class;
 
     // 用来表示this 关键字的符号
     class This: public Variable
     {
         public:
-
-            This(Class *theClass, ParserRuleContext *ctx)
+            This()
             {
-                Scope *tmp = dynamic_cast<Scope*>(theClass);
-                // Variable("xxxx", tmp, ctx);
             }
 
+            This(Scope *theClass, ParserRuleContext *ctx);
+
         private:
-            // Class* Class()
-            // {
-            //     return (Class*) enclosingScope;
-            // }
+            Scope* Class();
     };
 };
 

@@ -5,13 +5,14 @@
 #include <string>
 #include "FunctionType.h"
 #include "Scope.h"
-#include "Variable.h"
-#include "DefaultFunctionType.h"
-#include "ParserRuleContext.h"
+// #include "ParserRuleContext.h"
 using namespace antlr4;
 
 namespace play
 {
+    class Variable;
+    class DefaultFunctionType;
+    
     class Function: public Scope, public FunctionType
     {
         private:
@@ -28,95 +29,34 @@ namespace play
             std::set<Variable*> closureVariables;
 
         public:
-            Function(std::string name, Scope *enclosingScope, ParserRuleContext *ctx)
-            {
-                this->name = name;
-                this->enclosingScope = enclosingScope;
-                this->ctx = ctx;
-            }
+            Function(std::string name, Scope *enclosingScope, ParserRuleContext *ctx);
 
-            std::string getName()
-            {
-                return name;
-            }
+            std::string getName();
 
-            Type* getReturnType()
-            {
-                return returnType;
-            }
+            Type* getReturnType();
 
-            std::vector<Type*> getParamTypes()
-            {
-                for (Variable *param: parameters) {
-                    paramTypes.push_back(param->getType());
-                }
+            std::vector<Type*> getParamTypes();
 
-                return paramTypes;
-            }
+            Scope* getEnclosingScope();
 
-            Scope* getEnclosingScope()
-            {
-                return enclosingScope;
-            }
+            std::string toString();
 
-            std::string toString()
-            {
-                return "Function " + name;
-            }
-
-            bool isType(Type *type)
-            {
-                FunctionType *ft = dynamic_cast<FunctionType*>(type);
-                if (ft != NULL) {
-                    return DefaultFunctionType::isType(this, (FunctionType*)type);
-                }
-                return false;
-            }
+            bool isType(Type *type);
 
             /**
              * 检查改函数是否匹配所需的参数
              */
-            bool matchParameterTypes(std::vector<Type*> paramTypes)
-            {
-                // 比较每个参数
-                if (parameters.size() != paramTypes.size()) {
-                    return false;
-                }
-
-                bool match = true;
-
-                for (int i = 0; i < paramTypes.size(); i++) {
-                    Variable *var = parameters[i];
-                    Type *type = paramTypes[i];
-                    if (!var->getType()->isType(type)) {
-                        match = false;
-                        break;
-                    }
-                }
-
-                return match;
-            }
+            bool matchParameterTypes(std::vector<Type*> paramTypes);
 
             /**
              * 该函数是不是类的方法
              */
-            bool isMethod()
-            {
-                Scope *tmp = dynamic_cast<Scope*>(enclosingScope);
-                return (tmp != NULL ? true : false);
-            }
+            bool isMethod();
 
             /**
              * 该函数是不是类的构建函数
              */
-            bool isConstructor()
-            {
-                Scope *tmp = dynamic_cast<Scope*>(enclosingScope);
-                if (tmp != NULL) {
-                    return (enclosingScope->getName() == name);
-                }
-                return false;
-            }
+            bool isConstructor();
     };
 };
 #endif

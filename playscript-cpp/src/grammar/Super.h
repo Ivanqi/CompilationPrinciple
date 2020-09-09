@@ -1,15 +1,28 @@
+#ifndef SUPER_H
+#define SUPER_H
+
 #pragma once
 #include "Variable.h"
-#include "Class.h"
-#include "PlayScriptBaseVisitor.h"
+#include "Scope.h"
+#include "ParserRuleContext.h"
+using namespace antlr4;
 
-// 用来表示this关键字的符号
-class Super: public Variable
+namespace play 
 {
-    public:
-        Super(Class *theClass, PlayScriptParser::ExpressionContext *ctx): Variable(typeid(this).name(), theClass, ctx)
-        {
-        }
+    // 用来表示this关键字的符号
+    class Super: public Variable
+    {
+        public:
+            Super(Scope *theClass, ParserRuleContext *ctx): Variable(typeid(this).name(), theClass, ctx)
+            {
+            }
 
-        
+        private:
+            Scope* Class()
+            {
+                return enclosingScope;
+            }
+    };
 };
+
+#endif

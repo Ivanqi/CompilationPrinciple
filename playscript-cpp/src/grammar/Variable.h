@@ -3,13 +3,15 @@
 #pragma once
 
 #include <string>
-#include "Type.h"
 #include "Symbol.h"
 #include "ParserRuleContext.h"
 using namespace antlr4;
 
 namespace play
 {
+    class Type;
+    class Scope;
+
     class Variable: public Symbol
     {
         protected:
@@ -27,29 +29,16 @@ namespace play
             {
             }
 
-            Variable(std::string name, Scope *enclosingScope, ParserRuleContext *ctx)
-            {
-                this->name = name;
-                this->enclosingScope = enclosingScope;
-                this->ctx = ctx;
-            }
+            Variable(std::string name, Scope *enclosingScope, ParserRuleContext *ctx);
 
             // 是不是类的属性
-            bool isClassMember()
-            {
-                Scope *sc = dynamic_cast<Scope*>(enclosingScope);
-                return (sc != NULL) ? true: false;
-            }
+            bool isClassMember();
 
-            std::string toString()
-            {
-                return "Variable " + name + " -> ";
-            }
+            std::string toString();
 
-            Type* getType()
-            {
-                return type;
-            }
+            Type* getType();
+
+            void setType(Type *t);
     };
 };
 #endif

@@ -8,6 +8,7 @@
 
 namespace play
 {
+    class Scope;
     class Type
     {
         public:

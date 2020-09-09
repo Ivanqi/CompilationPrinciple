@@ -2,9 +2,9 @@
 #define SYMBOL_H
 #pragma once
 #include <string>
-// #include "Scope.h"
 #include "ParserRuleContext.h"
 using namespace antlr4;
+
 namespace play
 {
     class Scope;
@@ -23,29 +23,15 @@ namespace play
 
             // Symbol 关联的AST节点
             ParserRuleContext *ctx;
-
         
         public:
-            std::string getName()
-            {
-                return name;
-            }
+            std::string getName();
 
-            Scope* getEnclosingScope()
-            {
-                return enclosingScope;
-            }
+            Scope* getEnclosingScope();
 
-            void setEnclosingScope(Scope *sc)
-            {
-                enclosingScope = sc;
-            }
+            void setEnclosingScope(Scope *sc);
 
-            void setCtx(ParserRuleContext *x)
-            {
-                ctx = x;
-            }
-
+            void setCtx(ParserRuleContext *x);
     };
 };
 #endif
