@@ -3,6 +3,7 @@
 #include "Class.h"
 #include "NameSpace.h"
 #include "Function.h"
+#include "PrimitiveType.h"
 using namespace play;
 
 
@@ -116,5 +117,5 @@ void TypeAndScopeScanner::enterClassDeclaration(PlayScriptParser::ClassDeclarati
 
 void TypeAndScopeScanner::exitClassDeclaration(PlayScriptParser::ClassDeclarationContext *ctx)
 {
-
+    popScope();   
 }

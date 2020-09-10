@@ -39,13 +39,13 @@ namespace play
             vector<Type*> types;
 
             // AST节点对应的Symbol
-            map<ParserRuleContext, Symbol> symbolOfNode;
+            map<ParserRuleContext*, Symbol*> symbolOfNode;
 
             // AST 节点对应的Scope。 如for, 函数调用会启动新的Scope
             map<ParserRuleContext*, Scope*> node2Scope;
 
             // 用于做类型推断，每个节点推断出来的类型
-            map<ParserRuleContext, Type> typeOfNode;
+            map<ParserRuleContext*, Type*> typeOfNode;
 
             // 命名空间
             NameSpace *namespaces;
@@ -63,7 +63,6 @@ namespace play
             // {
             // }
 
-        protected:
             void log(std::string message, int type, ParserRuleContext *ctx);
 
             void log(std::string message, ParserRuleContext *ctx);
@@ -95,12 +94,30 @@ namespace play
              * 算法：逐级查找父节点，找到一个对应着Scope的上级节点
              */
             Scope* enclosingScopeOfNode(ParserRuleContext *node);
+
+            /**
+             * 包含某节点的函数
+             */
+            Function* enclosingFunctionOfNode(RuleContext *ctx);
+
+            /**
+             * 包含某节点的类
+             */
+            Class* enclosingClassOfNode(RuleContext *ctx);
+
+            /**
+             * 输出本Scope中的内容，包括每个变量的名称、类型。
+             * @return 树状显示的字符串
+             */
+            std::string getScopeTreeString();
         
         private:
             // 对于类，需要连父类也查找
             Function* getMethodOnlyByName(Class *theClass, std::string name);
 
             Function* getFunctionOnlyByName(Scope *scope, std::string name);
+
+            void scopeToString(std::string& sb, Scope *scope, std::string indent);
     };
 };
 

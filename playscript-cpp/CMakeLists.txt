@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
 project(play CXX)
 
-# compiler must be 11 or 14
+set(CMAKE_CXX_COMPILER "c++")
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_FLAGS -g)
 
 message(STATUS "PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}")
 
@@ -33,6 +35,10 @@ set(src_dir
     src/grammar/Class.cpp
     src/grammar/This.cpp
     src/grammar/AnnotatedTree.cpp
+    src/grammar/TypeResolver.cpp
+    src/grammar/VoidType.cpp
+    src/grammar/DefaultFunctionType.cpp
+    src/grammar/PrimitiveType.cpp
 )
 
 file(GLOB antrl-cpp-src
@@ -46,6 +52,10 @@ file(GLOB antrl-cpp-src
     third_party/antlr4-cpp-runtime-4.8/src/tree/xpath/*.cpp
 )
 
+LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/lib)
+
 add_library(antlr-cpp-runtime ${antrl-cpp-src})
+
 add_executable(play ${src_dir} src/main.cpp)
-target_link_libraries(play antlr-cpp-runtime)
+
+target_link_libraries(play antlr-cpp-runtime libantlr4-runtime.a)

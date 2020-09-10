@@ -5,6 +5,7 @@
 #include "NameSpace.h"
 #include "Function.h"
 #include "CompilationLog.h"
+#include "PlayScriptParser.h"
 
 #include <iostream>
 
@@ -144,6 +145,66 @@ Scope* AnnotatedTree::enclosingScopeOfNode(ParserRuleContext *node)
 {
     Scope *rtn;
 
-    // ParserRuleContext *parent = node->getParent();
+    ParserRuleContext *parent = (ParserRuleContext*)node->parent;
+    if (parent != NULL) {
+        rtn = node2Scope[parent];
+        if (rtn == NULL) {
+            rtn = enclosingScopeOfNode(parent);
+        }
+    }
     return rtn;
 }
+
+/**
+ * 包含某节点的函数
+ */
+Function* AnnotatedTree::enclosingFunctionOfNode(RuleContext *ctx)
+{
+    PlayScriptParser::FunctionDeclarationContext *tmp = dynamic_cast<PlayScriptParser::FunctionDeclarationContext*> (ctx->parent);
+
+    if (tmp != NULL) {
+        return (Function*)node2Scope[(ParserRuleContext*)ctx->parent];
+    } else if (ctx->parent == NULL) {
+        return NULL;
+    } else {
+        return enclosingFunctionOfNode((RuleContext*)ctx->parent);
+    }
+}
+
+Class* AnnotatedTree::enclosingClassOfNode(RuleContext *ctx)
+{
+    PlayScriptParser::ClassDeclarationContext *tmp = dynamic_cast<PlayScriptParser::ClassDeclarationContext*>(ctx->parent);
+    if (tmp != NULL) {
+        return (Class *) node2Scope[(ParserRuleContext*)ctx->parent];
+    } else if (ctx->parent == NULL) {
+        return NULL;
+    } else {
+        return enclosingClassOfNode((RuleContext*)ctx->parent);
+    }
+}
+
+/**
+ * 输出本Scope中的内容，包括每个变量的名称、类型。
+ * @return 树状显示的字符串
+ */
+std::string AnnotatedTree::getScopeTreeString()
+{
+    std::string sb;
+    scopeToString(sb, namespaces, "");
+    return sb;
+}
+
+void AnnotatedTree::scopeToString(std::string& sb, Scope *scope, std::string indent)
+{
+    sb.append(indent).append(scope->toString()).append("\n");
+    for (Symbol *symbol : scope->symbols) {
+        Scope *tmp = (Scope*)symbol;
+        if (tmp != NULL) {
+            scopeToString(sb, (Scope*)symbol, indent + "\t");
+        } else {
+            //@todo
+            sb.append(indent).append("\t").append("symbol").append("\n");
+        }
+    }
+}
+

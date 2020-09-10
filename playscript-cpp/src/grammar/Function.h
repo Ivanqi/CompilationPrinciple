@@ -18,7 +18,7 @@ namespace play
         private:
             std::vector<Type*> paramTypes;
 
-        protected:
+        public:
             // 参数
             std::vector<Variable*> parameters;
 
