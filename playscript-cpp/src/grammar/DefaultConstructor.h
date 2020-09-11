@@ -14,13 +14,12 @@ namespace play
      */
     class DefaultConstructor: public Function
     {
-        protected:
+        public:
             DefaultConstructor(std::string name, Scope *theClass): Function(name, theClass, NULL)
             {
 
             }
 
-        public:
             Scope* Class()
             {
                 return enclosingScope;

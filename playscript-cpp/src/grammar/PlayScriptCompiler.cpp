@@ -1,6 +1,7 @@
 #include "PlayScriptCompiler.h"
 #include "TypeAndScopeScanner.h"
 #include "TypeResolver.h"
+#include "RefResolver.h"
 using namespace play;
 
 AnnotatedTree* PlayScriptCompiler::compile(const char* script, bool verbose, bool ast_dump)
@@ -31,6 +32,10 @@ AnnotatedTree* PlayScriptCompiler::compile(const char* script, bool verbose, boo
         walker.walk(pass1, at->ast);
 
         // pass2: 把变量，类继承，函数声明的类型都解析出来。也就是所有声明用到类型的地方
+        TypeResolver *pass2 = new TypeResolver(at);
+        walker.walk(pass2, at->ast);
+
+
         
 
         return at;

@@ -54,10 +54,10 @@ namespace play
             vector<CompilationLog> logs;
 
             // 在构造函数里，引用的this(). 第二个函数是被调用的构造函数
-            map<Function, Function> thisConstructorRef;
+            map<Function*, Function*> thisConstructorRef;
 
             // 在构造函数里，引用的super(), 第二个函数是被调用的构造函数
-            map<Function, Function> superConstructorRef;
+            map<Function*, Function*> superConstructorRef;
 
             // AnnotatedTree()
             // {

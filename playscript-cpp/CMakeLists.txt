@@ -39,6 +39,7 @@ set(src_dir
     src/grammar/VoidType.cpp
     src/grammar/DefaultFunctionType.cpp
     src/grammar/PrimitiveType.cpp
+    src/grammar/RefResolver.cpp
 )
 
 file(GLOB antrl-cpp-src

@@ -21,6 +21,7 @@ namespace play
             // 可见性，比如public还是private
             int visibility = 0;
 
+        public:
             // Symbol 关联的AST节点
             ParserRuleContext *ctx;
         

@@ -86,3 +86,18 @@ Class* Class::getClass(std::string name)
 
     return rtn;
 }
+
+// 找到某个构造函数。不需要往父类去找，在本级找就行类
+Function* Class::findConstructos(std::vector<Type*> paramTypes)
+{
+    Function *rtn = Scope::getFunction(name, paramTypes);   // TODO是否要检查 visibility
+    return rtn;
+}
+
+DefaultConstructor* Class::defaultConstructor()
+{
+    if (defaultConstructor_ == NULL) {
+        defaultConstructor_ = new DefaultConstructor(this->name, this);
+    }
+    return defaultConstructor_;
+}

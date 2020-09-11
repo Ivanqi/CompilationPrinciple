@@ -25,7 +25,7 @@ namespace play
 
             Super *superRef;
 
-            DefaultConstructor *defaultConstructor;
+            DefaultConstructor *defaultConstructor_;
         
         protected:
             // 最顶层的基类
@@ -46,12 +46,8 @@ namespace play
             // // 是否包含某个Class
             Class* getClass(std::string name);
 
-    //         // 找到某个构造函数。不需要往父类去找，在本级找就行类
-    //         Function* findConstructos(std::vector<Type*> paramTypes)
-    //         {
-    //             Function *rtn = Scope::getFunction(name, paramTypes);   // TODO是否要检查 visibility
-    //             return rtn;
-    //         }
+            // 找到某个构造函数。不需要往父类去找，在本级找就行类
+            Function* findConstructos(std::vector<Type*> paramTypes);
 
     //         /**
     //          * 在自身及父类中找到某个方法
@@ -98,15 +94,8 @@ namespace play
     //             return rtn;
     //         }
 
-    //         DefaultConstructor* defaultConstructor()
-    //         {
-    //             if (defaultConstructor == NULL) {
-    //                 defaultConstructor = new DefaultConstructor(this->name, this);
-    //             }
-    //             return defaultConstructor;
-    //         } 
+            DefaultConstructor* defaultConstructor();
 
-        public:
             Class(std::string, ParserRuleContext *ctx);
 
             std::string getName();
