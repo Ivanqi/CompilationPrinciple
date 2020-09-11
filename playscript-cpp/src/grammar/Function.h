@@ -1,7 +1,7 @@
 #ifndef FUNCTION_H
 #pragma once
 #include <vector>
-#include <set>
+#include <unordered_set>
 #include <string>
 #include "FunctionType.h"
 #include "Scope.h"
@@ -26,7 +26,7 @@ namespace play
             Type *returnType;
 
             // 闭包变量，即它所引用的外部环境变量
-            std::set<Variable*> closureVariables;
+            std::unordered_set<Variable*> closureVariables;
 
         public:
             Function(std::string name, Scope *enclosingScope, ParserRuleContext *ctx);

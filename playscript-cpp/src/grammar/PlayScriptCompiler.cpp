@@ -2,6 +2,12 @@
 #include "TypeAndScopeScanner.h"
 #include "TypeResolver.h"
 #include "RefResolver.h"
+#include "TypeChecker.h"
+#include "SematicValidator.h"
+#include "ClosureAnalyzer.h"
+
+#include <iostream>
+
 using namespace play;
 
 AnnotatedTree* PlayScriptCompiler::compile(const char* script, bool verbose, bool ast_dump)
@@ -16,7 +22,7 @@ AnnotatedTree* PlayScriptCompiler::compile(const char* script, bool verbose, boo
 
         tokens.fill();
 
-        PlayScriptParser parser(&tokens);
+        parser(&tokens);
 
         at->ast = parser.prog();
 
@@ -35,8 +41,50 @@ AnnotatedTree* PlayScriptCompiler::compile(const char* script, bool verbose, boo
         TypeResolver *pass2 = new TypeResolver(at);
         walker.walk(pass2, at->ast);
 
-
+        // pass3: 消解所有的变量引用，函数引用。另外还做了类型的推断
+        RefResolver *pass3 = new RefResolver(at);
+        walker.walk(pass3, at->ast);
         
+        // pass4: 类型检查
+        TypeChecker *pass4 = new TypeChecker(at);
+        walker.walk(pass4, at->ast);
 
+        // pass5: 其他语义检查
+        SematicValidator *pass5 = new SematicValidator(at);
+
+        // pass6: 做闭包的分析
+        ClosureAnalyzer *closureAnalyzer = new ClosureAnalyzer(at);
+        closureAnalyzer->analyzeClosures();
+
+        // 打印AST
+        if (verbose || ast_dump){
+            dumpAST();
+        }
+
+        //打印符号表
+        if(verbose){
+            dumpSymbols();
+        }
+        
         return at;
+}
+
+AnnotatedTree* PlayScriptCompiler::compile(std::string script)
+{
+        return compile(string, false, false);
+}
+
+// 打印符号表
+void PlayScriptCompiler::dumpSymbols()
+{
+        if (at_ != NULL) {
+                std::cout << at_->getScopeTreeString() << std::endl;
+        }
+}
+
+void PlayScriptCompiler::dumpAST()
+{
+        if (at_ != NULL) {
+                std::cout << at_->ast->toStringTree(parser);
+        }
 }

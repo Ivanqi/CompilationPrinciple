@@ -1,6 +1,7 @@
 #include "Function.h"
 #include "Variable.h"
 #include "DefaultFunctionType.h"
+#include "Class.h"
 using namespace play;
 
 
@@ -78,9 +79,8 @@ bool Function::matchParameterTypes(std::vector<Type*> paramTypes)
  */
 bool Function::isMethod()
 {
-    // Scope *tmp = dynamic_cast<Scope*>(enclosingScope);
-    // return (tmp != NULL ? true : false);
-    return false;
+    Class *tmp = dynamic_cast<Class*>(enclosingScope);
+    return (tmp != NULL ? true : false);
 }
 
 /**

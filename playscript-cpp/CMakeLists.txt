@@ -40,6 +40,9 @@ set(src_dir
     src/grammar/DefaultFunctionType.cpp
     src/grammar/PrimitiveType.cpp
     src/grammar/RefResolver.cpp
+    src/grammar/TypeChecker.cpp
+    src/grammar/SematicValidator.cpp
+    src/grammar/ClosureAnalyzer.cpp
 )
 
 file(GLOB antrl-cpp-src
