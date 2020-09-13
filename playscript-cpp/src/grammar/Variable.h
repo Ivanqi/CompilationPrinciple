@@ -14,7 +14,7 @@ namespace play
 
     class Variable: public Symbol
     {
-        protected:
+        public:
             // 变量类型
             Type *type;
 

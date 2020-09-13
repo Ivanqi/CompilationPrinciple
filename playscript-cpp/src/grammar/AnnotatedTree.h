@@ -7,6 +7,7 @@
 #include "tree/ParseTree.h"
 #include "Type.h"
 #include "Symbol.h"
+#include "CompilationLog.h"
 
 #include <vector>
 #include <map>
@@ -19,7 +20,6 @@ using namespace std;
 
 namespace play 
 {
-    class CompilationLog;
     class NameSpace;
     class Function;
     /**

@@ -13,7 +13,7 @@ int main(int argc, const char* argv[]) {
     const char* filepath = argv[1];
 
     PlayScriptCompiler compiler;
-    compiler.compile(filepath, true, true);
+    compiler.compile(filepath);
 
     
     // std::ifstream ifs;

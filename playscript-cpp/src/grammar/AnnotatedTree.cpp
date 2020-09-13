@@ -171,6 +171,7 @@ Function* AnnotatedTree::enclosingFunctionOfNode(RuleContext *ctx)
     }
 }
 
+// 包含某节点的类
 Class* AnnotatedTree::enclosingClassOfNode(RuleContext *ctx)
 {
     PlayScriptParser::ClassDeclarationContext *tmp = dynamic_cast<PlayScriptParser::ClassDeclarationContext*>(ctx->parent);

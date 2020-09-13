@@ -4,10 +4,11 @@
 #include "NameSpace.h"
 #include "Function.h"
 #include "PrimitiveType.h"
+#include <iostream>
 using namespace play;
 
 
-TypeAndScopeScanner::TypeAndScopeScanner(AnnotatedTree *at_): at(at_)
+TypeAndScopeScanner::TypeAndScopeScanner(AnnotatedTree *at): at_(at)
 {
 }
 
@@ -16,7 +17,6 @@ Scope* TypeAndScopeScanner::currentScope()
 {
     if (scopeStack.size() > 0) {
         Scope* top = scopeStack.top();
-        scopeStack.pop();
         return top;
     } else {
         return NULL;
@@ -25,7 +25,7 @@ Scope* TypeAndScopeScanner::currentScope()
 
 Scope* TypeAndScopeScanner::pushScope(Scope *scope, ParserRuleContext *ctx)
 {
-    at->node2Scope.insert(std::pair<ParserRuleContext*, Scope*>(ctx, scope));
+    at_->node2Scope[ctx] = scope;
     scope->setCtx(ctx);
 
     scopeStack.push(scope);
@@ -39,7 +39,7 @@ void TypeAndScopeScanner::popScope() {
 void TypeAndScopeScanner::enterProg(PlayScriptParser::ProgContext *ctx)
 {
     NameSpace *scope = new NameSpace("", currentScope(), ctx);
-    at->namespaces = scope; // scope的根
+    at_->namespaces = scope; // scope的根
     pushScope(scope, ctx);
 }
 
@@ -89,13 +89,15 @@ void TypeAndScopeScanner::exitStatement(PlayScriptParser::StatementContext *ctx)
 void TypeAndScopeScanner::enterFunctionDeclaration(PlayScriptParser::FunctionDeclarationContext *ctx)  
 {
     std::string idName = ctx->IDENTIFIER()->getText();
-
     // 注意：目前function信息并不完整，参数要等到Typesolver中去确定
     Function *function = new Function(idName, currentScope(), ctx);
 
-    at->types.push_back(function);
+    at_->types.push_back(function);
 
-    currentScope()->addSymbol(function);
+    Scope *s = currentScope();
+    if (s != NULL) {
+        s->addSymbol(function);
+    }
     
     // 创建一个新的scope
     pushScope(function, ctx);
@@ -112,7 +114,7 @@ void TypeAndScopeScanner::enterClassDeclaration(PlayScriptParser::ClassDeclarati
     std::string idName = ctx->IDENTIFIER()->getText();
 
     Class *theClass = new Class(idName, ctx);
-    at->types.push_back(theClass);
+    at_->types.push_back(theClass);
 }
 
 void TypeAndScopeScanner::exitClassDeclaration(PlayScriptParser::ClassDeclarationContext *ctx)

@@ -42,7 +42,8 @@ void TypeResolver::exitVariableDeclarators(PlayScriptParser::VariableDeclarators
 void TypeResolver::enterVariableDeclaratorId(PlayScriptParser::VariableDeclaratorIdContext *ctx)
 {
     std::string idName = ctx->IDENTIFIER()->getText();
-    Scope *scope = at_->enclosingClassOfNode(ctx);
+    // 寻找变量的上级声明
+    Scope *scope = at_->enclosingScopeOfNode(ctx);
 
     // 第一步只把类的成员变量入符号表。在变量消解时，再把本地变量加入符号表，一边Enter，一边消解
     Class *tmp = dynamic_cast<Class*>(scope);
@@ -78,12 +79,13 @@ void TypeResolver::exitFunctionDeclaration(PlayScriptParser::FunctionDeclaration
     }
 }
 
+// 设置函数的参数的类型，这些参数已经在enterVariableDeclaratorId中作为变量声明了，现在设置它们的类型
 void TypeResolver::exitFormalParameter(PlayScriptParser::FormalParameterContext *ctx)
 {
     // 设置参数类型
     Type *type = at_->typeOfNode[ctx->typeType()];
     Variable *variable = (Variable*) at_->symbolOfNode[ctx->variableDeclaratorId()];
-    variable->setType(type);
+    variable->type = type;
 
     // 添加到函数的参数列表里
     Scope *scope = at_->enclosingScopeOfNode(ctx);

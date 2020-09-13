@@ -18,8 +18,6 @@ namespace play
         public:
             AnnotatedTree *at;
 
-            PlayScriptLexer *lexer;
-
             PlayScriptParser *parser;
 
         public:

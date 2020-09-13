@@ -16,12 +16,12 @@ namespace play {
     class TypeAndScopeScanner: public PlayScriptBaseListener
     {
         private:
-            AnnotatedTree *at;
+            AnnotatedTree *at_;
 
             std::stack<Scope*> scopeStack;
         
         public:
-            TypeAndScopeScanner(AnnotatedTree *at_);
+            TypeAndScopeScanner(AnnotatedTree *at);
         
         private:
             Scope* pushScope(Scope *scope, ParserRuleContext *ctx);
@@ -50,9 +50,7 @@ namespace play {
 
             virtual void enterClassDeclaration(PlayScriptParser::ClassDeclarationContext *ctx);
 
-            virtual void exitClassDeclaration(PlayScriptParser::ClassDeclarationContext *ctx);
-            
-            
+            virtual void exitClassDeclaration(PlayScriptParser::ClassDeclarationContext *ctx);   
     };
 };
 #endif
