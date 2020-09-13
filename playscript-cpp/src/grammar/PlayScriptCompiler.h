@@ -23,7 +23,7 @@ namespace play
             PlayScriptParser *parser;
 
         public:
-            AnnotatedTree* compile(const char* script, bool verbose, bool ast_dump);
+            AnnotatedTree* compile(std::string, bool verbose, bool ast_dump);
 
             AnnotatedTree* compile(std::string script);
 

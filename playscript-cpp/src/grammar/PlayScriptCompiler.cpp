@@ -10,9 +10,8 @@
 
 using namespace play;
 
-AnnotatedTree* PlayScriptCompiler::compile(const char* script, bool verbose, bool ast_dump)
+AnnotatedTree* PlayScriptCompiler::compile(std::string script, bool verbose, bool ast_dump)
 {
-        AnnotatedTree *at;
         std::ifstream ifs;
         ifs.open(script);
 
@@ -22,9 +21,9 @@ AnnotatedTree* PlayScriptCompiler::compile(const char* script, bool verbose, boo
 
         tokens.fill();
 
-        parser(&tokens);
+        parser = new PlayScriptParser(&tokens);
 
-        at->ast = parser.prog();
+        at->ast = parser->prog();
 
         // 语义分析
         ParseTreeWalker walker;
@@ -71,20 +70,20 @@ AnnotatedTree* PlayScriptCompiler::compile(const char* script, bool verbose, boo
 
 AnnotatedTree* PlayScriptCompiler::compile(std::string script)
 {
-        return compile(string, false, false);
+        return compile(script, false, false);
 }
 
 // 打印符号表
 void PlayScriptCompiler::dumpSymbols()
 {
-        if (at_ != NULL) {
-                std::cout << at_->getScopeTreeString() << std::endl;
+        if (at != NULL) {
+                std::cout << at->getScopeTreeString() << std::endl;
         }
 }
 
 void PlayScriptCompiler::dumpAST()
 {
-        if (at_ != NULL) {
-                std::cout << at_->ast->toStringTree(parser);
+        if (at != NULL) {
+                std::cout << at->ast->toStringTree(parser);
         }
 }
