@@ -31,7 +31,8 @@ namespace play {
 
             // 在遍历树的过程中，当前的Scope
             Scope* currentScope();
-
+            
+        public:
             virtual void enterProg(PlayScriptParser::ProgContext *ctx);
 
             virtual void exitProg(PlayScriptParser::ProgContext *ctx);

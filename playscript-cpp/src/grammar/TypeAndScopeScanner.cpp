@@ -25,8 +25,8 @@ Scope* TypeAndScopeScanner::currentScope()
 
 Scope* TypeAndScopeScanner::pushScope(Scope *scope, ParserRuleContext *ctx)
 {
-    at_->node2Scope[ctx] = scope;
-    scope->setCtx(ctx);
+    at_->node2Scope[ctx] = scope;   // 关联 ctx 与 scope
+    scope->setCtx(ctx);             // 设置scope 的 ctx
 
     scopeStack.push(scope);
     return scope;
@@ -36,9 +36,10 @@ void TypeAndScopeScanner::popScope() {
     scopeStack.pop();
 }
 
+// scope的根
 void TypeAndScopeScanner::enterProg(PlayScriptParser::ProgContext *ctx)
 {
-    NameSpace *scope = new NameSpace("", currentScope(), ctx);
+    NameSpace *scope = new NameSpace("root", currentScope(), ctx);
     at_->namespaces = scope; // scope的根
     pushScope(scope, ctx);
 }
@@ -52,6 +53,7 @@ void TypeAndScopeScanner::exitProg(PlayScriptParser::ProgContext *ctx)
 void TypeAndScopeScanner::enterBlock(PlayScriptParser::BlockContext *ctx) 
 {
     // 对于函数，不需要再额外建一个scope
+    // 这里之所以能够 父类 instanceof 子类。是因为ctx->parent本身实例化的是FunctionBodyContext。但是被转换成了ParseTree
     PlayScriptParser::FunctionBodyContext *tmp = dynamic_cast<PlayScriptParser::FunctionBodyContext*>(ctx->parent);
     if (tmp != NULL) {
         BlockScope *scope = new BlockScope(currentScope(), ctx);
@@ -93,11 +95,7 @@ void TypeAndScopeScanner::enterFunctionDeclaration(PlayScriptParser::FunctionDec
     Function *function = new Function(idName, currentScope(), ctx);
 
     at_->types.push_back(function);
-
-    Scope *s = currentScope();
-    if (s != NULL) {
-        s->addSymbol(function);
-    }
+    currentScope()->addSymbol(function);
     
     // 创建一个新的scope
     pushScope(function, ctx);

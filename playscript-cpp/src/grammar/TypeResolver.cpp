@@ -25,9 +25,9 @@ void TypeResolver::exitVariableDeclarators(PlayScriptParser::VariableDeclarators
 {
     Scope *scope = at_->enclosingScopeOfNode(ctx);
 
-    Class *tmp = dynamic_cast<Class*>(scope);
+    // Class *tmp = dynamic_cast<Class*>(scope);
 
-    if (tmp != NULL || enterLocalVariable_) {
+    // if (tmp != NULL || enterLocalVariable_) {
         // 设置变量类型
         Type *type = (Type *) at_->typeOfNode[(ParserRuleContext*)ctx->typeType()];
 
@@ -35,7 +35,7 @@ void TypeResolver::exitVariableDeclarators(PlayScriptParser::VariableDeclarators
             Variable *variable = (Variable *)at_->symbolOfNode[(ParserRuleContext*)child->variableDeclaratorId()];
             variable->setType(type);
         }
-    }
+    // }
 }
 
 // 把类成员变量的声明加入符号表
@@ -46,8 +46,8 @@ void TypeResolver::enterVariableDeclaratorId(PlayScriptParser::VariableDeclarato
     Scope *scope = at_->enclosingScopeOfNode(ctx);
 
     // 第一步只把类的成员变量入符号表。在变量消解时，再把本地变量加入符号表，一边Enter，一边消解
-    Class *tmp = dynamic_cast<Class*>(scope);
-    if (tmp != NULL || enterLocalVariable_) {
+    // Class *tmp = dynamic_cast<Class*>(scope);
+    // if (tmp != NULL || enterLocalVariable_) {
         Variable *variable = new Variable(idName, scope, ctx);
 
         // 变量查重
@@ -57,7 +57,7 @@ void TypeResolver::enterVariableDeclaratorId(PlayScriptParser::VariableDeclarato
 
         scope->addSymbol(variable);
         at_->symbolOfNode[ctx] = variable;
-    }
+    // }
 }
 
 
@@ -80,10 +80,12 @@ void TypeResolver::exitFunctionDeclaration(PlayScriptParser::FunctionDeclaration
 }
 
 // 设置函数的参数的类型，这些参数已经在enterVariableDeclaratorId中作为变量声明了，现在设置它们的类型
+// 设置函数的返回类型
 void TypeResolver::exitFormalParameter(PlayScriptParser::FormalParameterContext *ctx)
 {
     // 设置参数类型
     Type *type = at_->typeOfNode[ctx->typeType()];
+    // ctx->variableDeclaratorId() 获取上一个AST节点的属性信息
     Variable *variable = (Variable*) at_->symbolOfNode[ctx->variableDeclaratorId()];
     variable->type = type;
 

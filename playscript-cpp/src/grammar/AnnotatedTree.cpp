@@ -145,7 +145,7 @@ Scope* AnnotatedTree::enclosingScopeOfNode(ParserRuleContext *node)
 {
     Scope *rtn;
 
-    ParserRuleContext *parent = (ParserRuleContext*)node->parent;
+    ParserRuleContext *parent = static_cast<ParserRuleContext*>(node->parent);
     if (parent != NULL) {
         rtn = node2Scope[parent];
         if (rtn == NULL) {

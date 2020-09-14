@@ -38,8 +38,9 @@ AnnotatedTree* PlayScriptCompiler::compile(std::string script, bool verbose, boo
     TypeAndScopeScanner *pass1 = new TypeAndScopeScanner(at);
     walker.walk(pass1, at->ast);
 
+
     // // pass2: 把变量，类继承，函数声明的类型都解析出来。也就是所有声明用到类型的地方
-    TypeResolver *pass2 = new TypeResolver(at, true);
+    TypeResolver *pass2 = new TypeResolver(at);
     walker.walk(pass2, at->ast);
 
     // // pass3: 消解所有的变量引用，函数引用。另外还做了类型的推断

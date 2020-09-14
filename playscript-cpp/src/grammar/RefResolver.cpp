@@ -6,6 +6,7 @@
 #include "Function.h"
 #include "Type.h"
 #include "PrimitiveType.h"
+
 using namespace play;
 
  // 把本地变量加到符号表。本地变量必须边添加，边解析，不然先添加后解析，否则会引起消解的错误
@@ -95,7 +96,6 @@ void RefResolver::exitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
     }
 
     std::string idName = ctx->IDENTIFIER()->getText();
-
     // 获得参数类型，这些类型已经在表达式中推断出来
     std::vector<Type*> paramTypes = getParamTypes(ctx);
 
@@ -103,7 +103,7 @@ void RefResolver::exitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
     Class *theClass;
 
     // 看看是不是点符号表达式调用，调用的是类的方法
-    PlayScriptParser::ExpressionContext *exp = dynamic_cast< PlayScriptParser::ExpressionContext*>(ctx->parent);
+    PlayScriptParser::ExpressionContext *exp = dynamic_cast<PlayScriptParser::ExpressionContext*>(ctx->parent);
     if (exp != NULL) {
         if (exp->bop != NULL && exp->bop->getType() == PlayScriptParser::DOT) {
             // TODO 派生类和父类的转换关系？
@@ -135,7 +135,7 @@ void RefResolver::exitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
         } 
     }
 
-    Scope *scope = at_->enclosingFunctionOfNode(ctx);
+    Scope *scope = at_->enclosingScopeOfNode(ctx);
 
     // 从当前Scope逐级查找函数(或方法)
     if (!found) {

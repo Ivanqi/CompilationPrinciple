@@ -26,9 +26,9 @@ namespace play
             ParserRuleContext *ctx;
         
         public:
-            std::string getName();
+            virtual std::string getName();
 
-            Scope* getEnclosingScope();
+            virtual Scope* getEnclosingScope();
 
             void setEnclosingScope(Scope *sc);
 

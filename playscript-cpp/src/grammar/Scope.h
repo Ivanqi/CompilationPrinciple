@@ -6,7 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <Symbol.h>
-// #include "FunctionType.h"
+
 namespace play 
 {
     class Variable;
@@ -17,7 +17,7 @@ namespace play
     class Scope: public Symbol
     {
         public:
-            // 该Scope 中的成员，包括变量，方法，类等
+            // 该Scope 中的成员，包括变量，方法，类等. 作用于什么地方？
             std::vector<Symbol*> symbols;
 
             // 向scope中添加符号，同时设置好该符号的enclosingScope
