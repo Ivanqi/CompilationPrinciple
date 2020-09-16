@@ -22,12 +22,15 @@ namespace play
 
             Type *returnType;
 
+            // 参数类型
             std::vector<Type*> paramTypes_;
 
             // 对于未命名的类型，自动赋予名字
-            int nameIndex = 1;
+            static int nameIndex;
 
         public:
+            DefaultFunctionType();
+
             std::string getName()
             {
                 return name;

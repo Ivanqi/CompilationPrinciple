@@ -38,6 +38,10 @@ AnnotatedTree* PlayScriptCompiler::compile(std::string script, bool verbose, boo
     TypeAndScopeScanner *pass1 = new TypeAndScopeScanner(at);
     walker.walk(pass1, at->ast);
 
+    // map<ParserRuleContext*, Scope*>::iterator iter;
+    // for (iter = at->node2Scope.begin(); iter != at->node2Scope.end(); iter++) {
+    //     std::cout << iter->second->toString() << std::endl;
+    // }
 
     // // pass2: 把变量，类继承，函数声明的类型都解析出来。也就是所有声明用到类型的地方
     TypeResolver *pass2 = new TypeResolver(at);

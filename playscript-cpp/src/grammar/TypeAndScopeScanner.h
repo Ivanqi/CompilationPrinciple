@@ -10,9 +10,15 @@
 using namespace antlr4;
 
 namespace play {
+
     /**
+     * 类型和作用域解析
+     *  1. 把自定义类，函数，作用域的树都分析出来
+     *  2. 这样做的好处是，可以使用在前，声明在后
+     * 
      * 第一遍扫描：识别出所有类型(包括类和函数)，以及Scope(但函数的参数信息要等下一个阶段才会添加进去)
      */
+
     class TypeAndScopeScanner: public PlayScriptBaseListener
     {
         private:

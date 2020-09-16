@@ -2,8 +2,14 @@
 #include "Scope.h"
 #include "Type.h"
 
-
 using namespace play;
+
+int DefaultFunctionType::nameIndex = 1;
+
+DefaultFunctionType::DefaultFunctionType()
+{
+    name = "FunctionType" + std::to_string(nameIndex++);
+}
 
 bool DefaultFunctionType::isType(Type *type)
 {

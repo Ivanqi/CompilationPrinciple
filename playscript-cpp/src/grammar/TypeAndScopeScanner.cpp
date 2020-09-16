@@ -4,7 +4,6 @@
 #include "NameSpace.h"
 #include "Function.h"
 #include "PrimitiveType.h"
-#include <iostream>
 using namespace play;
 
 
@@ -49,7 +48,7 @@ void TypeAndScopeScanner::exitProg(PlayScriptParser::ProgContext *ctx)
     popScope();
 }
 
-
+// Block 节点
 void TypeAndScopeScanner::enterBlock(PlayScriptParser::BlockContext *ctx) 
 {
     // 对于函数，不需要再额外建一个scope
@@ -70,6 +69,7 @@ void TypeAndScopeScanner::exitBlock(PlayScriptParser::BlockContext *ctx)
     }
 }
 
+// statement 节点
 void TypeAndScopeScanner::enterStatement(PlayScriptParser::StatementContext *ctx) 
 {
     // 为for建立额外的Scope
@@ -88,6 +88,7 @@ void TypeAndScopeScanner::exitStatement(PlayScriptParser::StatementContext *ctx)
     }
 }
 
+// FunctionDeclaration 节点
 void TypeAndScopeScanner::enterFunctionDeclaration(PlayScriptParser::FunctionDeclarationContext *ctx)  
 {
     std::string idName = ctx->IDENTIFIER()->getText();
@@ -106,6 +107,7 @@ void TypeAndScopeScanner::exitFunctionDeclaration(PlayScriptParser::FunctionDecl
     popScope();
 }
 
+// ClassDeclaration 节点
 void TypeAndScopeScanner::enterClassDeclaration(PlayScriptParser::ClassDeclarationContext *ctx)
 {
     // 把类的签名存到符号表中，不能跟已有符号名称冲突

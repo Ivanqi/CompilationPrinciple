@@ -60,21 +60,21 @@ void TypeResolver::enterVariableDeclaratorId(PlayScriptParser::VariableDeclarato
     // }
 }
 
-
+// 设置函数属性
 void TypeResolver::exitFunctionDeclaration(PlayScriptParser::FunctionDeclarationContext *ctx)
 {
-    Function *function = (Function*)at_->node2Scope[ctx];
+    Function *func = (Function*)at_->node2Scope[ctx];
     if (ctx->typeTypeOrVoid() != NULL) {
-        function->returnType = at_->typeOfNode[ctx->typeTypeOrVoid()];
+        func->returnType = at_->typeOfNode[ctx->typeTypeOrVoid()];
     } else {
         // TODO 如果是类的构建函数，返回值应该是一个类吧？
     }
 
     // 函数查重，检查名称和参数（这个时候参数已经齐了）
     Scope *scope = at_->enclosingScopeOfNode(ctx);
-    Function *found = Scope::getFunction(scope, function->getName(), function->getParamTypes());
+    Function *found = Scope::getFunction(scope, func->getName(), func->getParamTypes());
 
-    if (found != NULL && found != function) {
+    if (found != NULL && found != func) {
         at_->log("Function or method already Declared: " + ctx->getText(), ctx);
     }
 }
@@ -91,6 +91,7 @@ void TypeResolver::exitFormalParameter(PlayScriptParser::FormalParameterContext 
 
     // 添加到函数的参数列表里
     Scope *scope = at_->enclosingScopeOfNode(ctx);
+    // 主要判断是不是function的参数
     Function *tmp = dynamic_cast<Function*>(scope);
     if (tmp != NULL) {  //TODO 从目前的语法来看，只有function才会使用FormalParameter
         tmp->parameters.push_back(variable);
@@ -116,25 +117,29 @@ void TypeResolver::enterClassDeclaration(PlayScriptParser::ClassDeclarationConte
     }
 }
 
+// 设置类型推断。设置I属性
 void TypeResolver::exitTypeTypeOrVoid(PlayScriptParser::TypeTypeOrVoidContext *ctx)
 {
-    if (ctx->VOID() != NULL) {
+    if (ctx->VOID() != NULL) {  // 判断是不是空类型
         at_->typeOfNode[ctx] = VoidType::GetInstance();
     } else if (ctx->typeType() != NULL) {
         at_->typeOfNode[ctx] = (Type *)at_->typeOfNode[ctx->typeType()];
     }
 }
 
+// 设置类型推断。设置I属性
 void TypeResolver::exitTypeType(PlayScriptParser::TypeTypeContext *ctx)
 {
     // 冒泡，将下级的属性标注在本级
-    if (ctx->classOrInterfaceType() != NULL) {
+    if (ctx->classOrInterfaceType() != NULL) {  // 类型
         Type *type = (Type*)at_->typeOfNode[ctx->classOrInterfaceType()];
         at_->typeOfNode[ctx] = type;
-    } else if (ctx->functionType() != NULL) {
+
+    } else if (ctx->functionType() != NULL) {   // 函数
         Type *type = (Type *) at_->typeOfNode[ctx->functionType()];
         at_->typeOfNode[ctx] = type;
-    } else if (ctx->primitiveType() != NULL) {
+
+    } else if (ctx->primitiveType() != NULL) {  // 基础字面量
         Type *type = (Type *) at_->typeOfNode[ctx->primitiveType()];
         at_->typeOfNode[ctx] = type;
     }
@@ -150,6 +155,7 @@ void TypeResolver::enterClassOrInterfaceType(PlayScriptParser::ClassOrInterfaceT
     }
 }
 
+// 设置函数类型
 void TypeResolver::exitFunctionType(PlayScriptParser::FunctionTypeContext *ctx)
 {
     DefaultFunctionType *functionType = new DefaultFunctionType();
@@ -157,6 +163,7 @@ void TypeResolver::exitFunctionType(PlayScriptParser::FunctionTypeContext *ctx)
 
     at_->typeOfNode[ctx] = functionType;
 
+    // 设置函数返回值类型
     functionType->returnType = (Type *) at_->typeOfNode[ctx->typeTypeOrVoid()];
 
     // 参数类型
@@ -169,25 +176,33 @@ void TypeResolver::exitFunctionType(PlayScriptParser::FunctionTypeContext *ctx)
     }
 }
 
+// 设置初识类型
 void TypeResolver::exitPrimitiveType(PlayScriptParser::PrimitiveTypeContext *ctx)
 {
     Type *type;
 
-    if (ctx->BOOLEAN() != NULL) {
+    if (ctx->BOOLEAN() != NULL) {       // 布尔类型
         type = PrimitiveType::Boolean;
-    } else if (ctx->INT() != NULL) {
+
+    } else if (ctx->INT() != NULL) {    // 整型
         type = PrimitiveType::Integer;
-    } else if (ctx->LONG() != NULL) {
+
+    } else if (ctx->LONG() != NULL) {   // 长整型
         type = PrimitiveType::Long;
-    } else if (ctx->FLOAT() != NULL) {
+
+    } else if (ctx->FLOAT() != NULL) {  // 单浮点型
         type = PrimitiveType::Float;
-    } else if (ctx->DOUBLE() != NULL) {
+
+    } else if (ctx->DOUBLE() != NULL) { // 双浮点型
         type = PrimitiveType::Double;
-    } else if (ctx->BYTE() != NULL) {
+
+    } else if (ctx->BYTE() != NULL) {   // 二进制类型
         type = PrimitiveType::Byte;
-    } else if (ctx->SHORT() != NULL) {
+
+    } else if (ctx->SHORT() != NULL) {  // 短整型
         type = PrimitiveType::Short;
-    } else if (ctx->CHAR() != NULL) {
+
+    } else if (ctx->CHAR() != NULL) {   // char类型
         type = PrimitiveType::Char;
     }
 

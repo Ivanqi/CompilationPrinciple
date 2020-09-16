@@ -1,8 +1,9 @@
 #include "NameSpace.h"
 using namespace play;
 
-NameSpace::NameSpace(std::string name, Scope *enclosingScope, ParserRuleContext *ctx):name(name)
+NameSpace::NameSpace(std::string name, Scope *enclosingScope, ParserRuleContext *ctx)
 {
+    this->name = name;
     this->enclosingScope = enclosingScope;
     this->ctx = ctx;
 }

@@ -19,7 +19,7 @@ namespace play
             std::vector<Type*> paramTypes;
 
         public:
-            // 参数
+            // 参数. 设置该function的参数
             std::vector<Variable*> parameters;
 
             // 返回值

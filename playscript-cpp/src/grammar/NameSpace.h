@@ -13,7 +13,7 @@ namespace play
     {
         private:
             NameSpace *parent;
-            std::string name;
+            // std::string name;
         
         private:
             std::vector<NameSpace*> subNameSpaces;
