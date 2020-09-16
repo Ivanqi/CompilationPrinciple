@@ -7,6 +7,7 @@
 #include "VoidType.h"
 #include "DefaultFunctionType.h"
 #include "PrimitiveType.h"
+#include <iostream>
 
 using namespace play;
 
@@ -85,6 +86,7 @@ void TypeResolver::exitFormalParameter(PlayScriptParser::FormalParameterContext 
 {
     // 设置参数类型
     Type *type = at_->typeOfNode[ctx->typeType()];
+
     // ctx->variableDeclaratorId() 获取上一个AST节点的属性信息
     Variable *variable = (Variable*) at_->symbolOfNode[ctx->variableDeclaratorId()];
     variable->type = type;
@@ -204,6 +206,33 @@ void TypeResolver::exitPrimitiveType(PlayScriptParser::PrimitiveTypeContext *ctx
 
     } else if (ctx->CHAR() != NULL) {   // char类型
         type = PrimitiveType::Char;
+    }
+
+    at_->typeOfNode[ctx] = type;
+}
+
+// 根据字面量来推断类型 
+void TypeResolver::exitLiteral(PlayScriptParser::LiteralContext *ctx)
+{
+    Type *type;
+
+    if (ctx->integerLiteral() != NULL) {        // 整型字面量
+        type = PrimitiveType::Integer;
+
+    } else if (ctx->floatLiteral() != NULL) {   // 浮点型字面量
+        type = PrimitiveType::Float;
+
+    } else if (ctx->CHAR_LITERAL() != NULL) {   // char 字面量
+        type = PrimitiveType::Char;
+
+    } else if (ctx->STRING_LITERAL() != NULL) { // string 字面量
+        type = PrimitiveType::Char;
+
+    } else if (ctx->BOOL_LITERAL() != NULL) {   // 布尔字面量
+        type = PrimitiveType::Boolean;
+
+    } else if (ctx->NULL_LITERAL() != NULL) {   // NULL 字面量
+        type = PrimitiveType::Null;
     }
 
     at_->typeOfNode[ctx] = type;

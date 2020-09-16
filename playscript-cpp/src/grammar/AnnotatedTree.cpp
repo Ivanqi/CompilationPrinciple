@@ -97,6 +97,7 @@ Variable* AnnotatedTree::lookupFunctionVariable(Scope *scope, std::string idName
     return rtn;
 }
 
+// 寻找方法
 Function* AnnotatedTree::lookupFunction(Scope *scope, std::string name)
 {
     Function *rtn;
@@ -115,6 +116,7 @@ Function* AnnotatedTree::lookupFunction(Scope *scope, std::string name)
     return rtn;
 }
 
+// 通过名称获取类中的唯一方法
 Function* AnnotatedTree::getMethodOnlyByName(Class *theClass, std::string name)
 {
     Function *rtn = getFunctionOnlyByName(theClass, name);
@@ -126,6 +128,7 @@ Function* AnnotatedTree::getMethodOnlyByName(Class *theClass, std::string name)
     return rtn;
 }
 
+// 通过名称获取唯一的函数
 Function* AnnotatedTree::getFunctionOnlyByName(Scope *scope, std::string name)
 {
     for (Symbol *s: scope->symbols) {

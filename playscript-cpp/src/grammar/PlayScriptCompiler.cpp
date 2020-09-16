@@ -55,8 +55,8 @@ AnnotatedTree* PlayScriptCompiler::compile(std::string script, bool verbose, boo
     TypeChecker *pass4 = new TypeChecker(at);
     walker.walk(pass4, at->ast);
 
-    // // pass5: 其他语义检查
-    // SematicValidator *pass5 = new SematicValidator(at);
+    // pass5: 其他语义检查
+    SematicValidator *pass5 = new SematicValidator(at);
 
     // // pass6: 做闭包的分析
     // ClosureAnalyzer *closureAnalyzer = new ClosureAnalyzer(at);

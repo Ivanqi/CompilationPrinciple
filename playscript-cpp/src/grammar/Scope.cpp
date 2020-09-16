@@ -57,9 +57,11 @@ Function* Scope::getFunction(Scope *scope, std::string name, std::vector<Type*> 
 {
     Function *rtn = NULL;
     for (Symbol *s: scope->symbols) {
-        // Function *func = dynamic_cast<Function*> (s);
-        if (s->getName() == name) {
-            rtn = (Function*)s;
+        Function *tmpFunc = dynamic_cast<Function*> (s);
+        if (tmpFunc != NULL && s->getName() == name) {
+            if (tmpFunc->matchParameterTypes(paramTypes)) {
+                rtn = tmpFunc;
+            }
             break;
         }
     }
@@ -78,15 +80,17 @@ Variable* Scope::getFunctionVariable(Scope *scope, std::string name, std::vector
 {
     Variable *rtn = NULL;
     for (Symbol *s: scope->symbols) {
-        // Variable *tmp = dynamic_cast<Variable*>(s);
-        // FunctionType *tmp1 = dynamic_cast<FunctionType*>(tmp->getType());
-        if (s->getName() == name) {
-            Variable *v = (Variable *) s;
-            FunctionType *functionType = (FunctionType*)v->getType();
-            // if (functionType->matchParameterTypes(paramTypes)) {
-            //     rtn = v;
-            //     break;
-            // }
+
+        Variable *tmpVar = dynamic_cast<Variable*>(s);
+        FunctionType *tmpFuncType = (tmpVar != NULL) ? dynamic_cast<FunctionType*>(tmpVar->getType()) : NULL;
+
+        if (tmpVar != NULL && tmpFuncType != NULL && s->getName() == name) {
+            Variable *v = tmpVar;
+            FunctionType *functionType = tmpFuncType;
+            if (functionType->matchParameterTypes(paramTypes)) {
+                rtn = v;
+                break;
+            }
         }
     }
 
@@ -97,8 +101,8 @@ Variable* Scope::getFunctionVariable(Scope *scope, std::string name, std::vector
 Class* Scope::getClass(Scope *scope, std::string name)
 {
     for (Symbol *s : scope->symbols) {
-        // Class *tmp = dynamic_cast<Class*>(s);
-        if (s->getName() == name) {
+        Class *tmpClass = dynamic_cast<Class*>(s);
+        if (tmpClass != NULL && s->getName() == name) {
             return (Class *) s;
         }
     }
@@ -108,6 +112,5 @@ Class* Scope::getClass(Scope *scope, std::string name)
 // 是否包含某个Symbol
 bool Scope::containsSymbol(Symbol *symbol)
 {
-    // return (std::find(symbols.begin(), symbols.end(), symbol));
-    return true;
+    return (std::count(symbols.begin(), symbols.end(), symbol));
 }

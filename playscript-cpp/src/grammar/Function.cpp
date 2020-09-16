@@ -65,7 +65,8 @@ bool Function::matchParameterTypes(std::vector<Type*> paramTypes)
     for (int i = 0; i < paramTypes.size(); i++) {
         Variable *var = parameters[i];
         Type *type = paramTypes[i];
-        if (!var->getType()->isType(type)) {
+        Type *tmpType = var->getType();
+        if (!tmpType->isType(type)) {
             match = false;
             break;
         }

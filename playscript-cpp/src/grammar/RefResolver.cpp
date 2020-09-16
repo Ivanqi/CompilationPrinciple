@@ -9,7 +9,7 @@
 
 using namespace play;
 
- // 把本地变量加到符号表。本地变量必须边添加，边解析，不然先添加后解析，否则会引起消解的错误
+// 把本地变量加到符号表。本地变量必须边添加，边解析，不然先添加后解析，否则会引起消解的错误
 void RefResolver::enterVariableDeclarators(PlayScriptParser::VariableDeclaratorsContext *ctx)
 {
     Scope *scope = at_->enclosingScopeOfNode(ctx);
@@ -19,6 +19,7 @@ void RefResolver::enterVariableDeclarators(PlayScriptParser::VariableDeclarators
     }
 }
 
+// 类型推断。S属性
 void RefResolver::exitPrimary(PlayScriptParser::PrimaryContext *ctx)
 {
     Scope *scope = at_->enclosingScopeOfNode(ctx);
@@ -46,10 +47,13 @@ void RefResolver::exitPrimary(PlayScriptParser::PrimaryContext *ctx)
             at_->symbolOfNode[ctx] = variable;
             type = variable->getType();
         }
+
     } else if (ctx->literal() != NULL) {    // 字面量
         type = at_->typeOfNode[ctx->literal()];
+
     } else if (ctx->expression() != NULL) { // 括号里的表达式
         type = at_->typeOfNode[ctx->expression()];
+
     } else if (ctx->THIS() != NULL) {       // this 关键字
         // 找到Class类型的上级Scope
         Class *theClass = at_->enclosingClassOfNode(ctx);
@@ -75,9 +79,10 @@ void RefResolver::exitPrimary(PlayScriptParser::PrimaryContext *ctx)
     //     }
     // }
 
-    // 类型推断，冒泡
+    // 类型推断，冒泡. 
     at_->typeOfNode[ctx] = type;
 }
+
 
 void RefResolver::exitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
 {
@@ -105,7 +110,7 @@ void RefResolver::exitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
     // 看看是不是点符号表达式调用，调用的是类的方法
     PlayScriptParser::ExpressionContext *exp = dynamic_cast<PlayScriptParser::ExpressionContext*>(ctx->parent);
     if (exp != NULL) {
-        if (exp->bop != NULL && exp->bop->getType() == PlayScriptParser::DOT) {
+        if (exp->bop && exp->bop->getType() == PlayScriptParser::DOT) {
             // TODO 派生类和父类的转换关系？
             Symbol *symbol = at_->symbolOfNode[exp->expression(0)];
             Variable *syTmp = static_cast<Variable*>(symbol);
@@ -140,9 +145,12 @@ void RefResolver::exitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
     // 从当前Scope逐级查找函数(或方法)
     if (!found) {
         Function *function = at_->lookupFunction(scope, idName, paramTypes);
+        // 寻找对应的函数(方法)
         if (function != NULL) {
             found = true;
+            // 设置新的节点
             at_->symbolOfNode[ctx] = function;
+            // 设置新节点的返回值类型
             at_->typeOfNode[ctx] = function->getReturnType();
         }
     }
@@ -151,6 +159,7 @@ void RefResolver::exitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
         // 看看是不是类的构建函数，用相同的名称查找一个class
         Class *theClass = at_->lookupClass(scope, idName);
         if (theClass != NULL) {
+
             Function *function = theClass->findConstructos(paramTypes);
             if (function != NULL) {
                 found = true;
@@ -163,9 +172,12 @@ void RefResolver::exitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
             }
 
             at_->typeOfNode[ctx] = theClass;    // 这次函数调用是返回一个对象
+
         } else {    // 看看是不是一个函数型的变量
+
             Variable *variable = at_->lookupFunctionVariable(scope, idName, paramTypes);
-            FunctionType *tmp = dynamic_cast<FunctionType*> (variable->getType());
+            FunctionType *tmp = variable != NULL ? dynamic_cast<FunctionType*> (variable->getType()) : NULL;
+
             if (variable != NULL && tmp != NULL) {
                 found = true;
                 at_->symbolOfNode[ctx] = variable;

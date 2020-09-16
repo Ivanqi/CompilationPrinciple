@@ -25,6 +25,8 @@ namespace play
      *  1. 对于变量，只有做了消解，才能推断类型来
      *  2. 对于FunctionCall，只有把参数(表达式)的类型都推断出来，才能匹配到正确的函数(方法)
      *  3. 表达式里包含FunctionCall，所以要推导表达式的类型，必须知道那个是Function，从而才能得到返回值
+     * 
+     * 这个时候，对所有变量，函数调用，都会跟它的定义关联起来，并且完成了所有类型计算
      */
     class RefResolver: public PlayScriptBaseListener
     {

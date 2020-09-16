@@ -1,7 +1,7 @@
 #include "Class.h"
 #include "This.h"
 #include "Super.h"
-// #include "Function.h"
+#include "Function.h"
 #include "DefaultConstructor.h"
 using namespace play;
 
@@ -25,20 +25,6 @@ Scope* Class::getEnclosingScope()
 {
     return enclosingScope;
 }
-
-bool Class::isType(Type *type)
-{
-    // if (this == type) {
-    //     return true;
-    // }
-
-    // Class *tmp = dynamic_cast<Class*>(type);
-    // if (tmp != NULL) {
-    //     return ((Class *)type)->isAncestor(this);
-    // }
-    return false;
-}
-
 
 Class* Class::getParentClass()
 {
@@ -93,6 +79,85 @@ Function* Class::findConstructos(std::vector<Type*> paramTypes)
     Function *rtn = Scope::getFunction(name, paramTypes);   // TODO是否要检查 visibility
     return rtn;
 }
+
+/**
+ * 在自身及父类中找到某个方法
+ * @param name
+ * @param paramTypes 参数类型列表。该参数不允许为空，如果没有参数，需要传入一个0长度的列表
+ */
+Function* Class::getFunction(std::string name, std::vector<Type*> paramTypes)
+{
+    // 在本级查找这个方法
+    Function *rtn = Scope::getFunction(name, paramTypes);   // TODO是否要检查 visibility
+
+    // 如果在本级找不到，那么递归的从父类中查找
+    if (rtn == NULL && parentClass != NULL) {
+        rtn = parentClass->getFunction(name, paramTypes);
+    }
+
+    return rtn;
+}
+
+Variable* Class::getFunctionVariable(std::string name, std::vector<Type*> paramTypes)
+{
+    Variable *rtn = Scope::getFunctionVariable(name, paramTypes);
+
+    if (rtn == NULL && parentClass != NULL) {
+        rtn = parentClass->getFunctionVariable(name, paramTypes);
+    }
+
+    return rtn;
+}
+
+
+// 是否包含某个Symbol.这时候要把父类的成员考虑进来
+bool Class::containsSymbol(Symbol *symbol)
+{
+    // this 关键字
+    if (symbol == thisRef || symbol == superRef) {
+        return true;
+    }
+
+    bool rtn = false;
+    rtn = std::count(symbols.begin(), symbols.end(), symbol);
+
+    if (!rtn && parentClass != NULL) {
+        rtn = parentClass->containsSymbol(symbol);
+    }
+    return rtn;
+}
+
+// 当自身是目标类型的子类型的时候，返回true;
+bool Class::isType(Type *type)
+{
+    if (this == type) { // shortcut
+        return true;
+    }
+
+    Class *tmp = dynamic_cast<Class*>(type);
+    if (tmp != NULL) {
+        return tmp->isAncestor(this);
+    }
+    return false;
+}
+
+/**
+ * 本类型是不是另一个类型的祖先类型
+ * @param theClass
+ * @return
+ */
+bool Class::isAncestor(Class *theClass)
+{
+    if (theClass->getParentClass() != NULL) {
+        if (theClass->getParentClass() == this) {
+            return true;
+        } else {
+            return isAncestor(theClass->getParentClass());
+        }
+    }
+    return false;
+}
+
 
 DefaultConstructor* Class::defaultConstructor()
 {
