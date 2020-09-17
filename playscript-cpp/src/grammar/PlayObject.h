@@ -1,37 +1,30 @@
-// #pragma once
-// #include <unordered_map>
-// #include "Variable.h"
-// #include "NullObject.h"
+#ifndef PLAYOBJECT_H
+#define PLAYOBJECT_H
 
-// class PlayObject
-// {
-//     protected:
-//         unordered_map<Variable*, void*> fields;
+#pragma once
+#include <unordered_map>
+#include "antlr4-runtime.h"
 
-//     public:
-//         void* getValue(Variable *variable)
-//         {
-//             void *rtn = fields[variable];
+namespace play
+{
+    class Variable;
+    class NullObject;
 
-//             // 替换成自己的NullObject
-//             if (rtn == NULL) {
-//                 rtn = NullObject::instance();
-//             }
-//             return rtn;
-//         }
+    // PlayScript的对象
+    class PlayObject
+    {
+        protected:
+            std::unordered_map<Variable*, antlrcpp::Any> fields;
 
-//         void setValue(Variable *variable, void *value)
-//         {
-//             fields[variable] = value;
-//         }
+        public:
+            virtual antlrcpp::Any getValue(Variable *variable);
 
-//         unordered_map<Variable*, void*> getFields()
-//         {
-//             return fields;
-//         }
+            virtual void setValue(Variable *variable, antlrcpp::Any value);
 
-//         bool isset(Variable *variable)
-//         {
-//             return (fields.find(variable) != fields.end()) ? true : false;
-//         }
-// };
+            std::unordered_map<Variable*, antlrcpp::Any> getFields();
+
+            bool isset(Variable *variable);
+    };
+};
+
+#endif

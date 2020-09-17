@@ -1,16 +1,24 @@
-// #pragma once
-// #include "PlayObject.h"
-// #include "Class.h"
+#ifndef CLASSOBJECT_H
+#define CLASSOBJECT_H
 
-// class ClassObject: public PlayObject
-// {
-//     protected:
-//         // 类型
-//         Class *type;
-    
-//     public:
-//         Class* getType()
-//         {
-//             return type;
-//         }
-// };
+#pragma once
+#include "PlayObject.h"
+#include "Class.h"
+
+namespace play
+{
+    class ClassObject: public PlayObject
+    {
+        protected:
+            // 类型
+            Class *type;
+        
+        public:
+            Class* getType()
+            {
+                return type;
+            }
+    };
+};
+
+#endif

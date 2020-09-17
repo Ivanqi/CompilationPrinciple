@@ -1,30 +1,40 @@
-// #pragma once
-// #include "ClassObject.h"
+#ifndef NULLOBJECT_H
+#define NULLOBJECT_H
 
-// /**
-//  * 用来代表NULL值的对象
-//  * 采用单例模式。用instance()方法来获得一个对象实例
-//  */
-// class NullObject: public ClassObject
-// {
-//     private:
-//         static NullObject *instance;
+#pragma once
+#include "ClassObject.h"
 
-//         NullObject()
-//         {
-//             instance = new NullObject();
-//         }
+namespace play
+{
+    /**
+     * 用来代表NULL值的对象
+     * 采用单例模式。用instance()方法来获得一个对象实例
+     */
+    class NullObject: public ClassObject
+    {
+        private:
+            static NullObject *instance;
 
-//     public:
-//         // 获取唯一实例
-//         static NullObject* instance()
-//         {
-//             return instance;
-//         }
+            NullObject()
+            {
+                instance = new NullObject();
+            }
 
-//         // 在打印时输出Null
-//         std::string toString()
-//         {
-//             return "Null";
-//         }
-// };
+        public:
+            // 获取唯一实例
+            static NullObject* GetInstance()
+            {
+                return instance;
+            }
+
+            // 在打印时输出Null
+            std::string toString()
+            {
+                return "Null";
+            }
+    };
+
+    NullObject* NullObject::instance = NULL;
+};
+
+#endif

@@ -1,32 +1,46 @@
+#ifndef ASTEVALUATOR_H
+#define ASTEVALUATOR_H
 // 一个简短的测试程序，只支持整数常量做加减乘除四则运算
 #pragma once
 
 #include "PlayScriptBaseVisitor.h"
-#include <stack>
-#include "StackFrame.h"
+#include "Stack.h"
 
-class ASTEvaluator: public PlayScriptBaseVisitor 
-{  
-    private:
-        // std::stack<StackFrame*> stacks;
+namespace play 
+{
+    class StackFrame;
+    class LValue;
+    class Variable;
 
-        void dumpStackFrame();
+    class ASTEvaluator: public PlayScriptBaseVisitor 
+    {  
+        private:
+            Stack<StackFrame*> stacks;
 
-    protected:
-        bool traceStackFrame = false;
+            void dumpStackFrame();
 
-        bool traceFunctionCall = false;
+            void popStack();
 
-    public:
-        // void pushStack(StackFrame *frame);
+        protected:
+            bool traceStackFrame = false;
 
-        virtual antlrcpp::Any visitExpression(PlayScriptParser::ExpressionContext *ctx) override;
+            bool traceFunctionCall = false;
 
-        virtual antlrcpp::Any visitPrimary(PlayScriptParser::PrimaryContext *ctx) override;
+        public:
+            void pushStack(StackFrame *frame);
 
-        virtual antlrcpp::Any visitLiteral(PlayScriptParser::LiteralContext *ctx) override;
+            LValue* getLValue(Variable* variable);
 
-        virtual antlrcpp::Any visitIntegerLiteral(PlayScriptParser::IntegerLiteralContext *ctx) override;
+            virtual antlrcpp::Any visitExpression(PlayScriptParser::ExpressionContext *ctx) override;
 
-        virtual antlrcpp::Any visitFloatLiteral(PlayScriptParser::FloatLiteralContext *ctx) override;
+            virtual antlrcpp::Any visitPrimary(PlayScriptParser::PrimaryContext *ctx) override;
+
+            virtual antlrcpp::Any visitLiteral(PlayScriptParser::LiteralContext *ctx) override;
+
+            virtual antlrcpp::Any visitIntegerLiteral(PlayScriptParser::IntegerLiteralContext *ctx) override;
+
+            virtual antlrcpp::Any visitFloatLiteral(PlayScriptParser::FloatLiteralContext *ctx) override;
+    };
 };
+
+#endif

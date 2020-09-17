@@ -43,6 +43,9 @@ set(src_dir
     src/grammar/TypeChecker.cpp
     src/grammar/SematicValidator.cpp
     src/grammar/ClosureAnalyzer.cpp
+    src/grammar/StackFrame.cpp
+    src/grammar/PlayObject.cpp
+    src/grammar/MyLValue.cpp
 )
 
 file(GLOB antrl-cpp-src

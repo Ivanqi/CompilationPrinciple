@@ -1,80 +1,100 @@
 #include "ASTEvaluator.h"
+#include "StackFrame.h"
 #include "FunctionObject.h"
+#include "Variable.h"
+#include "MyLValue.h"
+
 #include <iostream>
+
+using namespace play;
+
 /**
  * 栈帧入栈
  * 其中最重要的任务，是要保证栈帧的parentFrame设置正确，否则
  * 1. 随着栈的变深，查找变量的性能降低
  * 2. 甚至有可能找错栈帧，比如在递归(直接或间接)的场景下
  */
-// void ASTEvaluator::pushStack(StackFrame *frame)
-// {
-//     if (stacks.size() > 0) {
-//         //从栈顶到栈底依次查找
-//         for (int i = stacks.size() - 1; i > 0; i--) {
-//             StackFrame *f = stacks.back();
+void ASTEvaluator::pushStack(StackFrame *frame)
+{
+    if (stacks.size() > 0) {
+        //从栈顶到栈底依次查找
+        Stack<StackFrame*>::reverse_iterator it;
+        for (it = stacks.rbegin(); it != stacks.rend(); it++) {
+            StackFrame *f = *it;
 
-//             FunctionObject *functionObject = dynamic_cast<FunctionObject*>(frame->object);
-//             /*
-//                 如果新加入的栈桢，跟某个已有的栈桢的enclosingScope是一样的，那么这俩的parentFrame也一样。
-//                 因为它们原本就是同一级的嘛。
-//                 比如：
-//                 void foo(){};
-//                 void bar(foo());
-//                 或者：
-//                 void foo();
-//                 if (...){
-//                     foo();
-//                 }
-//             */
-//             if (f->scope->getEnclosingScope() == frame->scope->getEnclosingScope()) {
-//                 frame->parentFrame = f->parentFrame;
-//                 break;
-//             } else if (f->scope == frame->scope->getEnclosingScope()){
-//                 /*
-//                     如果新加入的栈桢，是某个已有的栈桢的下一级，那么就把把这个父子关系建立起来。比如：
-//                     void foo(){
-//                         if (...){  //把这个块往栈桢里加的时候，就符合这个条件。
-//                         }
-//                     }
-//                     再比如,下面的例子:
-//                     class MyClass{
-//                         void foo();
-//                     }
-//                     MyClass c = MyClass();  //先加Class的栈桢，里面有类的属性，包括父类的
-//                     c.foo();                //再加foo()的栈桢
-//                 */
-//                 f->parentFrame = f;
-//                 break;
-//             } else if (functionObject != NULL) {
-//                 if (functionObject->getReceiver() != NULL && functionObject->getReceiver()->getEnclosingScope() == f->scope) {
-//                     frame->parentFrame = f;
-//                     break;
-//                 }
-//             }
-//         }
+            FunctionObject *functionObject = dynamic_cast<FunctionObject*>(frame->object_);
+            /*
+                如果新加入的栈桢，跟某个已有的栈桢的enclosingScope是一样的，那么这俩的parentFrame也一样。
+                因为它们原本就是同一级的嘛。
+                比如：
+                void foo(){};
+                void bar(foo());
+                或者：
+                void foo();
+                if (...){
+                    foo();
+                }
+            */
+            if (f->scope_->getEnclosingScope() == frame->scope_->getEnclosingScope()) {
+                frame->parentFrame_ = f->parentFrame_;
+                break;
+            } else if (f->scope_ == frame->scope_->getEnclosingScope()){
+                /*
+                    如果新加入的栈桢，是某个已有的栈桢的下一级，那么就把把这个父子关系建立起来。比如：
+                    void foo(){
+                        if (...){  //把这个块往栈桢里加的时候，就符合这个条件。
+                        }
+                    }
+                    再比如,下面的例子:
+                    class MyClass{
+                        void foo();
+                    }
+                    MyClass c = MyClass();  //先加Class的栈桢，里面有类的属性，包括父类的
+                    c.foo();                //再加foo()的栈桢
+                */
+                f->parentFrame_ = f;
+                break;
+            } else if (functionObject != NULL) {
+                if (functionObject->getReceiver() != NULL && functionObject->getReceiver()->getEnclosingScope() == f->scope_) {
+                    frame->parentFrame_ = f;
+                    break;
+                }
+            }
+        }
 
-//         if (frame->parentFrame == NULL) {
-//             frame->parentFrame = stacks.top();
-//             stacks.pop();
-//         }
-//     }
+        if (frame->parentFrame_ == NULL) {
+            frame->parentFrame_ = stacks.top();
+            stacks.pop();
+        }
+    }
 
-//     stacks.push(frame);
+    stacks.push(frame);
 
-//     if (traceStackFrame) {
-//         dumpStackFrame();
-//     }
-// }
+    if (traceStackFrame) {
+        dumpStackFrame();
+    }
+}
 
-// void ASTEvaluator::dumpStackFrame()
-// {
-//     std::cout << "\nStack Frames ----------------" << std::endl;
-//     for (StackFrame *frame: stacks) {
-//         std::cout << frame->toString() << std::endl;;
-//     }
-//     std::cout << "-----------------------------\n" << std::endl;
-// }
+void ASTEvaluator::popStack()
+{
+    stacks.pop();
+}
+
+void ASTEvaluator::dumpStackFrame()
+{
+    std::cout << "\nStack Frames ----------------" << std::endl;
+
+    Stack<StackFrame*>::iterator it;
+    for (it = stacks.begin(); it != stacks.end(); it++) {
+        std::cout << (*it)->toString() << std::endl;
+    }
+
+    std::cout << "-----------------------------\n" << std::endl;
+}
+
+
+
+
 
 /**
  * ExpressionContext 是 AST中表达式的节点
