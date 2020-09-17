@@ -202,12 +202,11 @@ void AnnotatedTree::scopeToString(std::string& sb, Scope *scope, std::string ind
 {
     sb.append(indent).append(scope->toString()).append("\n");
     for (Symbol *symbol : scope->symbols) {
-        Scope *tmp = (Scope*)symbol;
+        Scope *tmp = dynamic_cast<Scope*>(symbol);
         if (tmp != NULL) {
             scopeToString(sb, (Scope*)symbol, indent + "\t");
         } else {
-            //@todo
-            sb.append(indent).append("\t").append("symbol").append("\n");
+            sb.append(indent).append("\t").append(symbol->getName()).append("\n");
         }
     }
 }

@@ -17,18 +17,25 @@ PrimitiveType* PrimitiveType::Null = new PrimitiveType("Null");
 PrimitiveType* PrimitiveType::getUpperType(Type *type1, Type *type2)
 {
     PrimitiveType *type;
+
     if (type1 == PrimitiveType::String || type2 == PrimitiveType::String) {
         type = PrimitiveType::String;
+
     } else if (type1 == PrimitiveType::Double || type2 == PrimitiveType::Double) {
         type = PrimitiveType::Double;
+
     } else if (type1 == PrimitiveType::Float || type2 == PrimitiveType::Float) {
         type = PrimitiveType::Float;
+
     } else if (type1 == PrimitiveType::Long || type2 == PrimitiveType::Long) {
         type = PrimitiveType::Long;
+
     } else if (type1 == PrimitiveType::Integer || type2 == PrimitiveType::Integer) {
         type = PrimitiveType::Integer;
+
     } else if (type1 == PrimitiveType::Short || type2 == PrimitiveType::Short) {
         type = PrimitiveType::Short;
+
     } else {
         type = PrimitiveType::Byte;
     }
@@ -44,5 +51,18 @@ bool PrimitiveType::isNumeric(Type *type)
         return true;
     } else {
         return false;
+    }
+}
+
+// 先检测比较两值是否都是数值型
+bool PrimitiveType::isType(Type *type)
+{
+    bool isNum_1 = isNumeric(type);
+    bool isNum_2 = isNumeric(this);
+
+    if (isNum_1 && isNum_2) {
+        return true;
+    } else {
+        return this == type;
     }
 }

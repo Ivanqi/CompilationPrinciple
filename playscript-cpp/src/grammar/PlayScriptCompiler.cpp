@@ -38,10 +38,6 @@ AnnotatedTree* PlayScriptCompiler::compile(std::string script, bool verbose, boo
     TypeAndScopeScanner *pass1 = new TypeAndScopeScanner(at);
     walker.walk(pass1, at->ast);
 
-    // map<ParserRuleContext*, Scope*>::iterator iter;
-    // for (iter = at->node2Scope.begin(); iter != at->node2Scope.end(); iter++) {
-    //     std::cout << iter->second->toString() << std::endl;
-    // }
 
     // // pass2: 把变量，类继承，函数声明的类型都解析出来。也就是所有声明用到类型的地方
     TypeResolver *pass2 = new TypeResolver(at);
@@ -59,18 +55,18 @@ AnnotatedTree* PlayScriptCompiler::compile(std::string script, bool verbose, boo
     SematicValidator *pass5 = new SematicValidator(at);
 
     // // pass6: 做闭包的分析
-    // ClosureAnalyzer *closureAnalyzer = new ClosureAnalyzer(at);
-    // closureAnalyzer->analyzeClosures();
+    ClosureAnalyzer *closureAnalyzer = new ClosureAnalyzer(at);
+    closureAnalyzer->analyzeClosures();
 
-    // // 打印AST
-    // if (verbose || ast_dump){
-    //     dumpAST();
-    // }
+    // 打印AST
+    if (verbose || ast_dump){
+        dumpAST();
+    }
 
-    // //打印符号表
-    // if(verbose){
-    //     dumpSymbols();
-    // }
+    //打印符号表
+    if(verbose){
+        dumpSymbols();
+    }
     
     return at;
 
@@ -91,10 +87,10 @@ void PlayScriptCompiler::dumpSymbols()
 
 void PlayScriptCompiler::dumpAST()
 {
-    std::cout << "b" << std::endl;
     if (at != NULL) {
-        std::cout << at->ast->toStringTree(parser);
+        std::cout << at->ast->toStringTree(parser) << std::endl;
     }
+    std::cout << std::endl;
 }
 
 

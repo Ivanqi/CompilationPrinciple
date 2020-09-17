@@ -8,6 +8,10 @@
 
 using namespace play;
 
+ /**
+ * 对所有的函数做闭包分析
+ * 只做标准函数的分析，不做类的方法的分析
+ */
 void ClosureAnalyzer::analyzeClosures()
 {
     for (Type *type : at_->types) {

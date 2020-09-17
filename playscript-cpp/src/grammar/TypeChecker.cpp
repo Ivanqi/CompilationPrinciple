@@ -3,6 +3,8 @@
 #include "Variable.h"
 #include "Type.h"
 #include "PrimitiveType.h"
+#include "Class.h"
+#include "Function.h"
 
 using namespace play;
 
@@ -12,27 +14,26 @@ void TypeChecker::exitVariableDeclarator(PlayScriptParser::VariableDeclaratorCon
         Variable *variable = (Variable *)at_->symbolOfNode[ctx->variableDeclaratorId()];
         Type *type1 = variable->getType();
         Type *type2 = at_->typeOfNode[ctx->variableInitializer()];
-        
+        checkAssign(type1, type2, ctx, ctx->variableDeclaratorId(), ctx->variableInitializer());
     }
 }
 
 // 检查是否能做赋值操作
 void TypeChecker::checkAssign(Type *type1, Type *type2, ParserRuleContext *ctx, ParserRuleContext *operand1, ParserRuleContext *operand2)
 {
-    // TODO 这里类型转换有问题
-    // Class *tmp = dynamic_cast<Class*>(type2);
-    // Function *tmp2 = dynamic_cast<Function*>(type2);
+    Class *tmp = dynamic_cast<Class*>(type2);
+    Function *tmp2 = dynamic_cast<Function*>(type2);
+
     if (PrimitiveType::isNumeric(type2)) {
         if (!checkNumericAssign(type2, type1)) {
             at_->log("can not assign " + operand2->getText() 
                 + " of type " + type2->getName() + " to " + operand1->getText() + " of type" + type1->getName(), ctx);
         }
+    } else if (tmp != NULL) {
+        //TODO 检查类的兼容性
+    } else if (tmp2 != NULL) {
+        //TODO 检查函数的兼容性
     }
-//     } else if (tmp != NULL) {
-//         //TODO 检查类的兼容性
-//     } else if (tmp2 != NULL) {
-//         //TODO 检查函数的兼容性
-//     }
 }
 
 /**

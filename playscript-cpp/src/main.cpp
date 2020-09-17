@@ -4,34 +4,31 @@
 #include "PlayScriptParser.h"
 #include "ASTEvaluator.h"
 #include "PlayScriptCompiler.h"
+#include <iostream>
 
 using namespace antlr4;
 using namespace std;
 using namespace play;
 
 int main(int argc, const char* argv[]) {
-    const char* filepath = argv[1];
 
+    const char* filepath;
     PlayScriptCompiler compiler;
-    compiler.compile(filepath);
-
     
-    // std::ifstream ifs;
-    // ifs.open(filepath);
+    if (argc == 2) {
+        filepath = argv[1];
+        compiler.compile(filepath);
+    } else if (argc > 3 && argc <= 4) {
+        filepath = argv[1];
+        const char* verboseStr = argv[2];
+        const char* astDumpStr = argv[3];
 
-    // ANTLRInputStream input(ifs);
-    // PlayScriptLexer lexer(&input);
-    // CommonTokenStream tokens(&lexer);
-
-    // tokens.fill();
-    // for (auto token : tokens.getTokens()) {
-    //     std::cout << token->toString() << std::endl;
-    // }
-
-    // PlayScriptParser parser(&tokens);
-    // tree::ParseTree *tree = parser.prog();
-
-    // cout << tree->toStringTree(&parser) << endl;
+        bool verbose = strcmp(verboseStr, "true") == 0 ? true : false;
+        bool astDump = strcmp(astDumpStr, "true") == 0 ? true : false;
+        compiler.compile(filepath, verbose, astDump);
+    } else {
+        cout << "无效参数列表" << endl; 
+    }
 
     return 0;
 }

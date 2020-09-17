@@ -89,10 +89,10 @@ bool Function::isMethod()
  */
 bool Function::isConstructor()
 {
-    // Scope *tmp = dynamic_cast<Scope*>(enclosingScope);
-    // if (tmp != NULL) {
-    //     return (enclosingScope->getName() == name);
-    // }
-    // return false;
+    Scope *tmp = dynamic_cast<Class*>(enclosingScope);
+    if (tmp != NULL) {
+        return (enclosingScope->getName() == name);
+    }
+    return false;
     return false;
 }

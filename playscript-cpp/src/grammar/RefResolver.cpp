@@ -203,9 +203,11 @@ std::vector<Type*> RefResolver::getParamTypes(PlayScriptParser::FunctionCallCont
     return paramTypes;
 }
 
+// 消解this()的构造函数
 void RefResolver::resolveThisConstructorCall(PlayScriptParser::FunctionCallContext *ctx)
 {
     Class *theClass = at_->enclosingClassOfNode(ctx);
+
     if (theClass != NULL) {
         Function *function = at_->enclosingFunctionOfNode(ctx);
         if (function != NULL && function->isConstructor()) {
@@ -285,6 +287,7 @@ void RefResolver::resolveSuperConstructorCall(PlayScriptParser::FunctionCallCont
                     at_->symbolOfNode[ctx] = (Symbol*)theClass->defaultConstructor();
                     at_->typeOfNode[ctx] = theClass;
                     at_->superConstructorRef[function] = (Function*)theClass->defaultConstructor();
+
                 } else {
                     at_->log("can not find a constructor matches this()", ctx);
                 }
@@ -341,8 +344,10 @@ void RefResolver::exitExpression(PlayScriptParser::ExpressionContext *ctx)
     // 类型推断和综合
     if (ctx->primary() != NULL) {
         type = at_->typeOfNode[ctx->primary()];
+
     } else if (ctx->functionCall() != NULL) {
         type = at_->typeOfNode[ctx->functionCall()]; 
+
     } else if (ctx->bop != NULL && ctx->expression().size() >= 2) {
         Type *type1 = at_->typeOfNode[ctx->expression(0)];
         Type *type2 = at_->typeOfNode[ctx->expression(1)];
@@ -362,6 +367,8 @@ void RefResolver::exitExpression(PlayScriptParser::ExpressionContext *ctx)
                 } else {
                     at_->log("operand should be PrimitiveType for additive and multiplicative operation", ctx);
                 }
+                break;
+
             case PlayScriptParser::SUB:
             case PlayScriptParser::MUL:
             case PlayScriptParser::DIV:
@@ -374,6 +381,7 @@ void RefResolver::exitExpression(PlayScriptParser::ExpressionContext *ctx)
                     at_->log("operand should be PrimitiveType for additive and multiplicative operation", ctx);
                 }
                 break;
+
             case PlayScriptParser::EQUAL:
             case PlayScriptParser::NOTEQUAL:
             case PlayScriptParser::LE:
@@ -385,6 +393,7 @@ void RefResolver::exitExpression(PlayScriptParser::ExpressionContext *ctx)
             case PlayScriptParser::BANG:
                 type = PrimitiveType::Boolean;
                 break;
+                
             case PlayScriptParser::ASSIGN:
             case PlayScriptParser::ADD_ASSIGN:
             case PlayScriptParser::SUB_ASSIGN:

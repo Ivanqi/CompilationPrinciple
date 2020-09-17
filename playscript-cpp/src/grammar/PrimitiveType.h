@@ -48,10 +48,7 @@ namespace play
                 return name_;
             }
 
-            bool isType(Type *type)
-            {
-                return this == type;
-            }
+            bool isType(Type *type);
 
             PrimitiveType(std::string name):name_(name)
             {
