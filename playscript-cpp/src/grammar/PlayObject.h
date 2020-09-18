@@ -13,10 +13,9 @@ namespace play
     // PlayScript的对象
     class PlayObject
     {
-        protected:
+        public:
             std::unordered_map<Variable*, antlrcpp::Any> fields;
 
-        public:
             virtual antlrcpp::Any getValue(Variable *variable);
 
             virtual void setValue(Variable *variable, antlrcpp::Any value);

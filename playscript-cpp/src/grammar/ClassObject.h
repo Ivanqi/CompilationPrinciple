@@ -8,12 +8,11 @@
 namespace play
 {
     class ClassObject: public PlayObject
-    {
-        protected:
+    {        
+        public:
             // 类型
             Class *type;
-        
-        public:
+
             Class* getType()
             {
                 return type;

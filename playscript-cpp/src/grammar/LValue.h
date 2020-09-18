@@ -16,7 +16,7 @@ namespace play
             virtual void setValue(antlrcpp::Any value) = 0;
 
             virtual Variable* getVariable() = 0;
-
+            
             virtual PlayObject* getValueContainer() = 0;
     };
 };

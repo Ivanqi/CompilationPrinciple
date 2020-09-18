@@ -7,7 +7,6 @@
 namespace play
 {
     class Variable;
-    class PlayObject;
 
     // 自己实现的左值对象
     class MyLValue final : public LValue
@@ -16,18 +15,19 @@ namespace play
             Variable *variable_;
             PlayObject* valueContainer_;
 
-            MyLValue(PlayObject *valueContainer, Variable *variable);
 
         public:
-            antlrcpp::Any getValue();
+            MyLValue(PlayObject *valueContainer, Variable *variable);
 
-            void setValue(antlrcpp::Any value);
+            virtual antlrcpp::Any getValue();
 
-            Variable* getVariable();
+            virtual void setValue(antlrcpp::Any value);
+
+            virtual Variable* getVariable();
 
             std::string toString();
 
-            PlayObject* getValueContainer();
+            virtual PlayObject* getValueContainer();
     };
 };
 

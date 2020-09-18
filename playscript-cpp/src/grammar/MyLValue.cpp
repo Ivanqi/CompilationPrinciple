@@ -30,7 +30,7 @@ void MyLValue::setValue(antlrcpp::Any value)
     valueContainer_->setValue(variable_, value);
 
     // 如果variable是函数型变量，那改变functionObject->receiver
-    FunctionObject *tmp = dynamic_cast<FunctionObject*>(value);
+    FunctionObject *tmp = value.as<FunctionObject*>();
 
     if (tmp != NULL) {
         tmp->receiver = (Variable *) variable_;
@@ -42,10 +42,10 @@ Variable* MyLValue::getVariable()
     return variable_;
 }
 
-// TODO: 代码确实一部分
+// TODO: 代码缺失一部分
 std::string MyLValue::toString()
 {
-    return "LValue of " + variable_->name + " : " ;
+    return "LValue of " + variable_->getName() + " : " ;
 }
 
 PlayObject* MyLValue::getValueContainer()

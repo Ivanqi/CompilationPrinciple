@@ -38,7 +38,6 @@ namespace play
             // todo,检查这个类下的这个函数
             std::string toString();
 
-        protected:
             // 本栈帧里有没有包含某个变量的数据
             bool contains(Variable *variable);
     };
