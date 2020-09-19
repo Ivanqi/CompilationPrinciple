@@ -12,6 +12,9 @@
 #include "ReturnObject.h"
 #include "This.h"
 #include "Super.h"
+#include "PlayObject.h"
+#include "NullObject.h"
+#include "DefaultConstructor.h"
 
 using namespace play;
 
@@ -213,18 +216,18 @@ void ASTEvaluator::defaultObjectInit(Class *theClass, ClassObject *obj)
 }
 
 // 自己硬编码的println方法
-// void ASTEvaluator::println(PlayScriptParser::FunctionCallContext *ctx)
-// {
-//     if (ctx->expressionList() != NULL) {
-//         antlrcpp::Any value = visitExpression(ctx->expressionList());
-//         LValue *tmp = value.as<LValue*>();
-//         if (tmp != NULL) {
-//             value = tmp->getValue();
-//         }
+void ASTEvaluator::println(PlayScriptParser::FunctionCallContext *ctx)
+{
+    if (ctx->expressionList() != NULL) {
+        antlrcpp::Any value = visitExpressionList(ctx->expressionList());
+        LValue *tmp = value.as<LValue*>();
+        if (tmp != NULL) {
+            value = tmp->getValue();
+        }
 
-//         std::cout << value.as<std::string>() << std::endl;
-//     }
-// }
+        std::cout << value.as<std::string>() << std::endl;
+    }
+}
 
 antlrcpp::Any ASTEvaluator::add(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType)
 {
@@ -543,32 +546,6 @@ antlrcpp::Any ASTEvaluator::visitVariableInitializer(PlayScriptParser::VariableI
     return rtn;
 }
 
-antlrcpp::Any ASTEvaluator::visitPrimary(PlayScriptParser::PrimaryContext *ctx)
-{
-    if (ctx->literal()) {
-        return visitLiteral(ctx->literal());
-    }
-    return nullptr;
-}
-
-antlrcpp::Any ASTEvaluator::visitLiteral(PlayScriptParser::LiteralContext *ctx)
-{
-    if (ctx->integerLiteral()) {
-        return visitIntegerLiteral(ctx->integerLiteral());
-    }
-    return nullptr;
-}
-
-antlrcpp::Any ASTEvaluator::visitIntegerLiteral(PlayScriptParser::IntegerLiteralContext *ctx)
-{
-    return stoi(ctx->getText());
-}
-
-antlrcpp::Any ASTEvaluator::visitFloatLiteral(PlayScriptParser::FloatLiteralContext *ctx)
-{
-    return stof(ctx->getText());
-}
-
 antlrcpp::Any ASTEvaluator::visitFunctionBody(PlayScriptParser::FunctionBodyContext *ctx)
 {
     antlrcpp::Any rtn = NULL;
@@ -786,9 +763,436 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
     } else if (ctx->primary()) {
         return visitPrimary(ctx->primary());
         
+    } else if (ctx->postfix != NULL) {  // 后缀运算，例如: i++ 或 i--
+        antlrcpp::Any value = visitExpression(ctx->expression(0));
+        LValue *lValue;
+        Type *type = at_->typeOfNode[ctx->expression(0)];
+
+        if (value.as<LValue*>() != NULL) {
+            lValue = value.as<LValue*>();
+            value = lValue->getValue();
+        }
+
+        switch (ctx->postfix->getType()) {
+            case PlayScriptParser::INC:
+                if (type == PrimitiveType::Integer) {
+                    lValue->setValue(value.as<int>() + 1);
+                } else {
+                    lValue->setValue(value.as<long>() + 1);
+                }
+                rtn = value;
+                break;
+            
+            case PlayScriptParser::DEC:
+                if (type == PrimitiveType::Integer) {
+                    lValue->setValue(value.as<int>() - 1);
+                } else {
+                    lValue->setValue(value.as<long>() - 1);
+                }
+                rtn = value;
+                break;
+            
+            default:
+                break;
+        }
+
+    } else if (ctx->prefix != NULL) {   // 前缀操作。例如：++i 或 --i
+        antlrcpp::Any value = visitExpression(ctx->expression(0));
+        LValue *lValue;
+
+        Type *type = at_->typeOfNode[ctx->expression(0)];
+        if (value.as<LValue*>() != NULL) {
+            lValue = value.as<LValue*>();
+            value = lValue->getValue();
+        }
+
+        switch (ctx->postfix->getType()) {
+            case PlayScriptParser::INC:
+                if (type == PrimitiveType::Integer) {
+                   rtn = value.as<int>() + 1;
+                } else {
+                    rtn = value.as<long>() + 1;
+                }
+                lValue->setValue(rtn);
+                break;
+
+            case PlayScriptParser::DEC:
+                if (type == PrimitiveType::Integer) {
+                    rtn = value.as<int>() - 1;
+                } else {
+                    rtn = value.as<long>() - 1;
+                }
+                lValue->setValue(rtn);
+                break;
+            
+            case PlayScriptParser::BANG:    // 符号，逻辑非运算
+                rtn = !value.as<bool>();
+                break;
+            
+            default:
+                break;
+        }
+
+    } else if (ctx->functionCall() != NULL) {   // functionCall
+        rtn = visitFunctionCall(ctx->functionCall());
     }
 
-    return nullptr;
+    return rtn;
+}
+
+antlrcpp::Any ASTEvaluator::visitExpressionList(PlayScriptParser::ExpressionListContext *ctx)
+{
+    antlrcpp::Any rtn = NULL;
+    for (PlayScriptParser::ExpressionContext *child : ctx->expression()) {
+        rtn = visitExpression(child);
+    }
+
+    return rtn;
+}
+
+antlrcpp::Any ASTEvaluator::visitForInit(PlayScriptParser::ForInitContext *ctx)
+{
+    antlrcpp::Any rtn = NULL;
+    if (ctx->variableDeclarators() != NULL) {
+        rtn = visitVariableDeclarators(ctx->variableDeclarators());
+
+    } else if (ctx->expressionList() != NULL) {
+        rtn = visitExpressionList(ctx->expressionList());
+    }
+
+    return rtn;
+}
+
+antlrcpp::Any ASTEvaluator::visitLiteral(PlayScriptParser::LiteralContext *ctx)
+{
+    antlrcpp::Any rtn = NULL;
+
+    
+    if (ctx->integerLiteral() != NULL) {        // 整数
+        rtn = visitIntegerLiteral(ctx->integerLiteral());
+
+    } else if (ctx->floatLiteral() != NULL) {   // 浮点数
+        rtn = visitFloatLiteral(ctx->floatLiteral());
+
+    } else if (ctx->BOOL_LITERAL() != NULL) {   // 布尔值
+        if (ctx->BOOL_LITERAL()->getText() == "true") {
+            rtn = true;
+        } else {
+            rtn = false;
+        }
+    } else if (ctx->STRING_LITERAL() != NULL) { // 字符串
+        string withQuotationMark = ctx->STRING_LITERAL()->getText();
+        rtn = withQuotationMark.substr(1, withQuotationMark.length() - 1);
+
+    } else if (ctx->CHAR_LITERAL() != NULL) {   // 单个字符
+        rtn = ctx->CHAR_LITERAL()->getText()[0];
+
+    } else if (ctx->NULL_LITERAL() != NULL) {   // null字面量
+        rtn = NullObject::GetInstance();
+    }
+
+    return rtn;
+}
+
+antlrcpp::Any ASTEvaluator::visitIntegerLiteral(PlayScriptParser::IntegerLiteralContext *ctx)
+{
+    antlrcpp::Any rtn = NULL;
+    if (ctx->DECIMAL_LITERAL() != NULL) {
+        rtn = atoi(ctx->DECIMAL_LITERAL()->getText().c_str());
+    }
+    return rtn;
+}
+
+antlrcpp::Any ASTEvaluator::visitFloatLiteral(PlayScriptParser::FloatLiteralContext *ctx)
+{
+    return (float)atof(ctx->getText().c_str());
+}
+
+antlrcpp::Any ASTEvaluator::visitParExpression(PlayScriptParser::ParExpressionContext *ctx)
+{
+    return visitExpression(ctx->expression());
+}
+
+antlrcpp::Any ASTEvaluator::visitPrimary(PlayScriptParser::PrimaryContext *ctx)
+{
+    antlrcpp::Any rtn;
+
+    if (ctx->literal() != NULL) {   // 字面量
+        rtn = visitLiteral(ctx->literal());
+
+    } else if (ctx->IDENTIFIER() != NULL) { // 变量
+        Symbol *symbol = at_->symbolOfNode[ctx];
+        Variable *tmpVar = dynamic_cast<Variable*>(symbol);
+        Function *tmpFun = dynamic_cast<Function*>(symbol);
+
+        if (tmpVar != NULL) {
+            rtn = getLValue(tmpVar);
+
+        } else if (tmpFun != NULL) {
+            FunctionObject *obj = new FunctionObject(tmpFun);
+            rtn = obj;
+        }
+
+    } else if (ctx->expression() != NULL) { // 括号括起来的表达式
+        rtn = visitExpression(ctx->expression());
+
+    } else if (ctx->THIS() != NULL) {   // this
+        This *thisRef = (This *)at_->symbolOfNode[ctx];
+        rtn = getLValue(thisRef);
+    }
+    // todo 缺少 SUPER
+
+    return rtn;
+}
+
+antlrcpp::Any ASTEvaluator::visitPrimitiveType(PlayScriptParser::PrimitiveTypeContext *ctx)
+{
+    antlrcpp::Any rtn = NULL;
+    if (ctx->INT() != NULL) {
+        rtn = PlayScriptParser::INT;
+
+    } else if (ctx->LONG() != NULL) {
+        rtn = PlayScriptParser::LONG;
+
+    } else if (ctx->FLOAT() != NULL) {
+        rtn = PlayScriptParser::FLOAT;
+
+    } else if (ctx->DOUBLE() != NULL) {
+        rtn = PlayScriptParser::DOUBLE;
+
+    } else if (ctx->BOOLEAN() != NULL) {
+        rtn = PlayScriptParser::BOOLEAN;
+
+    } else if (ctx->CHAR() != NULL) {
+        rtn = PlayScriptParser::CHAR;
+
+    } else if (ctx->SHORT() != NULL) {
+        rtn = PlayScriptParser::SHORT;
+
+    } else if (ctx->BYTE() != NULL) {
+        rtn = PlayScriptParser::BYTE;
+    }
+
+    return rtn;
+}
+
+antlrcpp::Any ASTEvaluator::visitStatement(PlayScriptParser::StatementContext *ctx)
+{
+    antlrcpp::Any rtn = NULL;
+    if (ctx->statementExpression != NULL) {
+        rtn = visitExpression(ctx->statementExpression);
+
+    } else if (ctx->WHILE() != NULL) {
+        if (ctx->parExpression()->expression() != NULL && ctx->statement(0) != NULL) {
+
+            while (true) {
+                // 每次循环都要计算一下循环条件
+                bool condition = true;
+                antlrcpp::Any value = visitExpression(ctx->parExpression()->expression());
+
+                if (value.as<LValue*>() != NULL) {
+                    condition = (bool) value.as<LValue*>()->getValue();
+                } else {
+                    condition = value.as<bool>();
+                }
+
+                if (condition) {
+                    // 执行while后面的语句
+                    if (condition) {
+                        rtn = visitStatement(ctx->statement(0));
+
+                        // break
+                        if (rtn.as<BreakObject*>() != NULL) {
+                            rtn = NULL;     // 清除BreakObject，也就是只跳出一层循环
+                            break;
+                        } else if (rtn.as<ReturnObject*>() != NULL) {    // return
+                            break;
+                        }
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+
+    } else if (ctx->FOR() != NULL) {    // for循环
+        // 添加StackFrame
+        BlockScope *scope = static_cast<BlockScope*>(at_->node2Scope[ctx]);
+        StackFrame *frame = new StackFrame(scope);
+        pushStack(frame);
+
+        PlayScriptParser::ForControlContext *forControl = ctx->forControl();
+        if (forControl->enhancedForControl() != NULL) {
+
+        } else {
+            // 初始化部分执行一次
+            if (forControl->forInit() != NULL) {
+                rtn = visitForInit(forControl->forInit());
+            }
+
+            while (true) {
+                bool condition = true;  // 如果没有条件判断部分，意味着一直循环
+                if (forControl->expression() != NULL) {
+                    antlrcpp::Any value = visitExpression(forControl->expression());
+                    if (value.as<LValue*>() != NULL) {
+                        condition = (bool) value.as<LValue*>()->getValue();
+                    } else {
+                        condition = (bool) value;
+                    }
+                }
+
+                if (condition) {
+                    // 执行for的语句体
+                    rtn = visitStatement(ctx->statement(0));
+
+                    // 处理break
+                    if (rtn.as<BreakObject*>() != NULL) {
+                        rtn = NULL;
+                        break;
+
+                    } else if(rtn.as<ReturnObject*>() != NULL) {    // return
+                        break;
+                    }
+
+                    // 执行forUpdate，通常是"i++"这样语句。这个顺序不能出错
+                    if (forControl->forUpdate != NULL) {
+                        visitExpressionList(forControl->forUpdate);
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+
+        // 去掉StackFrame
+        popStack();
+
+    } else if (ctx->blockLabel != NULL) {   // block
+        rtn = visitBlock(ctx->blockLabel);
+
+    } else if (ctx->BREAK() != NULL) {      // break
+        rtn = BreakObject::GetInstance();
+
+    } else if (ctx->RETURN() != NULL) {     // return语句
+        if (ctx->expression() != NULL) {
+            rtn = visitExpression(ctx->expression());
+
+            // return 语句应该不需要左值    // TODO 取左值的场景需要优化，目前都是取左值
+            if (rtn.as<LValue*>() != NULL) {
+                rtn = rtn.as<LValue*>()->getValue();
+            }
+
+            // 把闭包涉及的环境变量都打包带走
+            if (rtn.as<FunctionObject*>() != NULL) {
+                FunctionObject *functionObject = rtn.as<FunctionObject*>();
+
+            } else if (rtn.as<ClassObject*>() != NULL) {
+                // 如果返回的是一个对象，那么检查它的所有属性里有没有闭包的。 // TODO 如果属性仍然是一个对象，可能就要向下递归查找
+                ClassObject *classObject = rtn.as<ClassObject*>();
+                getClosureValues(classObject);
+
+            }
+        }
+        // 把真实的返回值封装一个RetrunObject对象里，告诉visitBlockStatements停止执行下面的语句
+        rtn = new ReturnObject(rtn);
+    }
+
+    return rtn;
+}
+
+antlrcpp::Any ASTEvaluator::visitTypeType(PlayScriptParser::TypeTypeContext *ctx)
+{
+    return visitPrimitiveType(ctx->primitiveType());
+}
+
+antlrcpp::Any ASTEvaluator::visitProg(PlayScriptParser::ProgContext *ctx)
+{
+    antlrcpp::Any rtn = NULL;
+    pushStack(new StackFrame((BlockScope*) at_->node2Scope[ctx]));
+
+    rtn = visitBlockStatements(ctx->blockStatements());
+
+    popStack();
+
+    return rtn;
+}
+
+antlrcpp::Any ASTEvaluator::visitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
+{
+    // this
+    if (ctx->THIS() != NULL) {
+        thisConstructor(ctx);
+        return NULL;    // 不需要有返回值，因为本身就是在构造方法里调用
+
+    } else if (ctx->SUPER() != NULL) {  // super
+        thisConstructor(ctx);           // 似乎跟this完全一样。因为方法的绑定是解析准确了的
+        return NULL;
+    }
+
+    antlrcpp::Any rtn = NULL;
+
+    // 这是调用时的名称，不一定真正的函数名，还可能函数的变量名
+    string functionName = ctx->IDENTIFIER()->getText();
+
+    // 如果调用的是类的缺省构造函数，则直接创建对象并返回
+    Symbol *symbol = at_->symbolOfNode[ctx];
+
+    DefaultConstructor *tmpDefault = dynamic_cast<DefaultConstructor*>(symbol);
+    if (tmpDefault != NULL) {
+        // 类的缺省构造函数。没有一个具体函数跟它关联，只是指向一个类
+        return createAndInitClassObject(tmpDefault->Class());   // 返回新创建的对象
+
+    } else if (functionName == "println") {
+        // 用于打印输出
+        println(ctx);
+        return rtn;
+    }
+
+    // 在上下文中查找函数，并根据需要创建FunctionObject
+    FunctionObject *functionObject = getFuntionObject(ctx);
+    Function *function = functionObject->function_;
+
+    // 如果是对象的构造方法，则按照对象方法调用去执行，并返回所创建的对象
+    if (function->isConstructor()) {
+        Class *theClass = (Class*) function->getEnclosingScope();
+
+        ClassObject *newObject = createAndInitClassObject(theClass);  // 先做缺省的初始化
+
+        methodCall(newObject, ctx, false);
+
+        return newObject;   // 返回新创建的对象
+    }
+
+    // 计算参数值
+    vector<antlrcpp::Any> paramValues = calcParamValues(ctx);
+
+    if (traceFunctionCall) {
+        cout << "\n>>FunctionCall : " + ctx->getText() << endl;
+    }
+
+    rtn = functionCall(functionObject, paramValues);
+
+    return rtn;
+}
+
+void ASTEvaluator::thisConstructor(PlayScriptParser::FunctionCallContext *ctx)
+{
+    Symbol *symbol = at_->symbolOfNode[ctx];
+    
+    DefaultConstructor *tmpDefault = dynamic_cast<DefaultConstructor*>(symbol);
+    Function *tmpFun = dynamic_cast<Function*>(symbol);
+
+    if (tmpDefault != NULL) {  // 缺省构造函数
+        return; // 这里不用管，因为缺省构造函数一定会被调用
+
+    } else if (tmpFun != NULL) {
+        Function *function = tmpFun;
+        FunctionObject *functionObject = new FunctionObject(function);
+
+        vector<antlrcpp::Any> paramValues = calcParamValues(ctx);
+
+        functionCall(functionObject, paramValues);
+    }
 }
 
 /**

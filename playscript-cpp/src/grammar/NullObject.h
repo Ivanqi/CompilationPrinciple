@@ -15,17 +15,11 @@ namespace play
         private:
             static NullObject *instance;
 
-            NullObject()
-            {
-                instance = new NullObject();
-            }
+            NullObject();
 
         public:
             // 获取唯一实例
-            static NullObject* GetInstance()
-            {
-                return instance;
-            }
+            static NullObject* GetInstance();
 
             // 在打印时输出Null
             std::string toString()
@@ -33,8 +27,6 @@ namespace play
                 return "Null";
             }
     };
-
-    NullObject* NullObject::instance = NULL;
 };
 
 #endif

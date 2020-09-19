@@ -3,20 +3,18 @@
 
 #pragma once
 #include "PlayObject.h"
-#include "Class.h"
 
 namespace play
 {
+    class Class;
+    
     class ClassObject: public PlayObject
     {        
         public:
             // 类型
             Class *type;
 
-            Class* getType()
-            {
-                return type;
-            }
+            Class* getType();
     };
 };
 

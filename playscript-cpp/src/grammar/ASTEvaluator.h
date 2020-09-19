@@ -5,7 +5,6 @@
 
 #include "PlayScriptBaseVisitor.h"
 #include "PlayScriptParser.h"
-#include "PlayObject.h"
 #include "Stack.h"
 #include "StackFrame.h"
 #include <iostream>
@@ -23,6 +22,8 @@ namespace play
     class AnnotatedTree;
     class Type;
     class FunctionObject;
+    class PlayObject;
+    class NullObject;
 
     class ASTEvaluator: public PlayScriptBaseVisitor 
     {  
@@ -97,6 +98,8 @@ namespace play
 
             antlrcpp::Any LT(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType);
 
+            void thisConstructor(PlayScriptParser::FunctionCallContext *ctx);
+
 
         protected:
             // 对象初始化
@@ -154,6 +157,22 @@ namespace play
             virtual antlrcpp::Any visitBlockStatements(PlayScriptParser::BlockStatementsContext *ctx) override;
 
             virtual antlrcpp::Any visitBlockStatement(PlayScriptParser::BlockStatementContext *ctx) override;
+
+            virtual antlrcpp::Any visitExpressionList(PlayScriptParser::ExpressionListContext *ctx) override;
+
+            virtual antlrcpp::Any visitForInit(PlayScriptParser::ForInitContext *ctx) override;
+
+            virtual antlrcpp::Any visitParExpression(PlayScriptParser::ParExpressionContext *ctx) override;
+
+            virtual antlrcpp::Any visitPrimitiveType(PlayScriptParser::PrimitiveTypeContext *ctx) override;
+
+            virtual antlrcpp::Any visitStatement(PlayScriptParser::StatementContext *ctx) override;
+
+            virtual antlrcpp::Any visitTypeType(PlayScriptParser::TypeTypeContext *ctx) override;
+
+            virtual antlrcpp::Any visitProg(PlayScriptParser::ProgContext *ctx) override;
+
+            virtual antlrcpp::Any visitFunctionCall(PlayScriptParser::FunctionCallContext *ctx) override;
     };
 };
 

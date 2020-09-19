@@ -4,10 +4,11 @@
 #pragma once
 
 #include "Variable.h"
-#include "PlayObject.h"
+// #include "PlayObject.h"
 
 namespace play
 {
+    class PlayObject;
     class LValue
     {
         public:

@@ -5,7 +5,7 @@
 #include <string>
 #include "FunctionType.h"
 #include "Scope.h"
-// #include "ParserRuleContext.h"
+#include "ParserRuleContext.h"
 using namespace antlr4;
 
 namespace play

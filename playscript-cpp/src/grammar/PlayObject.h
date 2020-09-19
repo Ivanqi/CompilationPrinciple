@@ -8,7 +8,6 @@
 namespace play
 {
     class Variable;
-    class NullObject;
 
     // PlayScript的对象
     class PlayObject

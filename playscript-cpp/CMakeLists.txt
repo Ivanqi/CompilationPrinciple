@@ -47,6 +47,8 @@ set(src_dir
     src/grammar/PlayObject.cpp
     src/grammar/MyLValue.cpp
     src/grammar/FunctionObject.cpp
+    src/grammar/ClassObject.cpp
+    src/grammar/NullObject.cpp
 )
 
 file(GLOB antrl-cpp-src
