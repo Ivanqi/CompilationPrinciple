@@ -9,7 +9,8 @@
 #include "Stack.h"
 #include "StackFrame.h"
 #include <iostream>
-// using namespace std;
+#include <vector>
+using namespace std;
 
 namespace play 
 {
@@ -21,6 +22,7 @@ namespace play
     class Class;
     class AnnotatedTree;
     class Type;
+    class FunctionObject;
 
     class ASTEvaluator: public PlayScriptBaseVisitor 
     {  
@@ -55,6 +57,27 @@ namespace play
             // 自己硬编码的println方法
             void println(PlayScriptParser::FunctionCallContext *ctx);
 
+            /**
+             * 对象方法调用
+             * 要先计算完参数的值，然后再添加对象的StackFrame，然后再调用方法
+             * 
+             * @param classObject 实际调用时的对象。通过这个对象可以获得真实的类
+             * @param ctx
+             */
+            antlrcpp::Any methodCall(ClassObject *classObject, PlayScriptParser::FunctionCallContext *ctx, bool isSuper);
+
+            // 执行一个函数的方法体。需要先设置参数值，然后再执行代码
+            antlrcpp::Any functionCall(FunctionObject *functionObject, vector<antlrcpp::Any>& paramValues);
+
+            /**
+             * 根据函数调用上下文，返回一个FunctionObject
+             * 对于函数型的变量，这个functionObject是存在变量里的
+             * 对于普通的函数调用，此时创建一个
+             */
+            FunctionObject* getFuntionObject(PlayScriptParser::FunctionCallContext *ctx);
+
+            vector<antlrcpp::Any> calcParamValues(PlayScriptParser::FunctionCallContext *ctx);
+
             // 各种运算
             antlrcpp::Any add(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType);
 
@@ -66,11 +89,14 @@ namespace play
 
             bool EQ(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType);
 
-            bool GE(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType);
+            antlrcpp::Any GE(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType);
 
-            bool GT(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType);
+            antlrcpp::Any GT(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType);
 
-            bool LE(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType);
+            antlrcpp::Any LE(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType);
+
+            antlrcpp::Any LT(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType);
+
 
         protected:
             // 对象初始化
@@ -91,9 +117,8 @@ namespace play
 
             LValue* getLValue(Variable *variable);
 
+
             // visit每个节点
-
-
             virtual antlrcpp::Any visitExpression(PlayScriptParser::ExpressionContext *ctx) override;
 
             virtual antlrcpp::Any visitPrimary(PlayScriptParser::PrimaryContext *ctx) override;
@@ -123,6 +148,13 @@ namespace play
             virtual antlrcpp::Any visitVariableDeclaratorId(PlayScriptParser::VariableDeclaratorIdContext *ctx) override;
 
             virtual antlrcpp::Any visitVariableInitializer(PlayScriptParser::VariableInitializerContext *ctx) override;
+
+            virtual antlrcpp::Any visitBlock(PlayScriptParser::BlockContext *ctx) override;
+
+            virtual antlrcpp::Any visitBlockStatements(PlayScriptParser::BlockStatementsContext *ctx) override;
+
+            virtual antlrcpp::Any visitBlockStatement(PlayScriptParser::BlockStatementContext *ctx) override;
+    };
 };
 
 #endif

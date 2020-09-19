@@ -13,7 +13,7 @@ void FunctionObject::setFunction(Function *function)
     function_ = function;
 }
 
-Variable* getReceiver()
+Variable* FunctionObject::getReceiver()
 {
     return receiver_;
 }

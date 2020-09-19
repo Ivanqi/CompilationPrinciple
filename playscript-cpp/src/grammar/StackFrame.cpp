@@ -4,6 +4,7 @@
 #include "BlockScope.h"
 #include "ClassObject.h"
 #include "FunctionObject.h"
+#include "Function.h"
 
 using namespace play;
 
@@ -16,6 +17,10 @@ StackFrame::StackFrame(BlockScope *scope): scope_(scope), object_(new PlayObject
 }
 
 StackFrame::StackFrame(ClassObject *object): scope_(object->getType()), object_(object)
+{
+}
+
+StackFrame::StackFrame(FunctionObject *object):scope_(object->function_), object_(object)
 {
 }
 

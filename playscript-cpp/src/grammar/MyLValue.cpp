@@ -33,7 +33,7 @@ void MyLValue::setValue(antlrcpp::Any value)
     FunctionObject *tmp = value.as<FunctionObject*>();
 
     if (tmp != NULL) {
-        tmp->receiver = (Variable *) variable_;
+        tmp->receiver_ = (Variable *) variable_;
     }
 }
 

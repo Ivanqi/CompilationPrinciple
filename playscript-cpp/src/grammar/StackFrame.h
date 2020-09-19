@@ -11,6 +11,7 @@ namespace play
     class BlockScope;
     class ClassObject;
     class Variable;
+    class FunctionObject;
 
     class StackFrame
     {
@@ -34,6 +35,9 @@ namespace play
             StackFrame(BlockScope *scope);
 
             StackFrame(ClassObject *object);
+
+            // 为函数调用创建一个StackFrame
+            StackFrame(FunctionObject *object);
 
             // todo,检查这个类下的这个函数
             std::string toString();
