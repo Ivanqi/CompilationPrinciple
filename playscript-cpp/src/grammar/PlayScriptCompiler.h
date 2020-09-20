@@ -2,6 +2,7 @@
 #define PLAYSCRIPTCOMPILER_H
 
 #pragma once
+#include "antlr4-runtime.h"
 #include "CharStream.h"
 #include "CommonTokenStream.h"
 #include "tree/ParseTreeWalker.h"
@@ -30,6 +31,8 @@ namespace play
 
             // 打印AST，以lisp格式
             void dumpAST();
+
+            antlrcpp::Any Execute(AnnotatedTree *at);
     };
 };
 

@@ -5,6 +5,7 @@
 #include "TypeChecker.h"
 #include "SematicValidator.h"
 #include "ClosureAnalyzer.h"
+#include "ASTEvaluator.h"
 
 #include <iostream>
 
@@ -91,6 +92,13 @@ void PlayScriptCompiler::dumpAST()
         std::cout << at->ast->toStringTree(parser) << std::endl;
     }
     std::cout << std::endl;
+}
+
+antlrcpp::Any PlayScriptCompiler::Execute(AnnotatedTree *at)
+{
+    ASTEvaluator *visitor = new ASTEvaluator(at);
+    antlrcpp::Any result = visitor->visit(at->ast);
+    return result;
 }
 
 

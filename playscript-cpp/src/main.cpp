@@ -4,6 +4,7 @@
 #include "PlayScriptParser.h"
 #include "ASTEvaluator.h"
 #include "PlayScriptCompiler.h"
+#include "AnnotatedTree.h"
 #include <iostream>
 
 using namespace antlr4;
@@ -14,10 +15,11 @@ int main(int argc, const char* argv[]) {
 
     const char* filepath;
     PlayScriptCompiler compiler;
+    AnnotatedTree *at;
     
     if (argc == 2) {
         filepath = argv[1];
-        compiler.compile(filepath);
+        at = compiler.compile(filepath);
     } else if (argc > 3 && argc <= 4) {
         filepath = argv[1];
         const char* verboseStr = argv[2];
@@ -25,9 +27,14 @@ int main(int argc, const char* argv[]) {
 
         bool verbose = strcmp(verboseStr, "true") == 0 ? true : false;
         bool astDump = strcmp(astDumpStr, "true") == 0 ? true : false;
-        compiler.compile(filepath, verbose, astDump);
+        at = compiler.compile(filepath, verbose, astDump);
     } else {
         cout << "无效参数列表" << endl; 
+        return 0;
+    }
+
+    if (!at->hasCompilationError()) {
+        antlrcpp::Any result = compiler.Execute(at);
     }
 
     return 0;
