@@ -32,10 +32,10 @@ void ClosureAnalyzer::analyzeClosures()
  */
 unordered_set<Variable*> ClosureAnalyzer::calcClosureVariables(Function *function)
 {
-    unordered_set<Variable*> refered = move(variablesReferedByScope(function));
-    unordered_set<Variable*> declared = move(variablesDeclaredUnderScope(function));
+    unordered_set<Variable*> refered = variablesReferedByScope(function);
+    unordered_set<Variable*> declared = variablesDeclaredUnderScope(function);
 
-    // refered.erase(declared);
+    refered.erase(declared.begin(), declared.end());
 
     return refered;
 }
@@ -75,18 +75,15 @@ unordered_set<Variable*> ClosureAnalyzer::variablesDeclaredUnderScope(Scope *sco
 {
     unordered_set<Variable*> rtn;
     for (Symbol *symbol: scope->symbols) {
-        //TODO 这里的派生类转换有问题
-        Variable *tmp = static_cast<Variable*>(symbol);
-        Scope *tmp2 = static_cast<Scope*> (symbol);
+
+        Variable *tmp = dynamic_cast<Variable*>(symbol);
+        Scope *tmp2 = dynamic_cast<Scope*> (symbol);
         
         if (tmp != nullptr) {
             rtn.insert(tmp);
         } else if (tmp2 != nullptr) {
             unordered_set<Variable*> hVariable = variablesDeclaredUnderScope(tmp2);
-
-            for (auto iter = hVariable.begin(); iter != hVariable.end(); ++iter) {
-                rtn.insert(*iter);
-            }
+            rtn.insert(hVariable.begin(), hVariable.end());
         }
     }
     return rtn;
