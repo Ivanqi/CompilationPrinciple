@@ -16,7 +16,7 @@ void ClosureAnalyzer::analyzeClosures()
 {
     for (Type *type : at_->types) {
         Function *tmp = dynamic_cast<Function*>(type);
-        if (tmp != NULL && tmp->isMethod()) {
+        if (tmp != nullptr && tmp->isMethod()) {
             unordered_set<Variable*> set_ = move(calcClosureVariables((Function *)type));
             
             if (set_.size() > 0) {
@@ -52,7 +52,7 @@ unordered_set<Variable*> ClosureAnalyzer::variablesReferedByScope(Scope *scope)
     map<ParserRuleContext*, Symbol*>::iterator iter;
     for (iter = at_->symbolOfNode.begin(); iter != at_->symbolOfNode.end(); iter++) {
         Symbol *tmp = dynamic_cast<Symbol*>(iter->second);
-        if (tmp != NULL && isAncestor(scopeNode, iter->first)) {
+        if (tmp != nullptr && isAncestor(scopeNode, iter->first)) {
             rtn.insert((Variable*)iter->second);
         }
     }
@@ -61,7 +61,7 @@ unordered_set<Variable*> ClosureAnalyzer::variablesReferedByScope(Scope *scope)
 
 bool ClosureAnalyzer::isAncestor(RuleContext *node1, RuleContext *node2)
 {
-    if (node2->parent == NULL) {
+    if (node2->parent == nullptr) {
         return false;
     } else if (node2->parent == node1) {
         return true;
@@ -79,9 +79,9 @@ unordered_set<Variable*> ClosureAnalyzer::variablesDeclaredUnderScope(Scope *sco
         Variable *tmp = static_cast<Variable*>(symbol);
         Scope *tmp2 = static_cast<Scope*> (symbol);
         
-        if (tmp != NULL) {
+        if (tmp != nullptr) {
             rtn.insert(tmp);
-        } else if (tmp2 != NULL) {
+        } else if (tmp2 != nullptr) {
             unordered_set<Variable*> hVariable = variablesDeclaredUnderScope(tmp2);
 
             for (auto iter = hVariable.begin(); iter != hVariable.end(); ++iter) {

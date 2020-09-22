@@ -1317,11 +1317,9 @@ FunctionObject* ASTEvaluator::getFuntionObject(PlayScriptParser::FunctionCallCon
 
     Symbol *symbol = at_->symbolOfNode[ctx];
 
-    Variable *tmp = dynamic_cast<Variable*>(symbol);
-    Function *funTmp = dynamic_cast<Function*>(symbol);
     // 函数类型的变量
-    if (symbol != nullptr) {
-        Variable *variable = (Variable *)symbol;
+    if (dynamic_cast<Variable*>(symbol) != nullptr) {
+        Variable *variable = dynamic_cast<Variable*>(symbol);
         LValue *lValue = getLValue(variable);
         antlrcpp::Any value = lValue->getValue();
 
@@ -1330,8 +1328,8 @@ FunctionObject* ASTEvaluator::getFuntionObject(PlayScriptParser::FunctionCallCon
             function = functionObject->function_;
         }
 
-    } else if (funTmp != nullptr) {
-        function = funTmp;
+    } else if (dynamic_cast<Function*>(symbol) != nullptr) {
+        function = dynamic_cast<Function*>(symbol);
 
     } else {
         string functionName = ctx->IDENTIFIER()->getText(); // 这是调用时的名称，不一定是真正的函数名，还可能是函数类型的变量名

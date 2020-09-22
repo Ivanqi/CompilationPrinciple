@@ -10,7 +10,7 @@ using namespace play;
 
 void TypeChecker::exitVariableDeclarator(PlayScriptParser::VariableDeclaratorContext *ctx)
 {
-    if (ctx->variableInitializer() != NULL) {
+    if (ctx->variableInitializer() != nullptr) {
         Variable *variable = (Variable *)at_->symbolOfNode[ctx->variableDeclaratorId()];
         Type *type1 = variable->getType();
         Type *type2 = at_->typeOfNode[ctx->variableInitializer()];
@@ -21,17 +21,14 @@ void TypeChecker::exitVariableDeclarator(PlayScriptParser::VariableDeclaratorCon
 // 检查是否能做赋值操作
 void TypeChecker::checkAssign(Type *type1, Type *type2, ParserRuleContext *ctx, ParserRuleContext *operand1, ParserRuleContext *operand2)
 {
-    Class *tmp = dynamic_cast<Class*>(type2);
-    Function *tmp2 = dynamic_cast<Function*>(type2);
-
     if (PrimitiveType::isNumeric(type2)) {
         if (!checkNumericAssign(type2, type1)) {
             at_->log("can not assign " + operand2->getText() 
                 + " of type " + type2->getName() + " to " + operand1->getText() + " of type" + type1->getName(), ctx);
         }
-    } else if (tmp != NULL) {
+    } else if (dynamic_cast<Class*>(type2) != nullptr) {
         //TODO 检查类的兼容性
-    } else if (tmp2 != NULL) {
+    } else if (dynamic_cast<Function*>(type2) != nullptr) {
         //TODO 检查函数的兼容性
     }
 }

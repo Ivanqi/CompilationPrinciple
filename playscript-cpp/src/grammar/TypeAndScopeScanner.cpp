@@ -54,7 +54,7 @@ void TypeAndScopeScanner::enterBlock(PlayScriptParser::BlockContext *ctx)
     // 对于函数，不需要再额外建一个scope
     // 这里之所以能够 父类 instanceof 子类。是因为ctx->parent本身实例化的是FunctionBodyContext。但是被转换成了ParseTree
     PlayScriptParser::FunctionBodyContext *tmp = dynamic_cast<PlayScriptParser::FunctionBodyContext*>(ctx->parent);
-    if (tmp != NULL) {
+    if (tmp != nullptr) {
         BlockScope *scope = new BlockScope(currentScope(), ctx);
         currentScope()->addSymbol(scope);
         pushScope(scope, ctx);
@@ -64,7 +64,7 @@ void TypeAndScopeScanner::enterBlock(PlayScriptParser::BlockContext *ctx)
 void TypeAndScopeScanner::exitBlock(PlayScriptParser::BlockContext *ctx)
 {
     PlayScriptParser::FunctionBodyContext *tmp = dynamic_cast<PlayScriptParser::FunctionBodyContext*>(ctx->parent);
-    if (tmp != NULL) {
+    if (tmp != nullptr) {
         popScope();
     }
 }
@@ -73,7 +73,7 @@ void TypeAndScopeScanner::exitBlock(PlayScriptParser::BlockContext *ctx)
 void TypeAndScopeScanner::enterStatement(PlayScriptParser::StatementContext *ctx) 
 {
     // 为for建立额外的Scope
-    if (ctx->FOR() != NULL) {
+    if (ctx->FOR() != nullptr) {
         BlockScope *scope = new BlockScope(currentScope(), ctx);
         currentScope()->addSymbol(scope);
         pushScope(scope, ctx);
@@ -83,7 +83,7 @@ void TypeAndScopeScanner::enterStatement(PlayScriptParser::StatementContext *ctx
 void TypeAndScopeScanner::exitStatement(PlayScriptParser::StatementContext *ctx) 
 {
     //释放for语句的外层scope
-    if (ctx->FOR() != NULL) {
+    if (ctx->FOR() != nullptr) {
         popScope();
     }
 }
