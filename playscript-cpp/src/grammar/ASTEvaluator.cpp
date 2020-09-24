@@ -605,7 +605,7 @@ antlrcpp::Any ASTEvaluator::visitBlockStatement(PlayScriptParser::BlockStatement
 {
     antlrcpp::Any rtn = nullptr;
     if (ctx->variableDeclarators() != nullptr) {
-        rtn = visitVariableDeclarators(ctx->variableDeclarators());
+        // rtn = visitVariableDeclarators(ctx->variableDeclarators());
 
     } else if (ctx->statement() != nullptr) {
         rtn = visitStatement(ctx->statement());
@@ -634,199 +634,199 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
 
     // 二元表达式
     if (ctx->bop != nullptr && ctx->expression().size() >= 2) {
-        antlrcpp::Any left = visitExpression(ctx->expression(0));
-        antlrcpp::Any right = visitExpression(ctx->expression(1));
+        // antlrcpp::Any left = visitExpression(ctx->expression(0));
+        // antlrcpp::Any right = visitExpression(ctx->expression(1));
 
-        antlrcpp::Any leftObject = left;
-        antlrcpp::Any rightObject = right;
+        // antlrcpp::Any leftObject = left;
+        // antlrcpp::Any rightObject = right;
 
-        if (left.as<LValue*>() != nullptr) {
-            leftObject = left.as<LValue*>()->getValue();
-        }
+        // if (left.as<LValue*>() != nullptr) {
+        //     leftObject = left.as<LValue*>()->getValue();
+        // }
 
-        if (right.as<LValue*>() != nullptr) {
-            rightObject = right.as<LValue*>()->getValue();
-        }
+        // if (right.as<LValue*>() != nullptr) {
+        //     rightObject = right.as<LValue*>()->getValue();
+        // }
 
-        // 本节点期待的数据类型
-        Type *type = at_->typeOfNode[ctx];
+        // // 本节点期待的数据类型
+        // Type *type = at_->typeOfNode[ctx];
 
-        // 左右两个子节点的类型
-        Type *type1 = at_->typeOfNode[ctx->expression(0)];
-        Type *type2 = at_->typeOfNode[ctx->expression(1)];
+        // // 左右两个子节点的类型
+        // Type *type1 = at_->typeOfNode[ctx->expression(0)];
+        // Type *type2 = at_->typeOfNode[ctx->expression(1)];
 
-        switch (ctx->bop->getType()) {
-            case PlayScriptParser::ADD:
-                rtn = add(leftObject, rightObject, type);
-                break;
+        // switch (ctx->bop->getType()) {
+        //     case PlayScriptParser::ADD:
+        //         rtn = add(leftObject, rightObject, type);
+        //         break;
 
-            case PlayScriptParser::SUB:
-                rtn = minus(leftObject, rightObject, type);
-                break;
+        //     case PlayScriptParser::SUB:
+        //         rtn = minus(leftObject, rightObject, type);
+        //         break;
             
-            case PlayScriptParser::MUL:
-                rtn = mul(leftObject, rightObject, type);
-                break;
+        //     case PlayScriptParser::MUL:
+        //         rtn = mul(leftObject, rightObject, type);
+        //         break;
             
-            case PlayScriptParser::DIV:
-                rtn = div(leftObject, rightObject, type);
-                break;
+        //     case PlayScriptParser::DIV:
+        //         rtn = div(leftObject, rightObject, type);
+        //         break;
             
-            case PlayScriptParser::EQUAL:
-                rtn = EQ(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
-                break;
+        //     case PlayScriptParser::EQUAL:
+        //         rtn = EQ(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
+        //         break;
             
-            case PlayScriptParser::NOTEQUAL:
-                rtn = !EQ(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
-                break;
+        //     case PlayScriptParser::NOTEQUAL:
+        //         rtn = !EQ(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
+        //         break;
             
-            case PlayScriptParser::LE:
-                rtn = LE(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
-                break;
+        //     case PlayScriptParser::LE:
+        //         rtn = LE(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
+        //         break;
             
-            case PlayScriptParser::LT:
-                rtn = LT(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
-                break;
+        //     case PlayScriptParser::LT:
+        //         rtn = LT(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
+        //         break;
 
-            case PlayScriptParser::GE:
-                rtn = GE(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
-                break;
+        //     case PlayScriptParser::GE:
+        //         rtn = GE(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
+        //         break;
 
-            case PlayScriptParser::GT:
-                rtn = GT(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
-                break;
+        //     case PlayScriptParser::GT:
+        //         rtn = GT(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
+        //         break;
             
-            case PlayScriptParser::AND:
-                rtn = leftObject.as<bool>() && rightObject.as<bool>();
-                break;
+        //     case PlayScriptParser::AND:
+        //         rtn = leftObject.as<bool>() && rightObject.as<bool>();
+        //         break;
             
-            case PlayScriptParser::OR:
-                rtn = leftObject.as<bool>() || rightObject.as<bool>();
-                break;
+        //     case PlayScriptParser::OR:
+        //         rtn = leftObject.as<bool>() || rightObject.as<bool>();
+        //         break;
             
-            case PlayScriptParser::ASSIGN:
-                if (left.as<LValue*>() != nullptr) {
-                    left.as<LValue*>()->setValue(rightObject);
-                    rtn = right;
-                } else {
-                    cout << "Unsupported feature during assignment" << endl;
-                }
-                break;
+        //     case PlayScriptParser::ASSIGN:
+        //         if (left.as<LValue*>() != nullptr) {
+        //             left.as<LValue*>()->setValue(rightObject);
+        //             rtn = right;
+        //         } else {
+        //             cout << "Unsupported feature during assignment" << endl;
+        //         }
+        //         break;
             
-            default:
-                break;
+        //     default:
+        //         break;
 
-        }
+        // }
 
     } else if (ctx->bop != nullptr && ctx->bop->getType() == PlayScriptParser::DOT) {
         // 此语法是左递归的，算法体现这一点
-        antlrcpp::Any leftObject = visitExpression(ctx->expression(0));
+        // antlrcpp::Any leftObject = visitExpression(ctx->expression(0));
 
-        if (leftObject.as<LValue*>() != nullptr) {
-           antlrcpp::Any value =  leftObject.as<LValue*>()->getValue();
+        // if (leftObject.as<LValue*>() != nullptr) {
+        //    antlrcpp::Any value =  leftObject.as<LValue*>()->getValue();
 
-           if (value.as<ClassObject*>() != nullptr) {
-               ClassObject *valueContainer = value.as<ClassObject*>();
-               Variable *leftVar = (Variable *)at_->symbolOfNode[ctx->expression(0)];
+        //    if (value.as<ClassObject*>() != nullptr) {
+        //        ClassObject *valueContainer = value.as<ClassObject*>();
+        //        Variable *leftVar = (Variable *)at_->symbolOfNode[ctx->expression(0)];
 
-               // 获得field或调用方法
-                if (ctx->IDENTIFIER() != nullptr) {
-                   Variable *variable = (Variable *) at_->symbolOfNode[ctx];
+        //        // 获得field或调用方法
+        //         if (ctx->IDENTIFIER() != nullptr) {
+        //            Variable *variable = (Variable *) at_->symbolOfNode[ctx];
 
-                   // 对于this 和super引用的属性，不用考虑重载，因为它们的解析是准确的
-                    if (!(dynamic_cast<This*>(leftVar) != nullptr || dynamic_cast<Super*>(leftVar) != nullptr)) {
-                       // 类的成员可能需要重载
-                       variable = at_->lookupVariable(valueContainer->type, variable->getName());
-                    }
+        //            // 对于this 和super引用的属性，不用考虑重载，因为它们的解析是准确的
+        //             if (!(dynamic_cast<This*>(leftVar) != nullptr || dynamic_cast<Super*>(leftVar) != nullptr)) {
+        //                // 类的成员可能需要重载
+        //                variable = at_->lookupVariable(valueContainer->type, variable->getName());
+        //             }
 
-                    LValue *lValue = new MyLValue(valueContainer, variable);
-                    rtn = lValue;
+        //             LValue *lValue = new MyLValue(valueContainer, variable);
+        //             rtn = lValue;
 
-                } else if (ctx->functionCall() != nullptr) {
-                    // 要计算方法的参数，才能加对象的StackFrame
-                    if (traceFunctionCall) {
-                        cout << "\n >> MethodCall :" << ctx->getText() << endl;
-                    }
+        //         } else if (ctx->functionCall() != nullptr) {
+        //             // 要计算方法的参数，才能加对象的StackFrame
+        //             if (traceFunctionCall) {
+        //                 cout << "\n >> MethodCall :" << ctx->getText() << endl;
+        //             }
 
-                    rtn = methodCall(valueContainer, ctx->functionCall(), dynamic_cast<Super*>(leftVar) != nullptr);
-                }
-           }
-        } else {
-            cout << "Expecting an Object Reference" << endl;
-        }
+        //             rtn = methodCall(valueContainer, ctx->functionCall(), dynamic_cast<Super*>(leftVar) != nullptr);
+        //         }
+        //    }
+        // } else {
+        //     cout << "Expecting an Object Reference" << endl;
+        // }
         
     } else if (ctx->primary()) {
-        return visitPrimary(ctx->primary());
+        // return visitPrimary(ctx->primary());
         
     } else if (ctx->postfix != nullptr) {  // 后缀运算，例如: i++ 或 i--
-        antlrcpp::Any value = visitExpression(ctx->expression(0));
-        LValue *lValue;
-        Type *type = at_->typeOfNode[ctx->expression(0)];
+        // antlrcpp::Any value = visitExpression(ctx->expression(0));
+        // LValue *lValue;
+        // Type *type = at_->typeOfNode[ctx->expression(0)];
 
-        if (value.as<LValue*>() != nullptr) {
-            lValue = value.as<LValue*>();
-            value = lValue->getValue();
-        }
+        // if (value.as<LValue*>() != nullptr) {
+        //     lValue = value.as<LValue*>();
+        //     value = lValue->getValue();
+        // }
 
-        switch (ctx->postfix->getType()) {
-            case PlayScriptParser::INC:
-                if (type == PrimitiveType::Integer) {
-                    lValue->setValue(value.as<int>() + 1);
-                } else {
-                    lValue->setValue(value.as<long>() + 1);
-                }
-                rtn = value;
-                break;
+        // switch (ctx->postfix->getType()) {
+        //     case PlayScriptParser::INC:
+        //         if (type == PrimitiveType::Integer) {
+        //             lValue->setValue(value.as<int>() + 1);
+        //         } else {
+        //             lValue->setValue(value.as<long>() + 1);
+        //         }
+        //         rtn = value;
+        //         break;
             
-            case PlayScriptParser::DEC:
-                if (type == PrimitiveType::Integer) {
-                    lValue->setValue(value.as<int>() - 1);
-                } else {
-                    lValue->setValue(value.as<long>() - 1);
-                }
-                rtn = value;
-                break;
+        //     case PlayScriptParser::DEC:
+        //         if (type == PrimitiveType::Integer) {
+        //             lValue->setValue(value.as<int>() - 1);
+        //         } else {
+        //             lValue->setValue(value.as<long>() - 1);
+        //         }
+        //         rtn = value;
+        //         break;
             
-            default:
-                break;
-        }
+        //     default:
+        //         break;
+        // }
 
     } else if (ctx->prefix != nullptr) {   // 前缀操作。例如：++i 或 --i
-        antlrcpp::Any value = visitExpression(ctx->expression(0));
-        LValue *lValue;
+        // antlrcpp::Any value = visitExpression(ctx->expression(0));
+        // LValue *lValue;
 
-        Type *type = at_->typeOfNode[ctx->expression(0)];
-        if (value.as<LValue*>() != nullptr) {
-            lValue = value.as<LValue*>();
-            value = lValue->getValue();
-        }
+        // Type *type = at_->typeOfNode[ctx->expression(0)];
+        // if (value.as<LValue*>() != nullptr) {
+        //     lValue = value.as<LValue*>();
+        //     value = lValue->getValue();
+        // }
 
-        switch (ctx->postfix->getType()) {
-            case PlayScriptParser::INC:
-                if (type == PrimitiveType::Integer) {
-                   rtn = value.as<int>() + 1;
-                } else {
-                    rtn = value.as<long>() + 1;
-                }
-                lValue->setValue(rtn);
-                break;
+        // switch (ctx->postfix->getType()) {
+        //     case PlayScriptParser::INC:
+        //         if (type == PrimitiveType::Integer) {
+        //            rtn = value.as<int>() + 1;
+        //         } else {
+        //             rtn = value.as<long>() + 1;
+        //         }
+        //         lValue->setValue(rtn);
+        //         break;
 
-            case PlayScriptParser::DEC:
-                if (type == PrimitiveType::Integer) {
-                    rtn = value.as<int>() - 1;
-                } else {
-                    rtn = value.as<long>() - 1;
-                }
-                lValue->setValue(rtn);
-                break;
+        //     case PlayScriptParser::DEC:
+        //         if (type == PrimitiveType::Integer) {
+        //             rtn = value.as<int>() - 1;
+        //         } else {
+        //             rtn = value.as<long>() - 1;
+        //         }
+        //         lValue->setValue(rtn);
+        //         break;
             
-            case PlayScriptParser::BANG:    // 符号，逻辑非运算
-                rtn = !value.as<bool>();
-                break;
+        //     case PlayScriptParser::BANG:    // 符号，逻辑非运算
+        //         rtn = !value.as<bool>();
+        //         break;
             
-            default:
-                break;
-        }
+        //     default:
+        //         break;
+        // }
 
     } else if (ctx->functionCall() != nullptr) {   // functionCall
         rtn = visitFunctionCall(ctx->functionCall());
@@ -976,127 +976,127 @@ antlrcpp::Any ASTEvaluator::visitStatement(PlayScriptParser::StatementContext *c
         rtn = visitExpression(ctx->statementExpression);
 
     } else if (ctx->IF() != nullptr) {
-        bool condition = (bool) visitParExpression(ctx->parExpression());
-        if (true == condition) {
-            rtn = visitStatement(ctx->statement(0));
-        } else if (ctx->ELSE() != nullptr) {
-            rtn = visitStatement(ctx->statement(1));
-        }
+        // bool condition = (bool) visitParExpression(ctx->parExpression());
+        // if (true == condition) {
+        //     rtn = visitStatement(ctx->statement(0));
+        // } else if (ctx->ELSE() != nullptr) {
+        //     rtn = visitStatement(ctx->statement(1));
+        // }
 
     } else if (ctx->WHILE() != nullptr) {   // while
-        if (ctx->parExpression()->expression() != nullptr && ctx->statement(0) != nullptr) {
+        // if (ctx->parExpression()->expression() != nullptr && ctx->statement(0) != nullptr) {
 
-            while (true) {
-                // 每次循环都要计算一下循环条件
-                bool condition = true;
-                antlrcpp::Any value = visitExpression(ctx->parExpression()->expression());
+        //     while (true) {
+        //         // 每次循环都要计算一下循环条件
+        //         bool condition = true;
+        //         antlrcpp::Any value = visitExpression(ctx->parExpression()->expression());
 
-                if (value.as<LValue*>() != nullptr) {
-                    condition = (bool) value.as<LValue*>()->getValue();
-                } else {
-                    condition = value.as<bool>();
-                }
+        //         if (value.as<LValue*>() != nullptr) {
+        //             condition = (bool) value.as<LValue*>()->getValue();
+        //         } else {
+        //             condition = value.as<bool>();
+        //         }
 
-                if (condition) {
-                    // 执行while后面的语句
-                    if (condition) {
-                        rtn = visitStatement(ctx->statement(0));
+        //         if (condition) {
+        //             // 执行while后面的语句
+        //             if (condition) {
+        //                 rtn = visitStatement(ctx->statement(0));
 
-                        // break
-                        if (rtn.as<BreakObject*>() != nullptr) {
-                            rtn = nullptr;     // 清除BreakObject，也就是只跳出一层循环
-                            break;
-                        } else if (rtn.as<ReturnObject*>() != nullptr) {    // return
-                            break;
-                        }
-                    }
-                } else {
-                    break;
-                }
-            }
-        }
+        //                 // break
+        //                 if (rtn.as<BreakObject*>() != nullptr) {
+        //                     rtn = nullptr;     // 清除BreakObject，也就是只跳出一层循环
+        //                     break;
+        //                 } else if (rtn.as<ReturnObject*>() != nullptr) {    // return
+        //                     break;
+        //                 }
+        //             }
+        //         } else {
+        //             break;
+        //         }
+        //     }
+        // }
 
     } else if (ctx->FOR() != nullptr) {    // for循环
         // 添加StackFrame
-        BlockScope *scope = static_cast<BlockScope*>(at_->node2Scope[ctx]);
-        StackFrame *frame = new StackFrame(scope);
-        pushStack(frame);
+        // BlockScope *scope = static_cast<BlockScope*>(at_->node2Scope[ctx]);
+        // StackFrame *frame = new StackFrame(scope);
+        // pushStack(frame);
 
-        PlayScriptParser::ForControlContext *forControl = ctx->forControl();
-        if (forControl->enhancedForControl() != nullptr) {
+        // PlayScriptParser::ForControlContext *forControl = ctx->forControl();
+        // if (forControl->enhancedForControl() != nullptr) {
 
-        } else {
-            // 初始化部分执行一次
-            if (forControl->forInit() != nullptr) {
-                rtn = visitForInit(forControl->forInit());
-            }
+        // } else {
+        //     // 初始化部分执行一次
+        //     if (forControl->forInit() != nullptr) {
+        //         rtn = visitForInit(forControl->forInit());
+        //     }
 
-            while (true) {
-                bool condition = true;  // 如果没有条件判断部分，意味着一直循环
-                if (forControl->expression() != nullptr) {
-                    antlrcpp::Any value = visitExpression(forControl->expression());
-                    if (value.as<LValue*>() != nullptr) {
-                        condition = (bool) value.as<LValue*>()->getValue();
-                    } else {
-                        condition = (bool) value;
-                    }
-                }
+        //     while (true) {
+        //         bool condition = true;  // 如果没有条件判断部分，意味着一直循环
+        //         if (forControl->expression() != nullptr) {
+        //             antlrcpp::Any value = visitExpression(forControl->expression());
+        //             if (value.as<LValue*>() != nullptr) {
+        //                 condition = (bool) value.as<LValue*>()->getValue();
+        //             } else {
+        //                 condition = (bool) value;
+        //             }
+        //         }
 
-                if (condition) {
-                    // 执行for的语句体
-                    rtn = visitStatement(ctx->statement(0));
+        //         if (condition) {
+        //             // 执行for的语句体
+        //             rtn = visitStatement(ctx->statement(0));
 
-                    // 处理break
-                    if (rtn.as<BreakObject*>() != nullptr) {
-                        rtn = nullptr;
-                        break;
+        //             // 处理break
+        //             if (rtn.as<BreakObject*>() != nullptr) {
+        //                 rtn = nullptr;
+        //                 break;
 
-                    } else if(rtn.as<ReturnObject*>() != nullptr) {    // return
-                        break;
-                    }
+        //             } else if(rtn.as<ReturnObject*>() != nullptr) {    // return
+        //                 break;
+        //             }
 
-                    // 执行forUpdate，通常是"i++"这样语句。这个顺序不能出错
-                    if (forControl->forUpdate != nullptr) {
-                        visitExpressionList(forControl->forUpdate);
-                    }
-                } else {
-                    break;
-                }
-            }
-        }
+        //             // 执行forUpdate，通常是"i++"这样语句。这个顺序不能出错
+        //             if (forControl->forUpdate != nullptr) {
+        //                 visitExpressionList(forControl->forUpdate);
+        //             }
+        //         } else {
+        //             break;
+        //         }
+        //     }
+        // }
 
-        // 去掉StackFrame
-        popStack();
+        // // 去掉StackFrame
+        // popStack();
 
     } else if (ctx->blockLabel != nullptr) {   // block
-        rtn = visitBlock(ctx->blockLabel);
+        // rtn = visitBlock(ctx->blockLabel);
 
     } else if (ctx->BREAK() != nullptr) {      // break
-        rtn = BreakObject::GetInstance();
+        // rtn = BreakObject::GetInstance();
 
     } else if (ctx->RETURN() != nullptr) {     // return语句
-        if (ctx->expression() != nullptr) {
-            rtn = visitExpression(ctx->expression());
+        // if (ctx->expression() != nullptr) {
+        //     rtn = visitExpression(ctx->expression());
 
-            // return 语句应该不需要左值    // TODO 取左值的场景需要优化，目前都是取左值
-            if (rtn.as<LValue*>() != nullptr) {
-                rtn = rtn.as<LValue*>()->getValue();
-            }
+        //     // return 语句应该不需要左值    // TODO 取左值的场景需要优化，目前都是取左值
+        //     if (rtn.as<LValue*>() != nullptr) {
+        //         rtn = rtn.as<LValue*>()->getValue();
+        //     }
 
-            // 把闭包涉及的环境变量都打包带走
-            if (rtn.as<FunctionObject*>() != nullptr) {
-                FunctionObject *functionObject = rtn.as<FunctionObject*>();
-                getClosureValues(functionObject->function_, functionObject);
+        //     // 把闭包涉及的环境变量都打包带走
+        //     if (rtn.as<FunctionObject*>() != nullptr) {
+        //         FunctionObject *functionObject = rtn.as<FunctionObject*>();
+        //         getClosureValues(functionObject->function_, functionObject);
 
-            } else if (rtn.as<ClassObject*>() != nullptr) {
-                // 如果返回的是一个对象，那么检查它的所有属性里有没有闭包的。 // TODO 如果属性仍然是一个对象，可能就要向下递归查找
-                ClassObject *classObject = rtn.as<ClassObject*>();
-                getClosureValues(classObject);
+        //     } else if (rtn.as<ClassObject*>() != nullptr) {
+        //         // 如果返回的是一个对象，那么检查它的所有属性里有没有闭包的。 // TODO 如果属性仍然是一个对象，可能就要向下递归查找
+        //         ClassObject *classObject = rtn.as<ClassObject*>();
+        //         getClosureValues(classObject);
 
-            }
-        }
-        // 把真实的返回值封装一个RetrunObject对象里，告诉visitBlockStatements停止执行下面的语句
-        rtn = new ReturnObject(rtn);
+        //     }
+        // }
+        // // 把真实的返回值封装一个RetrunObject对象里，告诉visitBlockStatements停止执行下面的语句
+        // rtn = new ReturnObject(rtn);
     }
 
     return rtn;
@@ -1110,11 +1110,11 @@ antlrcpp::Any ASTEvaluator::visitTypeType(PlayScriptParser::TypeTypeContext *ctx
 antlrcpp::Any ASTEvaluator::visitProg(PlayScriptParser::ProgContext *ctx)
 {
     antlrcpp::Any rtn = nullptr;
-    pushStack(new StackFrame((BlockScope*) at_->node2Scope[ctx]));
+    // pushStack(new StackFrame((BlockScope*) at_->node2Scope[ctx]));
 
     rtn = visitBlockStatements(ctx->blockStatements());
 
-    popStack();
+    // popStack();
 
     return rtn;
 }
@@ -1137,42 +1137,42 @@ antlrcpp::Any ASTEvaluator::visitFunctionCall(PlayScriptParser::FunctionCallCont
     string functionName = ctx->IDENTIFIER()->getText();
 
     // 如果调用的是类的缺省构造函数，则直接创建对象并返回
-    Symbol *symbol = at_->symbolOfNode[ctx];
+    // Symbol *symbol = at_->symbolOfNode[ctx];
 
-    DefaultConstructor *tmpDefault = dynamic_cast<DefaultConstructor*>(symbol);
-    if (tmpDefault != nullptr) {
-        // 类的缺省构造函数。没有一个具体函数跟它关联，只是指向一个类
-        return createAndInitClassObject(tmpDefault->Class());   // 返回新创建的对象
+    // DefaultConstructor *tmpDefault = dynamic_cast<DefaultConstructor*>(symbol);
+    // if (tmpDefault != nullptr) {
+    //     // 类的缺省构造函数。没有一个具体函数跟它关联，只是指向一个类
+    //     return createAndInitClassObject(tmpDefault->Class());   // 返回新创建的对象
 
-    } else if (functionName == "println") {
-        // 用于打印输出
-        println(ctx);
-        return rtn;
-    }
+    // } else if (functionName == "println") {
+    //     // 用于打印输出
+    //     println(ctx);
+    //     return rtn;
+    // }
 
-    // 在上下文中查找函数，并根据需要创建FunctionObject
-    FunctionObject *functionObject = getFuntionObject(ctx);
-    Function *function = functionObject->function_;
+    // // 在上下文中查找函数，并根据需要创建FunctionObject
+    // FunctionObject *functionObject = getFuntionObject(ctx);
+    // Function *function = functionObject->function_;
 
-    // 如果是对象的构造方法，则按照对象方法调用去执行，并返回所创建的对象
-    if (function->isConstructor()) {
-        Class *theClass = (Class*) function->getEnclosingScope();
+    // // 如果是对象的构造方法，则按照对象方法调用去执行，并返回所创建的对象
+    // if (function->isConstructor()) {
+    //     Class *theClass = (Class*) function->getEnclosingScope();
 
-        ClassObject *newObject = createAndInitClassObject(theClass);  // 先做缺省的初始化
+    //     ClassObject *newObject = createAndInitClassObject(theClass);  // 先做缺省的初始化
 
-        methodCall(newObject, ctx, false);
+    //     methodCall(newObject, ctx, false);
 
-        return newObject;   // 返回新创建的对象
-    }
+    //     return newObject;   // 返回新创建的对象
+    // }
 
-    // 计算参数值
-    vector<antlrcpp::Any> paramValues = calcParamValues(ctx);
+    // // 计算参数值
+    // vector<antlrcpp::Any> paramValues = calcParamValues(ctx);
 
-    if (traceFunctionCall) {
-        cout << "\n>>FunctionCall : " + ctx->getText() << endl;
-    }
+    // if (traceFunctionCall) {
+    //     cout << "\n>>FunctionCall : " + ctx->getText() << endl;
+    // }
 
-    rtn = functionCall(functionObject, paramValues);
+    // rtn = functionCall(functionObject, paramValues);
 
     return rtn;
 }
