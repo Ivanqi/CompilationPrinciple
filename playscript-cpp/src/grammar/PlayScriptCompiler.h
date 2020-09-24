@@ -17,7 +17,7 @@ namespace play
     class PlayScriptCompiler
     {
         public:
-            AnnotatedTree *at;
+            AnnotatedTree *at_;
 
             PlayScriptParser *parser;
 

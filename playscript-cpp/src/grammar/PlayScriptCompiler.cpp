@@ -13,19 +13,19 @@ using namespace play;
 
 AnnotatedTree* PlayScriptCompiler::compile(std::string script, bool verbose, bool ast_dump)
 {
-    at = new AnnotatedTree();
+    at_ = new AnnotatedTree();
     std::ifstream ifs;
     ifs.open(script);
 
-    ANTLRInputStream input(ifs);
-    PlayScriptLexer lexer(&input);
-    CommonTokenStream tokens(&lexer);
+    ANTLRInputStream *input = new ANTLRInputStream(ifs);
+    PlayScriptLexer *lexer = new PlayScriptLexer(input);
+    CommonTokenStream *tokens = new CommonTokenStream(lexer);
 
-    tokens.fill();
+    tokens->fill();
 
-    parser = new PlayScriptParser(&tokens);
+    parser = new PlayScriptParser(tokens);
 
-    at->ast = parser->prog();
+    at_->ast = parser->prog();
     
 
     // 语义分析
@@ -36,27 +36,27 @@ AnnotatedTree* PlayScriptCompiler::compile(std::string script, bool verbose, boo
     //parse1: 类型和Scope
     
     // pass1: 类型和Scope
-    TypeAndScopeScanner *pass1 = new TypeAndScopeScanner(at);
-    walker.walk(pass1, at->ast);
+    TypeAndScopeScanner *pass1 = new TypeAndScopeScanner(at_);
+    walker.walk(pass1, at_->ast);
 
 
     // // pass2: 把变量，类继承，函数声明的类型都解析出来。也就是所有声明用到类型的地方
-    TypeResolver *pass2 = new TypeResolver(at);
-    walker.walk(pass2, at->ast);
+    TypeResolver *pass2 = new TypeResolver(at_);
+    walker.walk(pass2, at_->ast);
 
     // // pass3: 消解所有的变量引用，函数引用。另外还做了类型的推断
-    RefResolver *pass3 = new RefResolver(at);
-    walker.walk(pass3, at->ast);
+    RefResolver *pass3 = new RefResolver(at_);
+    walker.walk(pass3, at_->ast);
     
     // // pass4: 类型检查
-    TypeChecker *pass4 = new TypeChecker(at);
-    walker.walk(pass4, at->ast);
+    TypeChecker *pass4 = new TypeChecker(at_);
+    walker.walk(pass4, at_->ast);
 
     // pass5: 其他语义检查
-    SematicValidator *pass5 = new SematicValidator(at);
+    SematicValidator *pass5 = new SematicValidator(at_);
 
     // // pass6: 做闭包的分析
-    ClosureAnalyzer *closureAnalyzer = new ClosureAnalyzer(at);
+    ClosureAnalyzer *closureAnalyzer = new ClosureAnalyzer(at_);
     closureAnalyzer->analyzeClosures();
 
     // 打印AST
@@ -69,7 +69,7 @@ AnnotatedTree* PlayScriptCompiler::compile(std::string script, bool verbose, boo
         dumpSymbols();
     }
     
-    return at;
+    return at_;
 
 };
 
@@ -81,15 +81,15 @@ AnnotatedTree* PlayScriptCompiler::compile(std::string script)
 // 打印符号表
 void PlayScriptCompiler::dumpSymbols()
 {
-    if (at != NULL) {
-        std::cout << at->getScopeTreeString() << std::endl;
+    if (at_ != NULL) {
+        std::cout << at_->getScopeTreeString() << std::endl;
     }
 }
 
 void PlayScriptCompiler::dumpAST()
 {
-    if (at != NULL) {
-        std::cout << at->ast->toStringTree(parser) << std::endl;
+    if (at_ != NULL) {
+        std::cout << at_->ast->toStringTree(parser) << std::endl;
     }
     std::cout << std::endl;
 }

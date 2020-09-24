@@ -3,6 +3,7 @@
 #include "FunctionObject.h"
 #include "Function.h"
 #include "Variable.h"
+#include "LValue.h"
 #include "MyLValue.h"
 #include "ClassObject.h"
 #include "Class.h"
@@ -1068,7 +1069,7 @@ antlrcpp::Any ASTEvaluator::visitStatement(PlayScriptParser::StatementContext *c
         // 去掉StackFrame
         popStack();
 
-    } else if (ctx->blockLabel != nullptr) {   // block
+    } else if (ctx->blockLabel != nullptr) {       // block
         rtn = visitBlock(ctx->blockLabel);
 
     } else if (ctx->BREAK() != nullptr) {      // break
@@ -1257,8 +1258,9 @@ vector<antlrcpp::Any> ASTEvaluator::calcParamValues(PlayScriptParser::FunctionCa
     if (ctx->expressionList() != nullptr) {
         for (PlayScriptParser::ExpressionContext *exp : ctx->expressionList()->expression()) {
             antlrcpp::Any value = visitExpression(exp);
-            if (value.as<LValue*>() != nullptr) {
-                value = value.as<LValue*>()->getValue();
+            LValue *tmp = value.as<LValue*>();
+            if (tmp != nullptr) {
+                value = tmp->getValue();
             }
             paramValues.push_back(value);
         }
@@ -1313,7 +1315,7 @@ FunctionObject* ASTEvaluator::getFuntionObject(PlayScriptParser::FunctionCallCon
     }
 
     Function *function;
-    FunctionObject *functionObject;
+    FunctionObject *functionObject = nullptr;
 
     Symbol *symbol = at_->symbolOfNode[ctx];
 
