@@ -528,9 +528,8 @@ antlrcpp::Any ASTEvaluator::visitVariableDeclarator(PlayScriptParser::VariableDe
 
     if (ctx->variableInitializer() != nullptr) {
         rtn = visitVariableInitializer(ctx->variableInitializer());
-        LValue *tmp = rtn.as<LValue*>();
-        if (tmp != nullptr) {
-            rtn = tmp->getValue();
+        if (rtn.is<LValue*>()) {
+            rtn = rtn.as<LValue*>()->getValue();
         }
         lValue->setValue(rtn); 
     }
@@ -902,7 +901,8 @@ antlrcpp::Any ASTEvaluator::visitIntegerLiteral(PlayScriptParser::IntegerLiteral
 {
     antlrcpp::Any rtn = nullptr;
     if (ctx->DECIMAL_LITERAL() != nullptr) {
-        rtn = atoi(ctx->DECIMAL_LITERAL()->getText().c_str());
+        int tmp = atoi(ctx->DECIMAL_LITERAL()->getText().c_str());
+        rtn = tmp;
     }
     return rtn;
 }

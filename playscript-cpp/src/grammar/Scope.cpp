@@ -123,6 +123,4 @@ bool Scope::containsSymbol(Symbol *symbol)
         }
     }
     return false;
-
-    // return (std::count(symbols.begin(), symbols.end(), symbol) > 0 ? true : false);
 }
