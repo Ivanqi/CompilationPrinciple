@@ -44,7 +44,7 @@ std::string Function::toString()
 bool Function::isType(Type *type)
 {
     FunctionType *ft = dynamic_cast<FunctionType*>(type);
-    if (ft != NULL) {
+    if (ft != nullptr) {
         return DefaultFunctionType::isType(this, ft);
     }
     return false;
@@ -81,7 +81,7 @@ bool Function::matchParameterTypes(std::vector<Type*> paramTypes)
 bool Function::isMethod()
 {
     Class *tmp = dynamic_cast<Class*>(enclosingScope);
-    return (tmp != NULL ? true : false);
+    return (tmp != nullptr ? true : false);
 }
 
 /**
@@ -90,9 +90,8 @@ bool Function::isMethod()
 bool Function::isConstructor()
 {
     Scope *tmp = dynamic_cast<Class*>(enclosingScope);
-    if (tmp != NULL) {
+    if (tmp != nullptr) {
         return (enclosingScope->getName() == name);
     }
-    return false;
     return false;
 }

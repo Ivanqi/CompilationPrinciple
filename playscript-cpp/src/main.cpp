@@ -35,6 +35,7 @@ int main(int argc, const char* argv[]) {
 
     if (!at->hasCompilationError()) {
         antlrcpp::Any result = compiler.Execute(at);
+        cout << result.as<float>() << endl;
     }
 
     return 0;

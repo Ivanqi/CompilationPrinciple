@@ -30,10 +30,10 @@ void MyLValue::setValue(antlrcpp::Any value)
     valueContainer_->setValue(variable_, value);
 
     // 如果variable是函数型变量，那改变functionObject->receiver
-    FunctionObject *tmp = value.as<FunctionObject*>();
+    bool IsFunctionObject = value.is<FunctionObject*>();
 
-    if (tmp != NULL) {
-        tmp->receiver_ = (Variable *) variable_;
+    if (IsFunctionObject) {
+        value.as<FunctionObject*>()->receiver_ = static_cast<Variable *>(variable_);
     }
 }
 

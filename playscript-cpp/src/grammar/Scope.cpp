@@ -112,5 +112,17 @@ Class* Scope::getClass(Scope *scope, std::string name)
 // 是否包含某个Symbol
 bool Scope::containsSymbol(Symbol *symbol)
 {
-    return (std::count(symbols.begin(), symbols.end(), symbol));
+    int len = symbols.size();
+    if (len <= 0) {
+        return false;
+    }
+
+    for (int i = 0; i < len; i++) {
+        if (symbols[i] == symbol) {
+            return true;
+        }
+    }
+    return false;
+
+    // return (std::count(symbols.begin(), symbols.end(), symbol) > 0 ? true : false);
 }

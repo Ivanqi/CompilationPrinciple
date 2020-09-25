@@ -44,6 +44,7 @@ memberDeclaration
     // | enumDeclaration
     ;
 
+// 函数声明
 functionDeclaration
     : typeTypeOrVoid? IDENTIFIER formalParameters ('[' ']')*
       (THROWS qualifiedNameList)?
@@ -51,11 +52,13 @@ functionDeclaration
     ;
 
 
+// 函数体
 functionBody
     : block
     | ';'
     ;
 
+// 类型或void
 typeTypeOrVoid
     : typeType
     | VOID
@@ -65,19 +68,23 @@ qualifiedNameList
     : qualifiedName (',' qualifiedName)*
     ;
 
+// 函数所有参数
 formalParameters
     : '(' formalParameterList? ')'
     ;
 
+// 参数列表
 formalParameterList
     : formalParameter (',' formalParameter)* (',' lastFormalParameter)?
     | lastFormalParameter
     ;
 
+// 单个参数
 formalParameter
     : variableModifier* typeType variableDeclaratorId
     ;
 
+// 可变参数数量下，最后一个参数
 lastFormalParameter
     : variableModifier* typeType '...' variableDeclaratorId
     ;
@@ -229,6 +236,7 @@ expressionList
     : expression (',' expression)*
     ;
 
+// 函数调用
 functionCall
     : IDENTIFIER '(' expressionList? ')'
     | THIS '(' expressionList? ')'
