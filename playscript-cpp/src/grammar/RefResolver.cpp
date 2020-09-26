@@ -112,7 +112,7 @@ void RefResolver::exitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
         if (exp->bop && exp->bop->getType() == PlayScriptParser::DOT) {
             // TODO 派生类和父类的转换关系？
             Symbol *symbol = at_->symbolOfNode[exp->expression(0)];
-            Variable *syTmp = static_cast<Variable*>(symbol);
+            Variable *syTmp = dynamic_cast<Variable*>(symbol);
             theClass = dynamic_cast<Class *>(syTmp->getType());
 
             if (syTmp != nullptr && theClass != nullptr) {

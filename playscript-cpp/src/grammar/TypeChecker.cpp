@@ -5,6 +5,7 @@
 #include "PrimitiveType.h"
 #include "Class.h"
 #include "Function.h"
+#include <stdio.h>
 
 using namespace play;
 
@@ -14,23 +15,51 @@ void TypeChecker::exitVariableDeclarator(PlayScriptParser::VariableDeclaratorCon
         Variable *variable = (Variable *)at_->symbolOfNode[ctx->variableDeclaratorId()];
         Type *type1 = variable->getType();
         Type *type2 = at_->typeOfNode[ctx->variableInitializer()];
-        checkAssign(type1, type2, ctx, ctx->variableDeclaratorId(), ctx->variableInitializer());
+        if (checkAssign(type1, type2, ctx, ctx->variableDeclaratorId(), ctx->variableInitializer())) {
+            at_->symbolOfNode[ctx] = at_->symbolOfNode[ctx->variableInitializer()];
+            // at_->symbolOfNode[ctx->variableDeclaratorId()] = at_->symbolOfNode[ctx->variableInitializer()];
+        } else {
+            printf("不需要赋值\n");
+        }
+    }
+}
+
+//对变量初始化部分也做一下类型推断
+void TypeChecker::exitVariableInitializer(PlayScriptParser::VariableInitializerContext *ctx)
+{
+    if (ctx->expression() != nullptr) {
+        // 推断类型
+        at_->typeOfNode[ctx] = at_->typeOfNode[ctx->expression()];
+
+        Scope *scope = at_->enclosingScopeOfNode(ctx);
+        // 设置variable
+        if (scope != nullptr) {
+            Variable *variable = at_->lookupVariable(scope, ctx->getText());
+            if (variable == nullptr) {
+                variable = new Variable(ctx->getText(), scope, ctx);
+            }
+            variable->setType(at_->typeOfNode[ctx]);
+            at_->symbolOfNode[ctx] = variable; 
+        }
     }
 }
 
 // 检查是否能做赋值操作
-void TypeChecker::checkAssign(Type *type1, Type *type2, ParserRuleContext *ctx, ParserRuleContext *operand1, ParserRuleContext *operand2)
+bool TypeChecker::checkAssign(Type *type1, Type *type2, ParserRuleContext *ctx, ParserRuleContext *operand1, ParserRuleContext *operand2)
 {
     if (PrimitiveType::isNumeric(type2)) {
         if (!checkNumericAssign(type2, type1)) {
             at_->log("can not assign " + operand2->getText() 
                 + " of type " + type2->getName() + " to " + operand1->getText() + " of type" + type1->getName(), ctx);
+        } else {
+            return true;
         }
     } else if (dynamic_cast<Class*>(type2) != nullptr) {
         //TODO 检查类的兼容性
     } else if (dynamic_cast<Function*>(type2) != nullptr) {
         //TODO 检查函数的兼容性
     }
+    return false;
 }
 
 /**

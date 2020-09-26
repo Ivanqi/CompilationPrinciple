@@ -28,7 +28,7 @@ namespace play
 
         private:
             // 检查是否能做赋值操作
-            void checkAssign(Type *type1, Type *type2, ParserRuleContext *ctx, ParserRuleContext *operand1, ParserRuleContext *operand2);
+            bool checkAssign(Type *type1, Type *type2, ParserRuleContext *ctx, ParserRuleContext *operand1, ParserRuleContext *operand2);
 
             /**
              * 看一个类型能否赋值成另一个类型，比如：
@@ -43,6 +43,9 @@ namespace play
             {
 
             }
+
+            // 对变量初始化部分也做一下类型推断
+            virtual void exitVariableInitializer(PlayScriptParser::VariableInitializerContext *ctx);
 
             virtual void exitVariableDeclarator(PlayScriptParser::VariableDeclaratorContext *ctx);
     };

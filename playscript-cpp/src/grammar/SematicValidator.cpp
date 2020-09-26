@@ -2,6 +2,8 @@
 #include "AnnotatedTree.h"
 #include "VoidType.h"
 #include "Function.h"
+#include "Scope.h"
+#include "Variable.h"
 
 
 
@@ -67,23 +69,22 @@ bool SematicValidator::hasReturnStatement(ParseTree *ctx)
 
 void SematicValidator::exitVariableDeclarators(PlayScriptParser::VariableDeclaratorsContext *ctx)
 {
-
+    PlayScriptBaseListener::exitVariableDeclarators(ctx);
 }
 
 void SematicValidator::exitVariableDeclarator(PlayScriptParser::VariableDeclaratorContext *ctx)
 {
-
+    PlayScriptBaseListener::exitVariableDeclarator(ctx);
 }
 
 void SematicValidator::exitVariableDeclaratorId(PlayScriptParser::VariableDeclaratorIdContext *ctx)
 {
-
+    PlayScriptBaseListener::exitVariableDeclaratorId(ctx);
 }
 
 //对变量初始化部分也做一下类型推断
 void SematicValidator::exitVariableInitializer(PlayScriptParser::VariableInitializerContext *ctx)
 {
-
 }
 
 // 根据字面量来推断类型 
