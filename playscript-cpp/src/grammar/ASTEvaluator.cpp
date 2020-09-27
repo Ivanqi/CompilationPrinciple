@@ -656,6 +656,11 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
             rightObject = right.as<LValue*>()->getValue();
         }
 
+        if (leftObject.is<NullObject*>() || rightObject.is<NullObject*>()) {
+            at_->log("left or right value is null: " + ctx->getText(), ctx);
+            return rtn;
+        }
+
         // 本节点期待的数据类型
         Type *type = at_->typeOfNode[ctx];
 
@@ -1047,7 +1052,7 @@ antlrcpp::Any ASTEvaluator::visitStatement(PlayScriptParser::StatementContext *c
                     if (value.is<LValue*>()) {
                         condition = (bool) value.as<LValue*>()->getValue();
                     } else {
-                        condition = (bool) value;
+                        condition = value.is<bool>();
                     }
                 }
 

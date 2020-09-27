@@ -21,12 +21,11 @@ Variable* Scope::getVariable(std::string name)
 Variable* Scope::getVariable(Scope *scope, std::string name)
 {
     for (Symbol *s : scope->symbols) {
-        // Variable *tmp = dynamic_cast<Variable*>(s);
-        if (s->getName() == name) {
-            return (Variable *)s;
+        if (dynamic_cast<Variable*>(s) != nullptr && s->getName() == name) {
+            return dynamic_cast<Variable*>(s);
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 std::string Scope::toString()
@@ -55,10 +54,10 @@ Function* Scope::getFunction(std::string name, std::vector<Type*>paramTypes)
  */
 Function* Scope::getFunction(Scope *scope, std::string name, std::vector<Type*> paramTypes)
 {
-    Function *rtn = NULL;
+    Function *rtn = nullptr;
     for (Symbol *s: scope->symbols) {
         Function *tmpFunc = dynamic_cast<Function*> (s);
-        if (tmpFunc != NULL && s->getName() == name) {
+        if (tmpFunc != nullptr && s->getName() == name) {
             if (tmpFunc->matchParameterTypes(paramTypes)) {
                 rtn = tmpFunc;
             }
@@ -78,13 +77,13 @@ Variable* Scope::getFunctionVariable(std::string name, std::vector<Type*> paramT
 
 Variable* Scope::getFunctionVariable(Scope *scope, std::string name, std::vector<Type*> paramTypes)
 {
-    Variable *rtn = NULL;
+    Variable *rtn = nullptr;
     for (Symbol *s: scope->symbols) {
 
         Variable *tmpVar = dynamic_cast<Variable*>(s);
-        FunctionType *tmpFuncType = (tmpVar != NULL) ? dynamic_cast<FunctionType*>(tmpVar->getType()) : NULL;
+        FunctionType *tmpFuncType = (tmpVar != nullptr) ? dynamic_cast<FunctionType*>(tmpVar->getType()) : nullptr;
 
-        if (tmpVar != NULL && tmpFuncType != NULL && s->getName() == name) {
+        if (tmpVar != nullptr && tmpFuncType != nullptr && s->getName() == name) {
             Variable *v = tmpVar;
             FunctionType *functionType = tmpFuncType;
             if (functionType->matchParameterTypes(paramTypes)) {
@@ -101,12 +100,11 @@ Variable* Scope::getFunctionVariable(Scope *scope, std::string name, std::vector
 Class* Scope::getClass(Scope *scope, std::string name)
 {
     for (Symbol *s : scope->symbols) {
-        Class *tmpClass = dynamic_cast<Class*>(s);
-        if (tmpClass != NULL && s->getName() == name) {
-            return (Class *) s;
+        if (dynamic_cast<Class*>(s) != nullptr && s->getName() == name) {
+            return dynamic_cast<Class*>(s);
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 // 是否包含某个Symbol

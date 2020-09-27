@@ -16,10 +16,10 @@ void TypeChecker::exitVariableDeclarator(PlayScriptParser::VariableDeclaratorCon
         Type *type1 = variable->getType();
         Type *type2 = at_->typeOfNode[ctx->variableInitializer()];
         if (checkAssign(type1, type2, ctx, ctx->variableDeclaratorId(), ctx->variableInitializer())) {
-            at_->symbolOfNode[ctx] = at_->symbolOfNode[ctx->variableInitializer()];
+            // at_->symbolOfNode[ctx] = at_->symbolOfNode[ctx->variableInitializer()];
             // at_->symbolOfNode[ctx->variableDeclaratorId()] = at_->symbolOfNode[ctx->variableInitializer()];
         } else {
-            printf("不需要赋值\n");
+            // printf("不需要赋值\n");
         }
     }
 }
@@ -98,21 +98,21 @@ void TypeChecker::exitExpression(PlayScriptParser::ExpressionContext *ctx)
 //对变量初始化部分也做一下类型推断
 void TypeChecker::exitVariableInitializer(PlayScriptParser::VariableInitializerContext *ctx)
 {
-    if (ctx->expression() != nullptr) {
-        // 推断类型
-        at_->typeOfNode[ctx] = at_->typeOfNode[ctx->expression()];
+    // if (ctx->expression() != nullptr) {
+    //     // 推断类型
+    //     at_->typeOfNode[ctx] = at_->typeOfNode[ctx->expression()];
 
-        Scope *scope = at_->enclosingScopeOfNode(ctx);
-        // 设置variable
-        if (scope != nullptr) {
-            Variable *variable = at_->lookupVariable(scope, ctx->getText());
-            if (variable == nullptr) {
-                variable = new Variable(ctx->getText(), scope, ctx);
-            }
-            variable->setType(at_->typeOfNode[ctx]);
-            at_->symbolOfNode[ctx] = variable; 
-        }
-    }
+    //     Scope *scope = at_->enclosingScopeOfNode(ctx);
+    //     // 设置variable
+    //     if (scope != nullptr) {
+    //         Variable *variable = at_->lookupVariable(scope, ctx->getText());
+    //         if (variable == nullptr) {
+    //             variable = new Variable(ctx->getText(), scope, ctx);
+    //         }
+    //         variable->setType(at_->typeOfNode[ctx]);
+    //         at_->symbolOfNode[ctx] = variable; 
+    //     }
+    // }
 }
 
 /**
