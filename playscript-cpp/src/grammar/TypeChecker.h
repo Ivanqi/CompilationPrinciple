@@ -38,6 +38,16 @@ namespace play
              */
             bool checkNumericAssign(Type *from, Type *to);
 
+            /**
+             * 检查类型是不是数值型
+             */
+            void checkNumericOperand(Type *type, PlayScriptParser::ExpressionContext *exp, PlayScriptParser::ExpressionContext *operand);
+
+            /**
+             * 检查是不是Boolean型
+             */
+            void checkBooleanOperand(Type *type, PlayScriptParser::ExpressionContext *exp, PlayScriptParser::ExpressionContext *operand);
+
         public:
             TypeChecker(AnnotatedTree *at):at_(at)
             {
@@ -48,6 +58,9 @@ namespace play
             virtual void exitVariableInitializer(PlayScriptParser::VariableInitializerContext *ctx);
 
             virtual void exitVariableDeclarator(PlayScriptParser::VariableDeclaratorContext *ctx);
+
+            virtual void exitExpression(PlayScriptParser::ExpressionContext *ctx);
+
     };
 };
 

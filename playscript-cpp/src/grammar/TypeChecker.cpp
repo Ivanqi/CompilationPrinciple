@@ -24,6 +24,77 @@ void TypeChecker::exitVariableDeclarator(PlayScriptParser::VariableDeclaratorCon
     }
 }
 
+void TypeChecker::exitExpression(PlayScriptParser::ExpressionContext *ctx)
+{
+    // 二元表达式
+    if (ctx->bop != nullptr && ctx->expression().size() >= 2) {
+    
+        // 左右两个子节点的类型
+        Type *type1 = at_->typeOfNode[ctx->expression(0)];
+        Type *type2 = at_->typeOfNode[ctx->expression(1)];
+
+        switch (ctx->bop->getType()) {
+            case PlayScriptParser::ADD:
+                // 字符串能够跟任何对象做 + 运算
+                if (type1 != PrimitiveType::String && type2 != PrimitiveType::String) {
+                    checkNumericOperand(type1, ctx, ctx->expression(0));
+                    checkNumericOperand(type2, ctx, ctx->expression(1));
+                }
+                break;
+
+            case PlayScriptParser::SUB:
+            case PlayScriptParser::MUL:
+            case PlayScriptParser::DIV:
+            case PlayScriptParser::LE:
+            case PlayScriptParser::LT:
+            case PlayScriptParser::GE:
+            case PlayScriptParser::GT:
+                checkNumericOperand(type1, ctx, ctx->expression(0));
+                checkNumericOperand(type2, ctx, ctx->expression(1));
+                break;
+            case PlayScriptParser::EQUAL:
+            case PlayScriptParser::NOTEQUAL:
+                break;
+
+            
+            case PlayScriptParser::AND:
+            case PlayScriptParser::OR:
+                checkBooleanOperand(type1, ctx, ctx->expression(0));
+                checkBooleanOperand(type2, ctx, ctx->expression(1));
+                break;
+            
+            case PlayScriptParser::ASSIGN:
+                checkAssign(type1, type2, ctx, ctx->expression(0), ctx->expression(1));
+                break;
+            
+            case PlayScriptParser::ADD_ASSIGN:
+            case PlayScriptParser::SUB_ASSIGN:
+            case PlayScriptParser::MUL_ASSIGN:
+            case PlayScriptParser::DIV_ASSIGN:
+            case PlayScriptParser::AND_ASSIGN:
+            case PlayScriptParser::OR_ASSIGN:
+            case PlayScriptParser::XOR_ASSIGN:
+            case PlayScriptParser::MOD_ASSIGN:
+            case PlayScriptParser::LSHIFT_ASSIGN:
+            case PlayScriptParser::RSHIFT_ASSIGN:
+            case PlayScriptParser::URSHIFT_ASSIGN:
+                if (PrimitiveType::isNumeric(type2)) {
+                    if (!checkNumericAssign(type2, type1)) {
+                        at_->log("can not assign " + ctx->expression(1)->getText() + " of type " + type2->getName() + " to " + ctx->expression(0)->getText() + " of type " + type1->getName(), ctx);
+                    }
+                }
+                else{
+                    at_->log("operand + " + ctx->expression(1)->getText() + " should be numeric。", ctx );
+                }
+
+                break;
+
+        }
+    }
+
+    //TODO 对各种一元运算做类型检查，比如NOT操作
+}
+
 //对变量初始化部分也做一下类型推断
 void TypeChecker::exitVariableInitializer(PlayScriptParser::VariableInitializerContext *ctx)
 {
@@ -44,7 +115,34 @@ void TypeChecker::exitVariableInitializer(PlayScriptParser::VariableInitializerC
     }
 }
 
-// 检查是否能做赋值操作
+/**
+ * 检查类型是不是数值型
+ */
+void TypeChecker::checkNumericOperand(Type *type, PlayScriptParser::ExpressionContext *exp, PlayScriptParser::ExpressionContext *operand)
+{
+    if (!PrimitiveType::isNumeric(type)) {
+        at_->log("operand for arithmetic operation should be numeric: " + operand->getText(), exp);
+    }
+}
+
+/**
+ * 检查是不是Boolean型
+ */
+void TypeChecker::checkBooleanOperand(Type *type, PlayScriptParser::ExpressionContext *exp, PlayScriptParser::ExpressionContext *operand)
+{
+    if (PrimitiveType::Boolean != type) {
+        at_->log("operand for logical operation should be boolean: " + operand->getText(), exp);
+    }
+}
+
+
+/**
+ * 检查是否能做赋值操作
+ * 看一个类型能否赋值成另一个类型，比如：
+ *  1. 整型可以转成浮点型
+ *  2. 子类的对象可以赋给父类
+ *  3. 函数赋值，要求签名是一致的
+ */
 bool TypeChecker::checkAssign(Type *type1, Type *type2, ParserRuleContext *ctx, ParserRuleContext *operand1, ParserRuleContext *operand2)
 {
     if (PrimitiveType::isNumeric(type2)) {

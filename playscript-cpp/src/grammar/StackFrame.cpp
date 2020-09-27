@@ -12,7 +12,7 @@ StackFrame::StackFrame()
 {
 }
 
-StackFrame::StackFrame(BlockScope *scope): scope_(scope), object_(new PlayObject)
+StackFrame::StackFrame(BlockScope *scope): scope_(scope), object_(new PlayObject())
 {
 }
 

@@ -921,10 +921,10 @@ antlrcpp::Any ASTEvaluator::visitPrimary(PlayScriptParser::PrimaryContext *ctx)
 {
     antlrcpp::Any rtn;
 
-    if (ctx->literal() != nullptr) {   // 字面量
+    if (ctx->literal() != nullptr) {            // 字面量
         rtn = visitLiteral(ctx->literal());
 
-    } else if (ctx->IDENTIFIER() != nullptr) { // 变量
+    } else if (ctx->IDENTIFIER() != nullptr) {  // 变量
         Symbol *symbol = at_->symbolOfNode[ctx];
         
         if (dynamic_cast<Variable*>(symbol) != nullptr) {
@@ -935,10 +935,10 @@ antlrcpp::Any ASTEvaluator::visitPrimary(PlayScriptParser::PrimaryContext *ctx)
             rtn = obj;
         }
 
-    } else if (ctx->expression() != nullptr) { // 括号括起来的表达式
+    } else if (ctx->expression() != nullptr) {  // 括号括起来的表达式
         rtn = visitExpression(ctx->expression());
 
-    } else if (ctx->THIS() != nullptr) {   // this
+    } else if (ctx->THIS() != nullptr) {        // this
         This *thisRef = (This *)at_->symbolOfNode[ctx];
         rtn = getLValue(thisRef);
     }
