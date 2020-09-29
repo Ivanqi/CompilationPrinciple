@@ -239,6 +239,7 @@ antlrcpp::Any ASTEvaluator::add(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *ta
         rtn = obj1.as<string>() + obj2.as<string>();
 
     } else if (targetType == PrimitiveType::Integer) {
+      
         rtn = obj1.as<int>() + obj2.as<int>();
 
     } else if (targetType == PrimitiveType::Float) {
@@ -444,9 +445,9 @@ antlrcpp::Any ASTEvaluator::LE(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *tar
     return rtn;
 }
 
-antlrcpp::Any ASTEvaluator::LT(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType)
+bool ASTEvaluator::LT(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType)
 {
-    antlrcpp::Any rtn = nullptr;
+    bool rtn = false;
 
     if (targetType == PrimitiveType::Integer) {
         rtn = obj1.as<int>() < obj2.as<int>();
@@ -528,6 +529,7 @@ antlrcpp::Any ASTEvaluator::visitVariableDeclarator(PlayScriptParser::VariableDe
 
     if (ctx->variableInitializer() != nullptr) {
         rtn = visitVariableInitializer(ctx->variableInitializer());
+
         if (rtn.is<LValue*>()) {
             rtn = rtn.as<LValue*>()->getValue();
         }
@@ -1052,7 +1054,7 @@ antlrcpp::Any ASTEvaluator::visitStatement(PlayScriptParser::StatementContext *c
                     if (value.is<LValue*>()) {
                         condition = (bool) value.as<LValue*>()->getValue();
                     } else {
-                        condition = value.is<bool>();
+                        condition = value.is<bool>() ? value.as<bool>() : false;
                     }
                 }
 

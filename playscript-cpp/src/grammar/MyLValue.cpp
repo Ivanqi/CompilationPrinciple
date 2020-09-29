@@ -9,7 +9,6 @@ using namespace play;
 
 MyLValue::MyLValue(PlayObject *valueContainer, Variable *variable):valueContainer_(valueContainer), variable_(variable)
 {
-    
 }
 
 antlrcpp::Any MyLValue::getValue()

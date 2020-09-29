@@ -13,8 +13,7 @@ namespace play
     {
         private:
             Variable *variable_;
-            PlayObject* valueContainer_;
-
+            PlayObject *valueContainer_;
 
         public:
             MyLValue(PlayObject *valueContainer, Variable *variable);

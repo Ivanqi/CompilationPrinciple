@@ -115,6 +115,7 @@ bool Scope::containsSymbol(Symbol *symbol)
         return false;
     }
 
+    // O(n)
     for (int i = 0; i < len; i++) {
         if (symbols[i] == symbol) {
             return true;

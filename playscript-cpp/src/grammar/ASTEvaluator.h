@@ -96,7 +96,7 @@ namespace play
 
             antlrcpp::Any LE(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType);
 
-            antlrcpp::Any LT(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType);
+            bool LT(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType);
 
             void thisConstructor(PlayScriptParser::FunctionCallContext *ctx);
 
