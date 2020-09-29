@@ -227,7 +227,20 @@ void ASTEvaluator::println(PlayScriptParser::FunctionCallContext *ctx)
             value = tmp->getValue();
         }
 
-        std::cout << value.as<std::string>() << std::endl;
+        // 按类型输出
+        if (value.is<int>()) {
+            cout << value.as<int>() << endl;
+        } else if (value.is<short>()) {
+            cout << value.as<short>() << endl;
+        } else if (value.is<long>()) {
+            cout << value.as<long>() << endl;
+        }else if (value.is<float>()) {
+            cout << value.as<float>() << endl;
+        } else if (value.is<long>()) {
+            cout << value.as<long>() << endl;
+        } else if (value.is<std::string>()) {
+            std::cout << value.as<std::string>() << std::endl;
+        }
     }
 }
 
@@ -669,6 +682,17 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
         // 左右两个子节点的类型
         Type *type1 = at_->typeOfNode[ctx->expression(0)];
         Type *type2 = at_->typeOfNode[ctx->expression(1)];
+
+        // cout << "ctx: " << ctx->getText() << endl;
+
+        // if (ctx->getText() == "age+2" || ctx->getText() == "age=age+2") {
+        //     cout << ctx->getText() << " | ";
+        //     if (leftObject.is<int>()  && rightObject.is<int>()) {
+        //         cout << "leftObject: " << leftObject.as<int>() << " | rightObject: " << rightObject.as<int>() << endl;
+        //     } else {
+        //         cout << "leftObject or rightObject not is int" << endl;
+        //     }
+        // }
 
         switch (ctx->bop->getType()) {
             case PlayScriptParser::ADD:

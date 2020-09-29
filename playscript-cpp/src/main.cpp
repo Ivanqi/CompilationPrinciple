@@ -11,30 +11,6 @@ using namespace antlr4;
 using namespace std;
 using namespace play;
 
-void returnMsg(antlrcpp::Any result) {
-
-    if (result.is<string>()) {
-        cout << result.as<string>() << endl;
-
-    } else if (result.is<int>()) {
-        cout << result.as<int>() << endl;
-
-    } else if (result.is<float>()) {
-        cout << result.as<float>() << endl;
-
-    } else if (result.is<long>()) {
-        cout << result.as<long>() << endl;
-
-    } else if (result.is<double>()) {
-        cout << result.as<double>() << endl;
-        
-    } else if (result.is<short>()) {
-        cout << result.as<short>() << endl;
-    } else {
-        cout << "没有匹配对应的格式" << endl;
-    }
-}
-
 int main(int argc, const char* argv[]) {
 
     const char* filepath;
@@ -59,7 +35,6 @@ int main(int argc, const char* argv[]) {
 
     if (!at->hasCompilationError()) {
         antlrcpp::Any result = compiler.Execute(at);
-        returnMsg(result);
     }
 
     return 0;
