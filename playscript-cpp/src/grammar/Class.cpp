@@ -12,8 +12,6 @@ Class::Class(std::string, ParserRuleContext *ctx)
 
     thisRef = new This(this, ctx);
     thisRef->setType(this);
-
-    rootClass = new Class("Object", NULL);
 }
 
 std::string Class::getName()
