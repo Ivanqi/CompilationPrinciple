@@ -100,8 +100,9 @@ Variable* Scope::getFunctionVariable(Scope *scope, std::string name, std::vector
 Class* Scope::getClass(Scope *scope, std::string name)
 {
     for (Symbol *s : scope->symbols) {
-        if (dynamic_cast<Class*>(s) != nullptr && s->getName() == name) {
-            return dynamic_cast<Class*>(s);
+        Class *tmpClass = dynamic_cast<Class*>(s);
+        if (tmpClass != nullptr && s->getName() == name) {
+            return tmpClass;
         }
     }
     return nullptr;

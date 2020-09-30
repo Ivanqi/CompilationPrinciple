@@ -24,7 +24,7 @@ namespace play
             void addSymbol(Symbol *symbol);
 
             // 是否包含某个Variable
-            Variable* getVariable(std::string name);
+            virtual Variable* getVariable(std::string name);
 
             static Variable* getVariable(Scope *scope, std::string name);
 
@@ -50,7 +50,7 @@ namespace play
             static Variable* getFunctionVariable(Scope *scope, std::string name, std::vector<Type*> paramTypes);
 
             // 是否包含某个Class
-            Class* getClass(std::string name);
+            virtual Class* getClass(std::string name);
 
             static Class* getClass(Scope *scope, std::string name);
 

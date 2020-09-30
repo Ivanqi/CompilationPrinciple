@@ -5,7 +5,7 @@
 #include "DefaultConstructor.h"
 using namespace play;
 
-Class::Class(std::string, ParserRuleContext *ctx)
+Class::Class(std::string name, ParserRuleContext *ctx)
 {
     this->name = name;
     this->ctx = ctx;
@@ -53,7 +53,7 @@ Variable* Class::getVariable(std::string name)
 {
     Variable *rtn = Scope::getVariable(name);
 
-    if (rtn == NULL && parentClass != NULL) {
+    if (rtn == nullptr && parentClass != nullptr) {
         rtn = parentClass->getVariable(name);   // TODO 是否要检查visibility
     }
 
@@ -64,7 +64,7 @@ Class* Class::getClass(std::string name)
 {
     Class *rtn = Scope::getClass(name);
 
-    if (rtn == NULL && parentClass != NULL) {
+    if (rtn == nullptr && parentClass != nullptr) {
         rtn = parentClass->getClass(name);
     }
 
@@ -89,7 +89,7 @@ Function* Class::getFunction(std::string name, std::vector<Type*> paramTypes)
     Function *rtn = Scope::getFunction(name, paramTypes);   // TODO是否要检查 visibility
 
     // 如果在本级找不到，那么递归的从父类中查找
-    if (rtn == NULL && parentClass != NULL) {
+    if (rtn == nullptr && parentClass != nullptr) {
         rtn = parentClass->getFunction(name, paramTypes);
     }
 
@@ -100,7 +100,7 @@ Variable* Class::getFunctionVariable(std::string name, std::vector<Type*> paramT
 {
     Variable *rtn = Scope::getFunctionVariable(name, paramTypes);
 
-    if (rtn == NULL && parentClass != NULL) {
+    if (rtn == nullptr && parentClass != nullptr) {
         rtn = parentClass->getFunctionVariable(name, paramTypes);
     }
 
@@ -119,7 +119,7 @@ bool Class::containsSymbol(Symbol *symbol)
     bool rtn = false;
     rtn = std::count(symbols.begin(), symbols.end(), symbol);
 
-    if (!rtn && parentClass != NULL) {
+    if (!rtn && parentClass != nullptr) {
         rtn = parentClass->containsSymbol(symbol);
     }
     return rtn;
@@ -133,7 +133,7 @@ bool Class::isType(Type *type)
     }
 
     Class *tmp = dynamic_cast<Class*>(type);
-    if (tmp != NULL) {
+    if (tmp != nullptr) {
         return tmp->isAncestor(this);
     }
     return false;
@@ -146,7 +146,7 @@ bool Class::isType(Type *type)
  */
 bool Class::isAncestor(Class *theClass)
 {
-    if (theClass->getParentClass() != NULL) {
+    if (theClass->getParentClass() != nullptr) {
         if (theClass->getParentClass() == this) {
             return true;
         } else {
@@ -159,7 +159,7 @@ bool Class::isAncestor(Class *theClass)
 
 DefaultConstructor* Class::defaultConstructor()
 {
-    if (defaultConstructor_ == NULL) {
+    if (defaultConstructor_ == nullptr) {
         defaultConstructor_ = new DefaultConstructor(this->name, this);
     }
     return defaultConstructor_;

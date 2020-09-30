@@ -310,8 +310,8 @@ void RefResolver::exitExpression(PlayScriptParser::ExpressionContext *ctx)
         // 这是个左递归，要不断的把左边的节点的计算结果存到node2Symbol，所以要在exitExpression里操作
         Symbol *symbol = at_->symbolOfNode[ctx->expression(0)];
         
-        Variable *syTmp = static_cast<Variable*>(symbol);
-        Class *theClass = dynamic_cast<Class *>(syTmp->getType());
+        Variable *syTmp = dynamic_cast<Variable*>(symbol);
+        Class *theClass = (syTmp != nullptr) ? dynamic_cast<Class *>(syTmp->getType()) : nullptr;
         
         if (syTmp != nullptr && theClass != nullptr) {
             // 引用类的属性
