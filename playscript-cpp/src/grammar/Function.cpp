@@ -66,7 +66,7 @@ bool Function::matchParameterTypes(std::vector<Type*> paramTypes)
         Variable *var = parameters[i];
         Type *type = paramTypes[i];
         Type *tmpType = var->getType();
-        if (!tmpType->isType(type)) {
+        if (!tmpType || !tmpType->isType(type)) {
             match = false;
             break;
         }
@@ -89,6 +89,10 @@ bool Function::isMethod()
  */
 bool Function::isConstructor()
 {
+    if (enclosingScope == nullptr) {
+        return false;
+    }
+    
     Scope *tmp = dynamic_cast<Class*>(enclosingScope);
     if (tmp != nullptr) {
         return (enclosingScope->getName() == name);

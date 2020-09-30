@@ -60,8 +60,8 @@ Function* Scope::getFunction(Scope *scope, std::string name, std::vector<Type*> 
         if (tmpFunc != nullptr && s->getName() == name) {
             if (tmpFunc->matchParameterTypes(paramTypes)) {
                 rtn = tmpFunc;
+                break;
             }
-            break;
         }
     }
     return rtn;

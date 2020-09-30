@@ -18,7 +18,7 @@ Scope* TypeAndScopeScanner::currentScope()
         Scope* top = scopeStack.top();
         return top;
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -115,6 +115,14 @@ void TypeAndScopeScanner::enterClassDeclaration(PlayScriptParser::ClassDeclarati
 
     Class *theClass = new Class(idName, ctx);
     at_->types.push_back(theClass);
+
+    if (at_->lookupClass(currentScope(), idName) != nullptr) {
+        at_->log("duplicate class name: " + idName, ctx);   // 只是报警，但仍然可以解析
+    }
+    currentScope()->addSymbol(theClass);
+
+    // 创建一个新的scope
+    pushScope(theClass, ctx);
 }
 
 void TypeAndScopeScanner::exitClassDeclaration(PlayScriptParser::ClassDeclarationContext *ctx)

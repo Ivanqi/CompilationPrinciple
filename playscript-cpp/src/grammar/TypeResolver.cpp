@@ -148,6 +148,10 @@ void TypeResolver::enterClassOrInterfaceType(PlayScriptParser::ClassOrInterfaceT
 {
     if (ctx->IDENTIFIER().size() > 0) {
         Scope *scope = at_->enclosingClassOfNode(ctx);
+        if (scope == nullptr) {
+            return;
+        }
+
         std::string idName = ctx->getText();
         Class *theClass = at_->lookupClass(scope, idName);
         at_->typeOfNode[ctx] = theClass;

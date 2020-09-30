@@ -42,7 +42,7 @@ Variable* AnnotatedTree::lookupVariable(Scope *scope, std::string idName)
 {
     Variable *rtn = scope->getVariable(idName);
 
-    if (rtn == NULL && scope->getEnclosingScope() != NULL) {
+    if (rtn == nullptr && scope->getEnclosingScope() != nullptr) {
         rtn = lookupVariable(scope->getEnclosingScope(), idName);
     }
 
@@ -54,7 +54,7 @@ Class* AnnotatedTree::lookupClass(Scope *scope, std::string idName)
 {
     Class *rtn = scope->getClass(idName);
 
-    if (rtn == NULL && scope->getEnclosingScope() != NULL) {
+    if (rtn == nullptr && scope->getEnclosingScope() != nullptr) {
         rtn = lookupClass(scope->getEnclosingScope(), idName);
     }
     
@@ -78,7 +78,7 @@ Function* AnnotatedTree::lookupFunction(Scope *scope, std::string idName, std::v
 {
     Function *rtn = scope->getFunction(idName, paramTypes);
 
-    if (rtn == NULL && scope->getEnclosingScope() != NULL) {
+    if (rtn == nullptr && scope->getEnclosingScope() != nullptr) {
         rtn = lookupFunction(scope->getEnclosingScope(), idName, paramTypes);
     }
 
@@ -90,7 +90,7 @@ Variable* AnnotatedTree::lookupFunctionVariable(Scope *scope, std::string idName
 {
     Variable *rtn = scope->getFunctionVariable(idName, paramTypes);
 
-    if (rtn == NULL && scope->getEnclosingScope() != NULL) {
+    if (rtn == nullptr && scope->getEnclosingScope() != nullptr) {
         rtn = lookupFunctionVariable(scope->getEnclosingScope(), idName, paramTypes);
     }
 
@@ -103,13 +103,13 @@ Function* AnnotatedTree::lookupFunction(Scope *scope, std::string name)
     Function *rtn;
 
     Class *scopeTmp = dynamic_cast<Class*>(scope);
-    if (scopeTmp != NULL) {
+    if (scopeTmp != nullptr) {
         rtn = getMethodOnlyByName(scopeTmp, name);
     } else {
         rtn = getFunctionOnlyByName(scope, name);
     }
 
-    if (rtn == NULL && scope->getEnclosingScope() != NULL) {
+    if (rtn == nullptr && scope->getEnclosingScope() != nullptr) {
         rtn = lookupFunction(scope->getEnclosingScope(), name);
     }
 
@@ -121,7 +121,7 @@ Function* AnnotatedTree::getMethodOnlyByName(Class *theClass, std::string name)
 {
     Function *rtn = getFunctionOnlyByName(theClass, name);
 
-    if (rtn == NULL && theClass->getParentClass() != NULL) {
+    if (rtn == nullptr && theClass->getParentClass() != nullptr) {
         rtn = getMethodOnlyByName(theClass->getParentClass(), name);
     }
 
@@ -133,11 +133,11 @@ Function* AnnotatedTree::getFunctionOnlyByName(Scope *scope, std::string name)
 {
     for (Symbol *s: scope->symbols) {
         Function *tmp = (Function*)s;
-        if (tmp != NULL && s->getName() == name) {
+        if (tmp != nullptr && s->getName() == name) {
             return tmp;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
  /**
@@ -149,9 +149,9 @@ Scope* AnnotatedTree::enclosingScopeOfNode(ParserRuleContext *node)
     Scope *rtn;
 
     ParserRuleContext *parent = static_cast<ParserRuleContext*>(node->parent);
-    if (parent != NULL) {
+    if (parent != nullptr) {
         rtn = node2Scope[parent];
-        if (rtn == NULL) {
+        if (rtn == nullptr) {
             rtn = enclosingScopeOfNode(parent);
         }
     }
@@ -165,10 +165,10 @@ Function* AnnotatedTree::enclosingFunctionOfNode(RuleContext *ctx)
 {
     PlayScriptParser::FunctionDeclarationContext *tmp = dynamic_cast<PlayScriptParser::FunctionDeclarationContext*> (ctx->parent);
 
-    if (tmp != NULL) {
+    if (tmp != nullptr) {
         return (Function*)node2Scope[(ParserRuleContext*)ctx->parent];
-    } else if (ctx->parent == NULL) {
-        return NULL;
+    } else if (ctx->parent == nullptr) {
+        return nullptr;
     } else {
         return enclosingFunctionOfNode((RuleContext*)ctx->parent);
     }
@@ -178,10 +178,10 @@ Function* AnnotatedTree::enclosingFunctionOfNode(RuleContext *ctx)
 Class* AnnotatedTree::enclosingClassOfNode(RuleContext *ctx)
 {
     PlayScriptParser::ClassDeclarationContext *tmp = dynamic_cast<PlayScriptParser::ClassDeclarationContext*>(ctx->parent);
-    if (tmp != NULL) {
+    if (tmp != nullptr) {
         return (Class *) node2Scope[(ParserRuleContext*)ctx->parent];
-    } else if (ctx->parent == NULL) {
-        return NULL;
+    } else if (ctx->parent == nullptr) {
+        return nullptr;
     } else {
         return enclosingClassOfNode((RuleContext*)ctx->parent);
     }
@@ -203,7 +203,7 @@ void AnnotatedTree::scopeToString(std::string& sb, Scope *scope, std::string ind
     sb.append(indent).append(scope->toString()).append("\n");
     for (Symbol *symbol : scope->symbols) {
         Scope *tmp = dynamic_cast<Scope*>(symbol);
-        if (tmp != NULL) {
+        if (tmp != nullptr) {
             scopeToString(sb, (Scope*)symbol, indent + "\t");
         } else {
             sb.append(indent).append("\t").append(symbol->getName()).append("\n");
