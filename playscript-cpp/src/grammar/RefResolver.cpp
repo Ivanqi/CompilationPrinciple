@@ -110,10 +110,10 @@ void RefResolver::exitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
     PlayScriptParser::ExpressionContext *exp = dynamic_cast<PlayScriptParser::ExpressionContext*>(ctx->parent);
     if (exp != nullptr) {
         if (exp->bop && exp->bop->getType() == PlayScriptParser::DOT) {
-            // TODO 派生类和父类的转换关系？
+
             Symbol *symbol = at_->symbolOfNode[exp->expression(0)];
-            Variable *syTmp = dynamic_cast<Variable*>(symbol);
-            theClass = dynamic_cast<Class *>(syTmp->getType());
+            Variable *syTmp = (syTmp != nullptr) ? dynamic_cast<Variable*>(symbol) : nullptr;
+            theClass = (syTmp != nullptr) ? dynamic_cast<Class *>(syTmp->getType()) : nullptr;
 
             if (syTmp != nullptr && theClass != nullptr) {
                 
@@ -159,7 +159,7 @@ void RefResolver::exitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
         Class *theClass = at_->lookupClass(scope, idName);
         if (theClass != nullptr) {
 
-            Function *function = theClass->findConstructos(paramTypes);
+            Function *function = theClass->findConstructor(paramTypes);
             if (function != nullptr) {
                 found = true;
                 at_->symbolOfNode[ctx] = function;
@@ -219,7 +219,7 @@ void RefResolver::resolveThisConstructorCall(PlayScriptParser::FunctionCallConte
             }
 
             std::vector<Type*> paramTypes = getParamTypes(ctx); 
-            Function *refered = theClass->findConstructos(paramTypes);
+            Function *refered = theClass->findConstructor(paramTypes);
 
             if (refered != nullptr) {
                 at_->symbolOfNode[ctx] = refered;
@@ -276,7 +276,7 @@ void RefResolver::resolveSuperConstructorCall(PlayScriptParser::FunctionCallCont
                 }
 
                 std::vector<Type*> paramTypes = getParamTypes(ctx);
-                Function *refered = parentClass->findConstructos(paramTypes);
+                Function *refered = parentClass->findConstructor(paramTypes);
                 if (refered != nullptr) {
                     at_->symbolOfNode[ctx] = refered;
                     at_->typeOfNode[ctx] = theClass;

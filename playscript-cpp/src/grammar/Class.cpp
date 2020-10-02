@@ -5,7 +5,7 @@
 #include "DefaultConstructor.h"
 using namespace play;
 
-Class::Class(std::string name, ParserRuleContext *ctx)
+Class::Class(std::string name, ParserRuleContext *ctx): parentClass(nullptr), superRef(nullptr)
 {
     this->name = name;
     this->ctx = ctx;
@@ -72,7 +72,7 @@ Class* Class::getClass(std::string name)
 }
 
 // 找到某个构造函数。不需要往父类去找，在本级找就行类
-Function* Class::findConstructos(std::vector<Type*> paramTypes)
+Function* Class::findConstructor(std::vector<Type*> paramTypes)
 {
     Function *rtn = Scope::getFunction(name, paramTypes);   // TODO是否要检查 visibility
     return rtn;

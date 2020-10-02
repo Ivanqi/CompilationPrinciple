@@ -153,8 +153,14 @@ void TypeResolver::enterClassOrInterfaceType(PlayScriptParser::ClassOrInterfaceT
         }
 
         std::string idName = ctx->getText();
-        Class *theClass = at_->lookupClass(scope, idName);
-        at_->typeOfNode[ctx] = theClass;
+        // todo 特殊处理。string类型
+        if (idName == "string") {
+            Type *type = PrimitiveType::String;
+            at_->typeOfNode[ctx] = type;
+        } else {
+            Class *theClass = at_->lookupClass(scope, idName);
+            at_->typeOfNode[ctx] = theClass;
+        }
     }
 }
 
@@ -227,7 +233,7 @@ void TypeResolver::exitLiteral(PlayScriptParser::LiteralContext *ctx)
         type = PrimitiveType::Char;
 
     } else if (ctx->STRING_LITERAL() != nullptr) { // string 字面量
-        type = PrimitiveType::Char;
+        type = PrimitiveType::String;
 
     } else if (ctx->BOOL_LITERAL() != nullptr) {   // 布尔字面量
         type = PrimitiveType::Boolean;

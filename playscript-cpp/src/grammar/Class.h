@@ -47,7 +47,7 @@ namespace play
             Class* getClass(std::string name);
 
             // 找到某个构造函数。不需要往父类去找，在本级找就行类
-            Function* findConstructos(std::vector<Type*> paramTypes);
+            Function* findConstructor(std::vector<Type*> paramTypes);
 
             /**
              * 在自身及父类中找到某个方法
