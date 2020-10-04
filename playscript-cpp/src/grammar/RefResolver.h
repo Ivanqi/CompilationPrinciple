@@ -75,6 +75,8 @@ namespace play
             // 消解处理点符号表达式的层层引用
             virtual void exitExpression(PlayScriptParser::ExpressionContext *ctx);
 
+            virtual void exitVariableInitializer(PlayScriptParser::VariableInitializerContext *ctx);
+
             virtual void exitLiteral(PlayScriptParser::LiteralContext *ctx);
 
             virtual void exitProg(PlayScriptParser::ProgContext *ctx);

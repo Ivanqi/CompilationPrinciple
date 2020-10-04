@@ -413,6 +413,14 @@ void RefResolver::exitExpression(PlayScriptParser::ExpressionContext *ctx)
     at_->typeOfNode[ctx] = type;
 }
 
+// 对变量初始化部分也做一下类型推断
+void RefResolver::exitVariableInitializer(PlayScriptParser::VariableInitializerContext *ctx)
+{
+    if (ctx->expression() != nullptr) {
+        at_->typeOfNode[ctx] = at_->typeOfNode[ctx->expression()];
+    }
+}
+
 // 根据字面量来推断类型 
 void RefResolver::exitLiteral(PlayScriptParser::LiteralContext *ctx)
 {

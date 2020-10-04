@@ -13,14 +13,14 @@ Variable::Variable(std::string name, Scope *enclosingScope, ParserRuleContext *c
 
 bool Variable::isClassMember()
 {
-    // Scope *sc = dynamic_cast<Scope*>(enclosingScope);
-    // return (sc != NULL) ? true: false;
+    Scope *sc = dynamic_cast<Scope*>(enclosingScope);
+    return (sc != nullptr) ? true: false;
     return false;
 }
 
 std::string Variable::toString()
 {
-    return "Variable " + name + " -> ";
+    return "Variable " + name + " -> " + type->getName();
 }
 
 Type* Variable::getType()

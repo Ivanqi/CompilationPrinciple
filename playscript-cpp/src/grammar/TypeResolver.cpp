@@ -144,14 +144,12 @@ void TypeResolver::exitTypeType(PlayScriptParser::TypeTypeContext *ctx)
     }
 }
 
+// Class 或者 Interface 类型
 void TypeResolver::enterClassOrInterfaceType(PlayScriptParser::ClassOrInterfaceTypeContext *ctx)
 {
     if (ctx->IDENTIFIER().size() > 0) {
         Scope *scope = at_->enclosingClassOfNode(ctx);
-        if (scope == nullptr) {
-            return;
-        }
-
+        
         std::string idName = ctx->getText();
         // todo 特殊处理。string类型
         if (idName == "string") {

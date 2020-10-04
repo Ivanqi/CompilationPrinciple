@@ -21,8 +21,9 @@ Variable* Scope::getVariable(std::string name)
 Variable* Scope::getVariable(Scope *scope, std::string name)
 {
     for (Symbol *s : scope->symbols) {
-        if (dynamic_cast<Variable*>(s) != nullptr && s->getName() == name) {
-            return dynamic_cast<Variable*>(s);
+        Variable *tmp = dynamic_cast<Variable*>(s);
+        if (tmp != nullptr && s->getName() == name) {
+            return tmp;
         }
     }
     return nullptr;
