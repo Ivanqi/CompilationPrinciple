@@ -112,7 +112,7 @@ void RefResolver::exitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
         if (exp->bop && exp->bop->getType() == PlayScriptParser::DOT) {
 
             Symbol *symbol = at_->symbolOfNode[exp->expression(0)];
-            Variable *syTmp = (syTmp != nullptr) ? dynamic_cast<Variable*>(symbol) : nullptr;
+            Variable *syTmp = dynamic_cast<Variable*>(symbol);
             theClass = (syTmp != nullptr) ? dynamic_cast<Class *>(syTmp->getType()) : nullptr;
 
             if (syTmp != nullptr && theClass != nullptr) {
@@ -309,7 +309,6 @@ void RefResolver::exitExpression(PlayScriptParser::ExpressionContext *ctx)
     if (ctx->bop != nullptr && ctx->bop->getType() == PlayScriptParser::DOT) {
         // 这是个左递归，要不断的把左边的节点的计算结果存到node2Symbol，所以要在exitExpression里操作
         Symbol *symbol = at_->symbolOfNode[ctx->expression(0)];
-        
         Variable *syTmp = dynamic_cast<Variable*>(symbol);
         Class *theClass = (syTmp != nullptr) ? dynamic_cast<Class *>(syTmp->getType()) : nullptr;
         
@@ -412,4 +411,43 @@ void RefResolver::exitExpression(PlayScriptParser::ExpressionContext *ctx)
 
     //类型冒泡
     at_->typeOfNode[ctx] = type;
+}
+
+// 根据字面量来推断类型 
+void RefResolver::exitLiteral(PlayScriptParser::LiteralContext *ctx)
+{
+    Type *type;
+
+    if (ctx->integerLiteral() != nullptr) {        // 整型字面量
+        type = PrimitiveType::Integer;
+
+    } else if (ctx->floatLiteral() != nullptr) {   // 浮点型字面量
+        type = PrimitiveType::Float;
+
+    } else if (ctx->CHAR_LITERAL() != nullptr) {   // char 字面量
+        type = PrimitiveType::Char;
+
+    } else if (ctx->STRING_LITERAL() != nullptr) { // string 字面量
+        type = PrimitiveType::String;
+
+    } else if (ctx->BOOL_LITERAL() != nullptr) {   // 布尔字面量
+        type = PrimitiveType::Boolean;
+
+    } else if (ctx->NULL_LITERAL() != nullptr) {   // NULL 字面量
+        type = PrimitiveType::Null;
+    }
+
+    at_->typeOfNode[ctx] = type;
+}
+
+// 在结束扫描之前，把this()和super()构造函数消解掉
+void RefResolver::exitProg(PlayScriptParser::ProgContext *ctx)
+{
+    for (PlayScriptParser::FunctionCallContext *fcc: thisConstructorList) {
+        resolveThisConstructorCall(fcc);
+    }
+
+    for (PlayScriptParser::FunctionCallContext *fcc : superConstructorList) {
+        resolveSuperConstructorCall(fcc);
+    }
 }

@@ -63,8 +63,6 @@ namespace play
             virtual void exitFunctionType(PlayScriptParser::FunctionTypeContext *ctx);
 
             virtual void exitPrimitiveType(PlayScriptParser::PrimitiveTypeContext *ctx);
-
-            virtual void exitLiteral(PlayScriptParser::LiteralContext *ctx);
     };
 };
 

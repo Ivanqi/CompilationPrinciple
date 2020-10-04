@@ -217,30 +217,3 @@ void TypeResolver::exitPrimitiveType(PlayScriptParser::PrimitiveTypeContext *ctx
 
     at_->typeOfNode[ctx] = type;
 }
-
-// 根据字面量来推断类型 
-void TypeResolver::exitLiteral(PlayScriptParser::LiteralContext *ctx)
-{
-    Type *type;
-
-    if (ctx->integerLiteral() != nullptr) {        // 整型字面量
-        type = PrimitiveType::Integer;
-
-    } else if (ctx->floatLiteral() != nullptr) {   // 浮点型字面量
-        type = PrimitiveType::Float;
-
-    } else if (ctx->CHAR_LITERAL() != nullptr) {   // char 字面量
-        type = PrimitiveType::Char;
-
-    } else if (ctx->STRING_LITERAL() != nullptr) { // string 字面量
-        type = PrimitiveType::String;
-
-    } else if (ctx->BOOL_LITERAL() != nullptr) {   // 布尔字面量
-        type = PrimitiveType::Boolean;
-
-    } else if (ctx->NULL_LITERAL() != nullptr) {   // NULL 字面量
-        type = PrimitiveType::Null;
-    }
-
-    at_->typeOfNode[ctx] = type;
-}
