@@ -66,6 +66,12 @@ void ASTEvaluator::pushStack(StackFrame *frame)
                 frame->parentFrame_ = f;
                 break;
             } else if (functionObject != nullptr) {
+                /**
+                 * 这是针对函数可能是一等公民的情况
+                 * 这个时候，函数运行的作用域，与声明的作用域会不一致
+                 * 这里设计了一个"receiver"的机制，意思是这个函数是被那个变量接收了
+                 * 要按照这个receiver的作用域来判断
+                 */
                 if (functionObject->getReceiver() != nullptr && functionObject->getReceiver()->getEnclosingScope() == f->scope_) {
                     frame->parentFrame_ = f;
                     break;
@@ -188,6 +194,7 @@ ClassObject* ASTEvaluator::createAndInitClassObject(Class *theClass)
     // 执行缺省的初始化方法
     StackFrame *frame = new StackFrame(obj);
     pushStack(frame);
+    // 如果有继承等父类，需要对每个父类进行初始化
     while (ancestorChain.size() > 0) {
         Class *c = ancestorChain.top();
         ancestorChain.pop();

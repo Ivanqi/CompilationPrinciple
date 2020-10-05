@@ -148,14 +148,13 @@ void TypeResolver::exitTypeType(PlayScriptParser::TypeTypeContext *ctx)
 void TypeResolver::enterClassOrInterfaceType(PlayScriptParser::ClassOrInterfaceTypeContext *ctx)
 {
     if (ctx->IDENTIFIER().size() > 0) {
-        Scope *scope = at_->enclosingClassOfNode(ctx);
-        
         std::string idName = ctx->getText();
         // todo 特殊处理。string类型
         if (idName == "string") {
             Type *type = PrimitiveType::String;
             at_->typeOfNode[ctx] = type;
         } else {
+            Scope *scope = at_->enclosingScopeOfNode(ctx);
             Class *theClass = at_->lookupClass(scope, idName);
             at_->typeOfNode[ctx] = theClass;
         }
