@@ -32,7 +32,7 @@ void MyLValue::setValue(antlrcpp::Any value)
     bool IsFunctionObject = value.is<FunctionObject*>();
 
     if (IsFunctionObject) {
-        value.as<FunctionObject*>()->receiver_ = static_cast<Variable *>(variable_);
+        value.as<FunctionObject*>()->receiver_ = dynamic_cast<Variable *>(variable_);
     }
 }
 
@@ -44,7 +44,9 @@ Variable* MyLValue::getVariable()
 // TODO: 代码缺失一部分
 std::string MyLValue::toString()
 {
-    return "LValue of " + variable_->getName() + " : " ;
+    antlrcpp::Any res = getValue();
+    std::string value = res.is<int>() ? std::to_string(res.as<int>()) : (res.is<std::string>() ? res.as<std::string>() : "复杂类型，无法输出");
+    return "LValue of " + variable_->getName() + " : " + value;
 }
 
 PlayObject* MyLValue::getValueContainer()

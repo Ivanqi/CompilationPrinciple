@@ -1,4 +1,3 @@
-
 /*
 class.play 简单的面向对象特性。
 */
@@ -12,7 +11,7 @@ class Mammal{
   }
 
   //方法
-void speak(){
+  void speak(){
     println("mammal " + name +" speaking...");
   }
 }

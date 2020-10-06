@@ -60,6 +60,7 @@ void ASTEvaluator::pushStack(StackFrame *frame)
                     class MyClass{
                         void foo();
                     }
+                    
                     MyClass c = MyClass();  //先加Class的栈桢，里面有类的属性，包括父类的
                     c.foo();                //再加foo()的栈桢
                 */
@@ -256,6 +257,19 @@ antlrcpp::Any ASTEvaluator::add(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *ta
     antlrcpp::Any rtn = nullptr;
 
     if (targetType == PrimitiveType::String) {
+        if (obj1.is<string>() && obj2.is<string>()) {
+            cout << "obj1 and obj2 are string types" << endl;
+        } else {
+            cout << "obj1 and obj2 are not string types" << endl;
+        }
+
+        if (obj1.is<char>() && obj2.is<char>()) {
+            cout << "obj1 and obj2 are char types" << endl;
+        } else {
+            cout << "obj1 and obj2 are not char types" << endl;
+        }
+
+
         rtn = obj1.as<string>() + obj2.as<string>();
 
     } else if (targetType == PrimitiveType::Integer) {
@@ -689,17 +703,6 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
         // 左右两个子节点的类型
         Type *type1 = at_->typeOfNode[ctx->expression(0)];
         Type *type2 = at_->typeOfNode[ctx->expression(1)];
-
-        // cout << "ctx: " << ctx->getText() << endl;
-
-        // if (ctx->getText() == "age+2" || ctx->getText() == "age=age+2") {
-        //     cout << ctx->getText() << " | ";
-        //     if (leftObject.is<int>()  && rightObject.is<int>()) {
-        //         cout << "leftObject: " << leftObject.as<int>() << " | rightObject: " << rightObject.as<int>() << endl;
-        //     } else {
-        //         cout << "leftObject or rightObject not is int" << endl;
-        //     }
-        // }
 
         switch (ctx->bop->getType()) {
             case PlayScriptParser::ADD:
