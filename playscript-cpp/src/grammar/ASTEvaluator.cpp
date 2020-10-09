@@ -73,10 +73,10 @@ void ASTEvaluator::pushStack(StackFrame *frame)
                  * 这里设计了一个"receiver"的机制，意思是这个函数是被那个变量接收了
                  * 要按照这个receiver的作用域来判断
                  */
-                if (functionObject->getReceiver() != nullptr && functionObject->getReceiver()->getEnclosingScope() == f->scope_) {
-                    frame->parentFrame_ = f;
-                    break;
-                }
+                // if (functionObject->getReceiver() != nullptr && functionObject->getReceiver()->getEnclosingScope() == f->scope_) {
+                //     frame->parentFrame_ = f;
+                //     break;
+                // }
             }
         }
 
@@ -230,9 +230,14 @@ void ASTEvaluator::println(PlayScriptParser::FunctionCallContext *ctx)
 {
     if (ctx->expressionList() != nullptr) {
         antlrcpp::Any value = visitExpressionList(ctx->expressionList());
-        LValue *tmp = value.as<LValue*>();
-        if (tmp != nullptr) {
-            value = tmp->getValue();
+        bool isLValue = value.is<LValue*>();
+        if (isLValue) {
+            value = value.as<LValue*>()->getValue();
+        }
+
+        if (value.isNull()) {
+            cout << "println 输出值为 Null" << endl;
+            return;
         }
 
         // 按类型输出
@@ -246,8 +251,8 @@ void ASTEvaluator::println(PlayScriptParser::FunctionCallContext *ctx)
             cout << value.as<float>() << endl;
         } else if (value.is<long>()) {
             cout << value.as<long>() << endl;
-        } else if (value.is<std::string>()) {
-            std::cout << value.as<std::string>() << std::endl;
+        } else if (value.is<string>()) {
+            cout << value.as<string>() << endl;
         }
     }
 }
@@ -257,20 +262,15 @@ antlrcpp::Any ASTEvaluator::add(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *ta
     antlrcpp::Any rtn = nullptr;
 
     if (targetType == PrimitiveType::String) {
-        if (obj1.is<string>() && obj2.is<string>()) {
-            cout << "obj1 and obj2 are string types" << endl;
-        } else {
-            cout << "obj1 and obj2 are not string types" << endl;
+        if (obj1.is<const char*>() && obj1.is<const char*>()) {
+            string obj1S = obj1.as<const char*>();
+            string obj2S = obj2.as<const char*>();
+
+            rtn = obj1S + obj2S;
+            
+        } else if (obj1.is<string>() && obj2.is<string>()) {
+            rtn = obj1.as<string>() + obj2.as<string>();
         }
-
-        if (obj1.is<char>() && obj2.is<char>()) {
-            cout << "obj1 and obj2 are char types" << endl;
-        } else {
-            cout << "obj1 and obj2 are not char types" << endl;
-        }
-
-
-        rtn = obj1.as<string>() + obj2.as<string>();
 
     } else if (targetType == PrimitiveType::Integer) {
       
@@ -567,6 +567,7 @@ antlrcpp::Any ASTEvaluator::visitVariableDeclarator(PlayScriptParser::VariableDe
         if (rtn.is<LValue*>()) {
             rtn = rtn.as<LValue*>()->getValue();
         }
+
         lValue->setValue(rtn); 
     }
     return rtn;
@@ -693,7 +694,14 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
         }
 
         if (leftObject.is<NullObject*>() || rightObject.is<NullObject*>()) {
-            at_->log("left or right value is null: " + ctx->getText(), ctx);
+            if (leftObject.is<NullObject*>()) {
+                at_->log("left value is null: " + ctx->getText(), ctx);
+            }
+
+            if (rightObject.is<NullObject*>()) {
+                at_->log("right value is null: " + ctx->getText(), ctx);
+            }
+
             return rtn;
         }
 
@@ -926,7 +934,7 @@ antlrcpp::Any ASTEvaluator::visitLiteral(PlayScriptParser::LiteralContext *ctx)
         }
     } else if (ctx->STRING_LITERAL() != nullptr) { // 字符串
         string withQuotationMark = ctx->STRING_LITERAL()->getText();
-        rtn = withQuotationMark.substr(1, withQuotationMark.length() - 1);
+        rtn = withQuotationMark.substr(1, withQuotationMark.length() - 2).c_str();   
 
     } else if (ctx->CHAR_LITERAL() != nullptr) {   // 单个字符
         rtn = ctx->CHAR_LITERAL()->getText()[0];
