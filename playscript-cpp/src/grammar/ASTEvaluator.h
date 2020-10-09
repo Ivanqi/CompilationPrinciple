@@ -9,6 +9,8 @@
 #include "StackFrame.h"
 #include <iostream>
 #include <vector>
+#include <string.h>
+
 using namespace std;
 
 namespace play 

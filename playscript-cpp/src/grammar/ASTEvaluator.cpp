@@ -253,6 +253,8 @@ void ASTEvaluator::println(PlayScriptParser::FunctionCallContext *ctx)
             cout << value.as<long>() << endl;
         } else if (value.is<string>()) {
             cout << value.as<string>() << endl;
+        } else if (value.is<char*>()) {
+            cout << value.as<char*>() << endl;
         }
     }
 }
@@ -262,11 +264,12 @@ antlrcpp::Any ASTEvaluator::add(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *ta
     antlrcpp::Any rtn = nullptr;
 
     if (targetType == PrimitiveType::String) {
-        if (obj1.is<const char*>() && obj1.is<const char*>()) {
-            string obj1S = obj1.as<const char*>();
-            string obj2S = obj2.as<const char*>();
+        if (obj1.is<char*>() && obj1.is<char*>()) {
+            char *obj1S = obj1.as<char*>();
+            char *obj2S = obj2.as<char*>();
 
-            rtn = obj1S + obj2S;
+            strcat(obj1S, obj2S);
+            rtn = obj1S;
             
         } else if (obj1.is<string>() && obj2.is<string>()) {
             rtn = obj1.as<string>() + obj2.as<string>();
@@ -934,7 +937,12 @@ antlrcpp::Any ASTEvaluator::visitLiteral(PlayScriptParser::LiteralContext *ctx)
         }
     } else if (ctx->STRING_LITERAL() != nullptr) { // 字符串
         string withQuotationMark = ctx->STRING_LITERAL()->getText();
-        rtn = withQuotationMark.substr(1, withQuotationMark.length() - 2).c_str();   
+        const char *tmp = withQuotationMark.substr(1, withQuotationMark.length() - 2).c_str();
+
+        char *withQuotationMarkChar = new char[strlen(tmp) + 1];
+        strcpy(withQuotationMarkChar, tmp);
+        
+        rtn = withQuotationMarkChar;   
 
     } else if (ctx->CHAR_LITERAL() != nullptr) {   // 单个字符
         rtn = ctx->CHAR_LITERAL()->getText()[0];
