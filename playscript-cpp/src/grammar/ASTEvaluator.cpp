@@ -74,10 +74,10 @@ void ASTEvaluator::pushStack(StackFrame *frame)
                  * 这里设计了一个"receiver"的机制，意思是这个函数是被那个变量接收了
                  * 要按照这个receiver的作用域来判断
                  */
-                // if (functionObject->getReceiver() != nullptr && functionObject->getReceiver()->getEnclosingScope() == f->scope_) {
-                //     frame->parentFrame_ = f;
-                //     break;
-                // }
+                if (functionObject->getReceiver() != nullptr && functionObject->getReceiver()->getEnclosingScope() == f->scope_) {
+                    frame->parentFrame_ = f;
+                    break;
+                }
             }
         }
 

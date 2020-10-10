@@ -21,7 +21,6 @@ class CharStr
             charS = str;
         }
 
-
         std::string& getCharStr()
         {
             return charS;

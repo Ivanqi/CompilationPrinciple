@@ -55,7 +55,7 @@ bool DefaultFunctionType::isType(FunctionType *type1, FunctionType *type2)
 bool DefaultFunctionType::matchParameterTypes(std::vector<Type*> paramTypes)
 {
     // 比较每个参数
-    if (paramTypes.size() != paramTypes.size()) {
+    if (paramTypes.size() != paramTypes_.size()) {
         return false;
     }
 
