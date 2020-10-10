@@ -256,6 +256,8 @@ void ASTEvaluator::println(PlayScriptParser::FunctionCallContext *ctx)
             cout << value.as<string>() << endl;
         } else if (value.is<CharStr*>()) {
             cout << value.as<CharStr*>()->getCharStr() << endl;
+        } else if (value.is<char>()) {
+            cout << value.as<char>() << endl;
         }
     }
 }
@@ -272,13 +274,13 @@ antlrcpp::Any ASTEvaluator::add(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *ta
         if (obj1.is<CharStr*>()) {
             obj1S = obj1.as<CharStr*>();
         } else if (obj1.is<int>()) {
-            obj1S = new CharStr(to_string(obj1.as<int>()).c_str());
+            obj1S = new CharStr(to_string(obj1.as<int>()));
         }
 
         if (obj2.is<CharStr*>()) {
             obj2S = obj2.as<CharStr*>();
         } else if (obj2.is<int>()) {
-            obj2S = new CharStr(to_string(obj2.as<int>()).c_str());
+            obj2S = new CharStr(to_string(obj2.as<int>()));
         }
 
         obj1S->splicing(obj2S->getCharStr());
@@ -947,7 +949,7 @@ antlrcpp::Any ASTEvaluator::visitLiteral(PlayScriptParser::LiteralContext *ctx)
     } else if (ctx->STRING_LITERAL() != nullptr) { // 字符串
         string withQuotationMark = ctx->STRING_LITERAL()->getText();
         withQuotationMark.substr(1, withQuotationMark.length() - 2);
-        rtn = new CharStr(withQuotationMark.c_str()); 
+        rtn = new CharStr(withQuotationMark);
 
     } else if (ctx->CHAR_LITERAL() != nullptr) {   // 单个字符
         rtn = ctx->CHAR_LITERAL()->getText()[0];

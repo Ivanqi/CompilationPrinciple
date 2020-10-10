@@ -41,12 +41,12 @@ namespace play
                 return enclosingScope;
             }
 
-            Type* getReturnType()
+            virtual Type* getReturnType()
             {
                 return returnType;
             }
 
-            std::vector<Type*> getParamTypes()
+            virtual std::vector<Type*> getParamTypes()
             {
                 return paramTypes_;
             }
@@ -56,7 +56,7 @@ namespace play
                 return "FunctionType";
             }
 
-            bool isType(Type *type);
+            virtual bool isType(Type *type);
 
             /**
              * 工具性方法：比较type1 是否是 type2
@@ -68,7 +68,7 @@ namespace play
             /**
              * 检查改函数是否匹配所需的参数
              */
-            bool matchParameterTypes(std::vector<Type*> paramTypes);
+            virtual bool matchParameterTypes(std::vector<Type*> paramTypes);
     };
 };
 #endif
