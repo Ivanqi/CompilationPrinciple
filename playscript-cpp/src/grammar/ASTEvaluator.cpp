@@ -16,6 +16,7 @@
 #include "PlayObject.h"
 #include "NullObject.h"
 #include "DefaultConstructor.h"
+#include "CharStr.h"
 
 using namespace play;
 
@@ -253,8 +254,8 @@ void ASTEvaluator::println(PlayScriptParser::FunctionCallContext *ctx)
             cout << value.as<long>() << endl;
         } else if (value.is<string>()) {
             cout << value.as<string>() << endl;
-        } else if (value.is<char*>()) {
-            cout << value.as<char*>() << endl;
+        } else if (value.is<CharStr*>()) {
+            cout << value.as<CharStr*>()->getCharStr() << endl;
         }
     }
 }
@@ -264,16 +265,24 @@ antlrcpp::Any ASTEvaluator::add(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *ta
     antlrcpp::Any rtn = nullptr;
 
     if (targetType == PrimitiveType::String) {
-        if (obj1.is<char*>() && obj1.is<char*>()) {
-            char *obj1S = obj1.as<char*>();
-            char *obj2S = obj2.as<char*>();
+        // todo 需要优化类型判断
+        CharStr *obj1S;
+        CharStr *obj2S;
 
-            strcat(obj1S, obj2S);
-            rtn = obj1S;
-            
-        } else if (obj1.is<string>() && obj2.is<string>()) {
-            rtn = obj1.as<string>() + obj2.as<string>();
+        if (obj1.is<CharStr*>()) {
+            obj1S = obj1.as<CharStr*>();
+        } else if (obj1.is<int>()) {
+            obj1S = new CharStr(to_string(obj1.as<int>()).c_str());
         }
+
+        if (obj2.is<CharStr*>()) {
+            obj2S = obj2.as<CharStr*>();
+        } else if (obj2.is<int>()) {
+            obj2S = new CharStr(to_string(obj2.as<int>()).c_str());
+        }
+
+        obj1S->splicing(obj2S->getCharStr());
+        rtn = obj1S;
 
     } else if (targetType == PrimitiveType::Integer) {
       
@@ -937,12 +946,8 @@ antlrcpp::Any ASTEvaluator::visitLiteral(PlayScriptParser::LiteralContext *ctx)
         }
     } else if (ctx->STRING_LITERAL() != nullptr) { // 字符串
         string withQuotationMark = ctx->STRING_LITERAL()->getText();
-        const char *tmp = withQuotationMark.substr(1, withQuotationMark.length() - 2).c_str();
-
-        char *withQuotationMarkChar = new char[strlen(tmp) + 1];
-        strcpy(withQuotationMarkChar, tmp);
-        
-        rtn = withQuotationMarkChar;   
+        withQuotationMark.substr(1, withQuotationMark.length() - 2);
+        rtn = new CharStr(withQuotationMark.c_str()); 
 
     } else if (ctx->CHAR_LITERAL() != nullptr) {   // 单个字符
         rtn = ctx->CHAR_LITERAL()->getText()[0];

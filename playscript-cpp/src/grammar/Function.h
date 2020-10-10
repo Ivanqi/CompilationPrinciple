@@ -31,22 +31,22 @@ namespace play
         public:
             Function(std::string name, Scope *enclosingScope, ParserRuleContext *ctx);
 
-            std::string getName();
+            virtual std::string getName();
 
-            Type* getReturnType();
+            virtual Type* getReturnType();
 
-            std::vector<Type*> getParamTypes();
+            virtual std::vector<Type*> getParamTypes();
 
-            Scope* getEnclosingScope();
+            virtual Scope* getEnclosingScope();
 
-            std::string toString();
+            virtual std::string toString();
 
             bool isType(Type *type);
 
             /**
              * 检查改函数是否匹配所需的参数
              */
-            bool matchParameterTypes(std::vector<Type*> paramTypes);
+            virtual bool matchParameterTypes(std::vector<Type*> paramTypes);
 
             /**
              * 该函数是不是类的方法
