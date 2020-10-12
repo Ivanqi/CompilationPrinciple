@@ -24,10 +24,11 @@ Type* Function::getReturnType()
 
 std::vector<Type*> Function::getParamTypes()
 {
+    paramTypes.clear();
     for (Variable *param: parameters) {
         paramTypes.push_back(param->getType());
     }
-
+    
     return paramTypes;
 }
 

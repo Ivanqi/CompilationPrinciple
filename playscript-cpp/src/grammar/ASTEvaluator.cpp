@@ -473,19 +473,19 @@ antlrcpp::Any ASTEvaluator::LE(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *tar
     antlrcpp::Any rtn = nullptr;
 
     if (targetType == PrimitiveType::Integer) {
-        rtn = obj1.as<int>() < obj2.as<int>();
+        rtn = obj1.as<int>() <= obj2.as<int>();
 
     } else if (targetType == PrimitiveType::Float) {
-        rtn = obj1.as<float>() < obj2.as<float>();
+        rtn = obj1.as<float>() <= obj2.as<float>();
 
     } else if (targetType == PrimitiveType::Long) {
-        rtn = obj1.as<long>() < obj2.as<long>();
+        rtn = obj1.as<long>() <= obj2.as<long>();
 
     } else if (targetType == PrimitiveType::Double) {
-        rtn = obj1.as<double>() < obj2.as<double>();
+        rtn = obj1.as<double>() <= obj2.as<double>();
 
     } else if (targetType == PrimitiveType::Short) {
-        rtn = obj1.as<short>() < obj2.as<short>();
+        rtn = obj1.as<short>() <= obj2.as<short>();
     } else {
         cout << "unsupported LE operation" << endl;
     }
@@ -707,7 +707,7 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
             rightObject = right.as<LValue*>()->getValue();
         }
 
-        if (leftObject.is<NullObject*>() || rightObject.is<NullObject*>()) {
+        if (ctx->bop->getType() != PlayScriptParser::ASSIGN && (leftObject.is<NullObject*>() || rightObject.is<NullObject*>())) {
             if (leftObject.is<NullObject*>()) {
                 at_->log("left value is null: " + ctx->getText(), ctx);
             }
@@ -727,55 +727,55 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
         Type *type2 = at_->typeOfNode[ctx->expression(1)];
 
         switch (ctx->bop->getType()) {
-            case PlayScriptParser::ADD:
+            case PlayScriptParser::ADD: // +
                 rtn = add(leftObject, rightObject, type);
                 break;
 
-            case PlayScriptParser::SUB:
+            case PlayScriptParser::SUB: // -
                 rtn = minus(leftObject, rightObject, type);
                 break;
             
-            case PlayScriptParser::MUL:
+            case PlayScriptParser::MUL: // *
                 rtn = mul(leftObject, rightObject, type);
                 break;
             
-            case PlayScriptParser::DIV:
+            case PlayScriptParser::DIV: // /
                 rtn = div(leftObject, rightObject, type);
                 break;
             
-            case PlayScriptParser::EQUAL:
+            case PlayScriptParser::EQUAL:   // 相等
                 rtn = EQ(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
                 break;
             
-            case PlayScriptParser::NOTEQUAL:
+            case PlayScriptParser::NOTEQUAL:    // 不想等
                 rtn = !EQ(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
                 break;
             
-            case PlayScriptParser::LE:
+            case PlayScriptParser::LE:  // 小于等于
                 rtn = LE(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
                 break;
             
-            case PlayScriptParser::LT:
+            case PlayScriptParser::LT:  // 小于
                 rtn = LT(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
                 break;
 
-            case PlayScriptParser::GE:
+            case PlayScriptParser::GE:  // 大于等于
                 rtn = GE(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
                 break;
 
-            case PlayScriptParser::GT:
+            case PlayScriptParser::GT:  // 大于
                 rtn = GT(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
                 break;
             
-            case PlayScriptParser::AND:
+            case PlayScriptParser::AND: // and 操作符
                 rtn = leftObject.as<bool>() && rightObject.as<bool>();
                 break;
             
-            case PlayScriptParser::OR:
+            case PlayScriptParser::OR:  // or 操作符
                 rtn = leftObject.as<bool>() || rightObject.as<bool>();
                 break;
             
-            case PlayScriptParser::ASSIGN:
+            case PlayScriptParser::ASSIGN:  // 分配操作符
                 if (left.is<LValue*>()) {
                     left.as<LValue*>()->setValue(rightObject);
                     rtn = right;
@@ -1141,13 +1141,13 @@ antlrcpp::Any ASTEvaluator::visitStatement(PlayScriptParser::StatementContext *c
         // 去掉StackFrame
         popStack();
 
-    } else if (ctx->blockLabel != nullptr) {       // block
+    } else if (ctx->blockLabel != nullptr) {    // block
         rtn = visitBlock(ctx->blockLabel);
 
-    } else if (ctx->BREAK() != nullptr) {      // break
+    } else if (ctx->BREAK() != nullptr) {       // break
         rtn = BreakObject::GetInstance();
 
-    } else if (ctx->RETURN() != nullptr) {     // return语句
+    } else if (ctx->RETURN() != nullptr) {      // return语句
         if (ctx->expression() != nullptr) {
             rtn = visitExpression(ctx->expression());
 

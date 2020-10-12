@@ -5,8 +5,6 @@
 #include "Scope.h"
 #include "Variable.h"
 
-
-
 using namespace play;
 
 void SematicValidator::exitPrimary(PlayScriptParser::PrimaryContext *ctx)
@@ -99,8 +97,8 @@ void SematicValidator::exitStatement(PlayScriptParser::StatementContext *ctx)
     if (ctx->RETURN() != nullptr) {
         //02 - 03
         Function *function = at_->enclosingFunctionOfNode(ctx);
-        if (function != nullptr) {
-            at_->log("return statement not in fountion body", ctx);
+        if (function == nullptr) {
+            at_->log("return statement not in fountion body: " + ctx->getText(), ctx);
         } else if (function->isConstructor() && ctx->expression() != nullptr) {
             // 02-02 构造函数不能有return语句
             at_->log("can not return a value from constructor", ctx);
