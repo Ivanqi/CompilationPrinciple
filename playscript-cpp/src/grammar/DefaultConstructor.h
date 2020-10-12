@@ -21,7 +21,7 @@ namespace play
 
             }
 
-            Class* Class()
+            virtual Class* Class()
             {
                 return (play::Class*)enclosingScope;
             }

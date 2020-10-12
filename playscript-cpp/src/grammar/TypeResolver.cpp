@@ -93,7 +93,7 @@ void TypeResolver::exitFormalParameter(PlayScriptParser::FormalParameterContext 
     // 主要判断是不是function的参数
     Function *tmp = dynamic_cast<Function*>(scope);
     if (tmp != nullptr) {  //TODO 从目前的语法来看，只有function才会使用FormalParameter
-        tmp->parameters.push_back(variable);
+        tmp->setParameters(variable);
     }
 }
 
@@ -177,7 +177,7 @@ void TypeResolver::exitFunctionType(PlayScriptParser::FunctionTypeContext *ctx)
         PlayScriptParser::TypeListContext *tcl = (PlayScriptParser::TypeListContext*)ctx->typeList();
         for (PlayScriptParser::TypeTypeContext *ttc : tcl->typeType()) {
             Type *type = (Type *)at_->typeOfNode[ttc];
-            functionType->getParamTypes().push_back(type);
+            functionType->setParamTypes(type);
         }
     }
 }

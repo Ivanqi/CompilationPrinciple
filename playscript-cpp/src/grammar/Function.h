@@ -43,6 +43,11 @@ namespace play
 
             bool isType(Type *type);
 
+            void setParameters(Variable *var)
+            {
+                parameters.push_back(var);
+            }
+
             /**
              * 检查改函数是否匹配所需的参数
              */

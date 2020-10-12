@@ -31,7 +31,8 @@ Scope* TypeAndScopeScanner::pushScope(Scope *scope, ParserRuleContext *ctx)
     return scope;
 }
 
-void TypeAndScopeScanner::popScope() {
+void TypeAndScopeScanner::popScope() 
+{
     scopeStack.pop();
 }
 

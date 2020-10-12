@@ -14,8 +14,8 @@ DefaultFunctionType::DefaultFunctionType()
 bool DefaultFunctionType::isType(Type *type)
 {
     FunctionType *tmp = dynamic_cast<FunctionType*>(type);
-    if (tmp != NULL) {
-        return isType(this, (FunctionType*)type);
+    if (tmp != nullptr) {
+        return isType(this, tmp);
     }
     return true;
 }

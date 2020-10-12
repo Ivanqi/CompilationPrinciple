@@ -51,6 +51,11 @@ namespace play
                 return paramTypes_;
             }
 
+            void setParamTypes(Type *type)
+            {
+                paramTypes_.push_back(type);
+            }
+
             std::string toString()
             {
                 return "FunctionType";
