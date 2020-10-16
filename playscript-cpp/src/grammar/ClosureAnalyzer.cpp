@@ -17,11 +17,11 @@ void ClosureAnalyzer::analyzeClosures()
 {
     for (Type *type : at_->types) {
         Function *tmp = dynamic_cast<Function*>(type);
-        if (tmp != nullptr && tmp->isMethod()) {
-            unordered_set<Variable*> set = move(calcClosureVariables((Function *)type));
+        if (tmp != nullptr && !tmp->isMethod()) {
+            unordered_set<Variable*> set = calcClosureVariables(tmp);
             
             if (set.size() > 0) {
-                tmp->closureVariables = move(set);
+                tmp->closureVariables = set;
             }
         }
     }
@@ -36,10 +36,15 @@ unordered_set<Variable*> ClosureAnalyzer::calcClosureVariables(Function *functio
     unordered_set<Variable*> refered = variablesReferedByScope(function);
     unordered_set<Variable*> declared = variablesDeclaredUnderScope(function);
 
-    // 求并集
-    unordered_set<Variable*> result;
-    set_intersection(refered.begin(), refered.end(), declared.begin(), declared.end(), inserter(result, result.begin()));
-    return result;
+    // 删除重复的数据 O(n)
+    if (refered.size() > 0 && declared.size() > 0) {
+        for (auto it = refered.begin(); it != refered.begin(); it++) {
+            if (declared.find(*it) != declared.end()) {
+                refered.erase(*it);
+            }
+        }
+    }
+    return refered;
 }
 
 /**
@@ -61,19 +66,6 @@ unordered_set<Variable*> ClosureAnalyzer::variablesReferedByScope(Scope *scope)
     return rtn;
 }
 
-bool ClosureAnalyzer::isAncestor(RuleContext *node1, RuleContext *node2)
-{
-    if (node2->parent == nullptr) {
-        return false;
-
-    } else if (node2->parent == node1) {
-        return true;
-
-    } else {
-        return isAncestor(node1, (RuleContext*)node2->parent);
-    }
-}
-
 // 在一个Scope（及）下级Scope中声明的所有变量的集合
 unordered_set<Variable*> ClosureAnalyzer::variablesDeclaredUnderScope(Scope *scope)
 {
@@ -92,4 +84,20 @@ unordered_set<Variable*> ClosureAnalyzer::variablesDeclaredUnderScope(Scope *sco
         }
     }
     return rtn;
+}
+
+/**
+ * 判断 node2的父节点是否等于 node1
+ */
+bool ClosureAnalyzer::isAncestor(RuleContext *node1, RuleContext *node2)
+{
+    if (node2->parent == nullptr) {
+        return false;
+
+    } else if (node2->parent == node1) {
+        return true;
+
+    } else {
+        return isAncestor(node1, (RuleContext*)node2->parent);
+    }
 }

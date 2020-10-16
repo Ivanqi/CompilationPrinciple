@@ -151,7 +151,7 @@ void ASTEvaluator::getClosureValues(Function *function, PlayObject *valueContain
 {
     if (function->closureVariables.size() > 0) {
         for (Variable *var : function->closureVariables) {
-            LValue *lValue = getLValue(var); // 现在还可以从栈里取，退出函数以后就不行了
+            LValue *lValue = getLValue(var);                // 现在还可以从栈里取，退出函数以后就不行了
             antlrcpp::Any value = lValue->getValue();
             valueContainer->fields[var] = value;
         }
