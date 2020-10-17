@@ -16,7 +16,7 @@ namespace play
             std::string name;
 
             // 所属于作用域
-            Scope *enclosingScope;
+            Scope *enclosingScope = nullptr;
 
             // 可见性，比如public还是private
             int visibility = 0;
