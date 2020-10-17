@@ -17,7 +17,7 @@ namespace play
     {
         public:
             // 该frame所对应的scope
-            Scope *scope_;
+            Scope *scope_ = nullptr;
 
             /**
              * 放parent scope所对应的frame的指针，就叫parentFrame吧，便于提高查找效率。
@@ -25,10 +25,10 @@ namespace play
              * 如果是下一级的函数调用或For、If等block，parentFrame是自己；
              * 如果是一个闭包（如何判断？），那么要带一个存放在堆里的环境。
              */
-            StackFrame *parentFrame_;
+            StackFrame *parentFrame_ = nullptr;
 
             // 实际存放变量的地方
-            PlayObject *object_;
+            PlayObject *object_ = nullptr;
             
             StackFrame();
 

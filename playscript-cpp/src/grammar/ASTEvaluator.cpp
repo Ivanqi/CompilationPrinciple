@@ -643,8 +643,6 @@ antlrcpp::Any ASTEvaluator::visitBlockStatements(PlayScriptParser::BlockStatemen
     for (PlayScriptParser::BlockStatementContext *child : ctx->blockStatement()) {
         rtn = visitBlockStatement(child);
 
-        if (rtn.isNull()) continue;
-
         // 如果返回的是block，那么不执行下面的语句
         if (rtn.is<BreakObject*>()) {
             break;
@@ -1165,7 +1163,6 @@ antlrcpp::Any ASTEvaluator::visitStatement(PlayScriptParser::StatementContext *c
                 // 如果返回的是一个对象，那么检查它的所有属性里有没有闭包的。 // TODO 如果属性仍然是一个对象，可能就要向下递归查找
                 ClassObject *classObject = rtn.as<ClassObject*>();
                 getClosureValues(classObject);
-
             }
         }
         // 把真实的返回值封装一个RetrunObject对象里，告诉visitBlockStatements停止执行下面的语句
