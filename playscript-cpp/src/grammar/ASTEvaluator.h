@@ -9,6 +9,7 @@
 #include "StackFrame.h"
 #include <iostream>
 #include <vector>
+#include <unistd.h>
 
 using namespace std;
 
@@ -100,6 +101,8 @@ namespace play
             bool LT(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType);
 
             void thisConstructor(PlayScriptParser::FunctionCallContext *ctx);
+
+            bool checkNullObject(antlrcpp::Any leftObject, antlrcpp::Any rightObject, PlayScriptParser::ExpressionContext *ctx);
 
 
         protected:

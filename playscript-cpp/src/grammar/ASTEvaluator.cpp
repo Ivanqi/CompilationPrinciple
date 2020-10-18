@@ -238,6 +238,7 @@ void ASTEvaluator::println(PlayScriptParser::FunctionCallContext *ctx)
 
         if (value.isNull()) {
             cout << "println 输出值为 Null" << endl;
+            cout << endl;
             return;
         }
 
@@ -671,6 +672,21 @@ antlrcpp::Any ASTEvaluator::visitBlockStatement(PlayScriptParser::BlockStatement
     return rtn;
 }
 
+bool ASTEvaluator::checkNullObject(antlrcpp::Any leftObject, antlrcpp::Any rightObject, PlayScriptParser::ExpressionContext *ctx)
+{
+    if (leftObject.is<NullObject*>() || rightObject.is<NullObject*>()) {
+        if (leftObject.is<NullObject*>()) {
+            at_->log("left value is null: " + ctx->getText(), ctx);
+        }
+
+        if (rightObject.is<NullObject*>()) {
+            at_->log("right value is null: " + ctx->getText(), ctx);
+        }
+        return true;
+    }
+    return false;
+}
+
 /**
  * ExpressionContext 是 AST中表达式的节点
  *  也叫做Context,意思是你能从中取出这个节点所有上下文信息，包括父节点，子节点
@@ -705,17 +721,18 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
             rightObject = right.as<LValue*>()->getValue();
         }
 
-        if (ctx->bop->getType() != PlayScriptParser::ASSIGN && (leftObject.is<NullObject*>() || rightObject.is<NullObject*>())) {
-            if (leftObject.is<NullObject*>()) {
-                at_->log("left value is null: " + ctx->getText(), ctx);
-            }
+        // int flag = (ctx->bop->getType() != PlayScriptParser::ASSIGN || ctx->bop->getType() != PlayScriptParser::EQUAL || ctx->bop->getType() != PlayScriptParser::NOTEQUAL);
+        // if (flag && (leftObject.is<NullObject*>() || rightObject.is<NullObject*>())) {
+        //     if (leftObject.is<NullObject*>()) {
+        //         at_->log("left value is null: " + ctx->getText(), ctx);
+        //     }
 
-            if (rightObject.is<NullObject*>()) {
-                at_->log("right value is null: " + ctx->getText(), ctx);
-            }
+        //     if (rightObject.is<NullObject*>()) {
+        //         at_->log("right value is null: " + ctx->getText(), ctx);
+        //     }
 
-            return rtn;
-        }
+        //     return rtn;
+        // }
 
         // 本节点期待的数据类型
         Type *type = at_->typeOfNode[ctx];
@@ -726,43 +743,60 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
 
         switch (ctx->bop->getType()) {
             case PlayScriptParser::ADD: // +
-                rtn = add(leftObject, rightObject, type);
+                if (!checkNullObject(leftObject, rightObject, ctx)) {
+                    rtn = add(leftObject, rightObject, type);
+                }
                 break;
 
             case PlayScriptParser::SUB: // -
-                rtn = minus(leftObject, rightObject, type);
+                if (!checkNullObject(leftObject, rightObject, ctx)) {
+                    rtn = minus(leftObject, rightObject, type);
+                }
                 break;
             
             case PlayScriptParser::MUL: // *
-                rtn = mul(leftObject, rightObject, type);
+                if (!checkNullObject(leftObject, rightObject, ctx)) {
+                    rtn = mul(leftObject, rightObject, type);
+                }
                 break;
             
             case PlayScriptParser::DIV: // /
-                rtn = div(leftObject, rightObject, type);
+                if (!checkNullObject(leftObject, rightObject, ctx)) {
+                    rtn = div(leftObject, rightObject, type);
+                }
                 break;
             
             case PlayScriptParser::EQUAL:   // 相等
                 rtn = EQ(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
                 break;
             
-            case PlayScriptParser::NOTEQUAL:    // 不想等
+            case PlayScriptParser::NOTEQUAL:    // 不相等
                 rtn = !EQ(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
                 break;
             
             case PlayScriptParser::LE:  // 小于等于
-                rtn = LE(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
+                if (!checkNullObject(leftObject, rightObject, ctx)) {
+                    rtn = LE(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
+                }
                 break;
             
             case PlayScriptParser::LT:  // 小于
-                rtn = LT(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
+                if (!checkNullObject(leftObject, rightObject, ctx)) {
+                    rtn = LT(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
+                }
                 break;
 
             case PlayScriptParser::GE:  // 大于等于
-                rtn = GE(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
+                if (!checkNullObject(leftObject, rightObject, ctx)) {
+                    rtn = GE(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
+                }
                 break;
 
             case PlayScriptParser::GT:  // 大于
-                rtn = GT(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
+                if (!checkNullObject(leftObject, rightObject, ctx)) {
+                    rtn = GT(leftObject, rightObject, PrimitiveType::getUpperType(type1, type2));
+                }
+                
                 break;
             
             case PlayScriptParser::AND: // and 操作符
@@ -1070,20 +1104,22 @@ antlrcpp::Any ASTEvaluator::visitStatement(PlayScriptParser::StatementContext *c
 
                 if (condition) {
                     // 执行while后面的语句
-                    if (condition) {
-                        rtn = visitStatement(ctx->statement(0));
+                    // if (condition) {
+                        
+                    // }
+                    rtn = visitStatement(ctx->statement(0));
 
-                        // break
-                        if (rtn.is<BreakObject*>()) {
-                            rtn = nullptr;     // 清除BreakObject，也就是只跳出一层循环
-                            break;
-                        } else if (rtn.is<ReturnObject*>()) {    // return
-                            break;
-                        }
+                    // break
+                    if (rtn.is<BreakObject*>()) {
+                        rtn = nullptr;     // 清除BreakObject，也就是只跳出一层循环
+                        break;
+                    } else if (rtn.is<ReturnObject*>()) {    // return
+                        break;
                     }
                 } else {
                     break;
                 }
+                sleep(1);
             }
         }
 
