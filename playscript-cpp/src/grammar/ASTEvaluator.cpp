@@ -181,8 +181,7 @@ void ASTEvaluator::getClosureValues(ClassObject *classObject)
  // 从父类到子类层层执行缺省的初始化方法，即不带参数的初始化方法
 ClassObject* ASTEvaluator::createAndInitClassObject(Class *theClass)
 {
-    ClassObject *obj = new ClassObject();
-    obj->type = theClass;
+    ClassObject *obj = new ClassObject(theClass);
 
     Stack<Class*> ancestorChain;
 
@@ -721,19 +720,6 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
             rightObject = right.as<LValue*>()->getValue();
         }
 
-        // int flag = (ctx->bop->getType() != PlayScriptParser::ASSIGN || ctx->bop->getType() != PlayScriptParser::EQUAL || ctx->bop->getType() != PlayScriptParser::NOTEQUAL);
-        // if (flag && (leftObject.is<NullObject*>() || rightObject.is<NullObject*>())) {
-        //     if (leftObject.is<NullObject*>()) {
-        //         at_->log("left value is null: " + ctx->getText(), ctx);
-        //     }
-
-        //     if (rightObject.is<NullObject*>()) {
-        //         at_->log("right value is null: " + ctx->getText(), ctx);
-        //     }
-
-        //     return rtn;
-        // }
-
         // 本节点期待的数据类型
         Type *type = at_->typeOfNode[ctx];
 
@@ -826,9 +812,9 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
         antlrcpp::Any leftObject = visitExpression(ctx->expression(0));
 
         if (leftObject.is<LValue*>()) {
-           antlrcpp::Any value =  leftObject.as<LValue*>()->getValue();
+           antlrcpp::Any value = leftObject.as<LValue*>()->getValue();
 
-           if (value.is<ClassObject*>()) {
+            if (value.is<ClassObject*>()) {
                ClassObject *valueContainer = value.as<ClassObject*>();
                Variable *leftVar = (Variable *)at_->symbolOfNode[ctx->expression(0)];
 
@@ -836,7 +822,7 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
                 if (ctx->IDENTIFIER() != nullptr) {
                    Variable *variable = (Variable *) at_->symbolOfNode[ctx];
 
-                   // 对于this 和super引用的属性，不用考虑重载，因为它们的解析是准确的
+                    // 对于this 和super引用的属性，不用考虑重载，因为它们的解析是准确的
                     if (!(dynamic_cast<This*>(leftVar) != nullptr || dynamic_cast<Super*>(leftVar) != nullptr)) {
                        // 类的成员可能需要重载
                        variable = at_->lookupVariable(valueContainer->type, variable->getName());
@@ -853,7 +839,7 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
 
                     rtn = methodCall(valueContainer, ctx->functionCall(), dynamic_cast<Super*>(leftVar) != nullptr);
                 }
-           }
+            }
         } else {
             cout << "Expecting an Object Reference" << endl;
         }
@@ -1244,7 +1230,7 @@ antlrcpp::Any ASTEvaluator::visitFunctionCall(PlayScriptParser::FunctionCallCont
 
     // 如果调用的是类的缺省构造函数，则直接创建对象并返回
     Symbol *symbol = at_->symbolOfNode[ctx];
-
+    
     DefaultConstructor *tmpDefault = dynamic_cast<DefaultConstructor*>(symbol);
     if (tmpDefault != nullptr) {
         // 类的缺省构造函数。没有一个具体函数跟它关联，只是指向一个类
@@ -1258,6 +1244,12 @@ antlrcpp::Any ASTEvaluator::visitFunctionCall(PlayScriptParser::FunctionCallCont
 
     // 在上下文中查找函数，并根据需要创建FunctionObject
     FunctionObject *functionObject = getFuntionObject(ctx);
+
+    if (functionObject == nullptr) {
+        at_->log("无法获取functionObject: " + ctx->getText(), ctx);
+        return rtn;
+    }
+
     Function *function = functionObject->function_;
 
     // 如果是对象的构造方法，则按照对象方法调用去执行，并返回所创建的对象

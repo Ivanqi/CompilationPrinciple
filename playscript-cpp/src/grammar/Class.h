@@ -19,17 +19,17 @@ namespace play
     class Class: public Scope, public Type
     {
         private:
-            Class *parentClass;
+            Class *parentClass = nullptr;
 
-            This *thisRef;
+            This *thisRef = nullptr;
 
-            Super *superRef;
+            Super *superRef = nullptr;
 
-            DefaultConstructor *defaultConstructor_;
+            DefaultConstructor *defaultConstructor_ = nullptr;
         
         protected:
             // 最顶层的基类
-            Class *rootClass;
+            Class *rootClass = nullptr;
 
         public:
             Class* getParentClass();
