@@ -17,7 +17,7 @@ antlrcpp::Any MyLValue::getValue()
     This *thisTmp = dynamic_cast<This*>(variable_);
     Super *superTmp = dynamic_cast<Super*>(variable_);
 
-    if (thisTmp != NULL || superTmp != NULL) {
+    if (thisTmp != nullptr || superTmp != nullptr) {
         return valueContainer_;
     }
 

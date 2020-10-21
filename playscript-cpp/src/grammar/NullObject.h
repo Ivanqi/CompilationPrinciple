@@ -15,7 +15,10 @@ namespace play
         private:
             static NullObject *instance;
 
-            NullObject();
+            NullObject()
+            {
+                
+            }
 
         public:
             // 获取唯一实例

@@ -973,7 +973,8 @@ antlrcpp::Any ASTEvaluator::visitLiteral(PlayScriptParser::LiteralContext *ctx)
         rtn = ctx->CHAR_LITERAL()->getText()[0];
 
     } else if (ctx->NULL_LITERAL() != nullptr) {   // nullptr字面量
-        rtn = NullObject::GetInstance();
+        NullObject *tmp = NullObject::GetInstance();
+        rtn = tmp;
     }
 
     return rtn;
@@ -1411,7 +1412,7 @@ FunctionObject* ASTEvaluator::getFuntionObject(PlayScriptParser::FunctionCallCon
         return nullptr;
     }
 
-    Function *function;
+    Function *function = nullptr;
     FunctionObject *functionObject = nullptr;
 
     Symbol *symbol = at_->symbolOfNode[ctx];

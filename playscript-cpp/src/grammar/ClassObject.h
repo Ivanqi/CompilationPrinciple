@@ -14,10 +14,13 @@ namespace play
             // 类型
             Class *type;
 
-            ClassObject(Class *theClass)
+            ClassObject()
             {
-
+                
             }
+
+            ClassObject(Class *theClass);
+
             Class* getType();
     };
 };
