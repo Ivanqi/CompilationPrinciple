@@ -412,7 +412,11 @@ bool ASTEvaluator::EQ(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType)
         rtn = obj1.as<short>() ==  obj2.as<short>();
     } else {
         // 对于对象实例，函数，直接比较对象引用
-        rtn = obj1.equals(obj2);
+        if (obj1.is<NullObject*>() && obj2.is<NullObject*>()) {
+            rtn = (obj1.as<NullObject*>() == obj2.as<NullObject*>());
+        } else {
+            rtn = obj1.equals(obj2);
+        }
     }
 
     return rtn;

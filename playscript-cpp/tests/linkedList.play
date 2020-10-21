@@ -67,3 +67,5 @@ LinkedList list = LinkedList();
 list.add(2);
 list.add(3);
 list.add(5);
+println("original list:");
+list.dump();
