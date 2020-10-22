@@ -410,13 +410,13 @@ bool ASTEvaluator::EQ(antlrcpp::Any obj1, antlrcpp::Any obj2, Type *targetType)
 
     } else if (targetType == PrimitiveType::Short) {
         rtn = obj1.as<short>() ==  obj2.as<short>();
+
+    } else if (obj1.is<NullObject*>() && obj2.is<NullObject*>()){
+        rtn = (obj1.as<NullObject*>() == obj2.as<NullObject*>());
+        
     } else {
         // 对于对象实例，函数，直接比较对象引用
-        if (obj1.is<NullObject*>() && obj2.is<NullObject*>()) {
-            rtn = (obj1.as<NullObject*>() == obj2.as<NullObject*>());
-        } else {
-            rtn = obj1.equals(obj2);
-        }
+        rtn = obj1.equals(obj2);
     }
 
     return rtn;
@@ -816,7 +816,7 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
         antlrcpp::Any leftObject = visitExpression(ctx->expression(0));
 
         if (leftObject.is<LValue*>()) {
-           antlrcpp::Any value = leftObject.as<LValue*>()->getValue();
+            antlrcpp::Any value = leftObject.as<LValue*>()->getValue();
 
             if (value.is<ClassObject*>()) {
                ClassObject *valueContainer = value.as<ClassObject*>();
@@ -977,8 +977,7 @@ antlrcpp::Any ASTEvaluator::visitLiteral(PlayScriptParser::LiteralContext *ctx)
         rtn = ctx->CHAR_LITERAL()->getText()[0];
 
     } else if (ctx->NULL_LITERAL() != nullptr) {   // nullptr字面量
-        NullObject *tmp = NullObject::GetInstance();
-        rtn = tmp;
+        rtn = NullObject::GetInstance();
     }
 
     return rtn;
@@ -1110,7 +1109,6 @@ antlrcpp::Any ASTEvaluator::visitStatement(PlayScriptParser::StatementContext *c
                 } else {
                     break;
                 }
-                sleep(1);
             }
         }
 

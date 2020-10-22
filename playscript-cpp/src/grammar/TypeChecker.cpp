@@ -55,7 +55,6 @@ void TypeChecker::exitExpression(PlayScriptParser::ExpressionContext *ctx)
             case PlayScriptParser::EQUAL:
             case PlayScriptParser::NOTEQUAL:
                 break;
-
             
             case PlayScriptParser::AND:
             case PlayScriptParser::OR:

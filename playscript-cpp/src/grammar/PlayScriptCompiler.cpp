@@ -40,15 +40,15 @@ AnnotatedTree* PlayScriptCompiler::compile(std::string script, bool verbose, boo
     walker.walk(pass1, at_->ast);
 
 
-    // // pass2: 把变量，类继承，函数声明的类型都解析出来。也就是所有声明用到类型的地方
+    // pass2: 把变量，类继承，函数声明的类型都解析出来。也就是所有声明用到类型的地方
     TypeResolver *pass2 = new TypeResolver(at_);
     walker.walk(pass2, at_->ast);
 
-    // // pass3: 消解所有的变量引用，函数引用。另外还做了类型的推断
+    // pass3: 消解所有的变量引用，函数引用。另外还做了类型的推断
     RefResolver *pass3 = new RefResolver(at_);
     walker.walk(pass3, at_->ast);
     
-    // // pass4: 类型检查
+    // pass4: 类型检查
     TypeChecker *pass4 = new TypeChecker(at_);
     walker.walk(pass4, at_->ast);
 
@@ -56,7 +56,7 @@ AnnotatedTree* PlayScriptCompiler::compile(std::string script, bool verbose, boo
     SematicValidator *pass5 = new SematicValidator(at_);
     walker.walk(pass5, at_->ast);
 
-    // // pass6: 做闭包的分析
+    // pass6: 做闭包的分析
     ClosureAnalyzer *closureAnalyzer = new ClosureAnalyzer(at_);
     closureAnalyzer->analyzeClosures();
 
@@ -101,5 +101,3 @@ antlrcpp::Any PlayScriptCompiler::Execute(AnnotatedTree *at)
     antlrcpp::Any result = visitor->visit(at->ast);
     return result;
 }
-
-

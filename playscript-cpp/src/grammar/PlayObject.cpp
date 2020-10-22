@@ -12,8 +12,7 @@ antlrcpp::Any PlayObject::getValue(Variable *variable)
 
     // 替换成自己的NullObject
     if (rtn.isNull()) {
-        NullObject *tmp = NullObject::GetInstance();
-        rtn = tmp;
+        rtn = NullObject::GetInstance();
         // 事件复杂度:O(n)
         int len = fields.bucket_count();
         for (auto it = fields.begin(); it != fields.end(); ++it) {
