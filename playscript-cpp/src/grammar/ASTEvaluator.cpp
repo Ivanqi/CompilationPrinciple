@@ -164,6 +164,7 @@ void ASTEvaluator::getClosureValues(ClassObject *classObject)
     // 先放在一个临时对象里，避免对classObject即读又写
     PlayObject *tempObject = new PlayObject();
 
+    // 获取function的变量值
     for (auto it = classObject->fields.begin(); it != classObject->fields.end(); ++it) {
         FunctionType *tmp = dynamic_cast<FunctionType*>(it->first->getType());
         if (tmp != nullptr) {
@@ -174,7 +175,7 @@ void ASTEvaluator::getClosureValues(ClassObject *classObject)
             }
         }
     }
-
+    // 把function的变量值写入classObject中
     classObject->fields.insert(tempObject->fields.begin(), tempObject->fields.end());
 }
 
@@ -819,10 +820,10 @@ antlrcpp::Any ASTEvaluator::visitExpression(PlayScriptParser::ExpressionContext 
             antlrcpp::Any value = leftObject.as<LValue*>()->getValue();
 
             if (value.is<ClassObject*>()) {
-               ClassObject *valueContainer = value.as<ClassObject*>();
-               Variable *leftVar = (Variable *)at_->symbolOfNode[ctx->expression(0)];
+                ClassObject *valueContainer = value.as<ClassObject*>();
+                Variable *leftVar = (Variable *)at_->symbolOfNode[ctx->expression(0)];
 
-               // 获得field或调用方法
+                // 获得field或调用方法
                 if (ctx->IDENTIFIER() != nullptr) {
                    Variable *variable = (Variable *) at_->symbolOfNode[ctx];
 
@@ -1190,7 +1191,7 @@ antlrcpp::Any ASTEvaluator::visitStatement(PlayScriptParser::StatementContext *c
                 getClosureValues(classObject);
             }
         }
-        // 把真实的返回值封装一个RetrunObject对象里，告诉visitBlockStatements停止执行下面的语句
+        // 把真实的返回值封装一个ReturnObject对象里，告诉visitBlockStatements停止执行下面的语句
         rtn = new ReturnObject(rtn);
     }
 

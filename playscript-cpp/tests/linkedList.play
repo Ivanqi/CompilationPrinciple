@@ -44,10 +44,12 @@ class LinkedList{
     LinkedList map(function int(int) fun){
         ListNode node = start;
         LinkedList newList = LinkedList();
-        while (node != null){
+        int i = 0;
+        while (i < 3){
             int newValue = fun(node.value);
             newList.add(newValue);
             node = node.next;
+            i++;
         }
         return newList;
     }
@@ -69,3 +71,8 @@ list.add(3);
 list.add(5);
 println("original list:");
 list.dump();
+
+println();
+println("add 1 to each element: ");
+LinkedList list2 = list.map(addOne);
+list2.dump();
