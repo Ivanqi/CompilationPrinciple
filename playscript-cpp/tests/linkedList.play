@@ -34,6 +34,9 @@ class LinkedList{
     //打印所有节点内容
     void dump(){
         ListNode node = start;
+        if (node == null) {
+            println("node 为空");
+        }
         while (node != null){
             println(node.value);
             node = node.next;
@@ -51,6 +54,7 @@ class LinkedList{
             node = node.next;
             i++;
         }
+        newList.dump();
         return newList;
     }
 }
