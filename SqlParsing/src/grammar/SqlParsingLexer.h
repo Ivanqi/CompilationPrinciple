@@ -7,7 +7,6 @@
 #include "antlr4-runtime.h"
 
 
-namespace dsql.parser {
 
 
 class  SqlParsingLexer : public antlr4::Lexer {
@@ -89,4 +88,3 @@ private:
   static Initializer _init;
 };
 
-}  // namespace dsql.parser

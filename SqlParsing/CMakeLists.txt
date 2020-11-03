@@ -22,6 +22,9 @@ set(src_dir
     src/grammar/SqlParsingListener.cpp
     src/grammar/SqlParsingParser.cpp
     src/grammar/SqlParsingVisitor.cpp
+    src/grammar/WhereExpr.cpp
+    src/grammar/SelectStmt.cpp
+    src/grammar/SQLVisitor.cpp
 )
 
 file(GLOB antrl-cpp-src
@@ -38,6 +41,6 @@ file(GLOB antrl-cpp-src
 
 add_library(antlr-cpp-runtime ${antrl-cpp-src})
 
-add_executable(play ${src_dir} src/main.cpp)
+add_executable(SqlParsing ${src_dir} src/main.cpp)
 
-target_link_libraries(play antlr-cpp-runtime)
+target_link_libraries(SqlParsing antlr-cpp-runtime)

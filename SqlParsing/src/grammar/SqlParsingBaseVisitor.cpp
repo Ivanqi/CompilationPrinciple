@@ -5,5 +5,3 @@
 #include "SqlParsingBaseVisitor.h"
 
 
-using namespace dsql.parser;
-

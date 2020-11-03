@@ -1,0 +1,1 @@
+select order_id from orders where cust_id = 'SDYT987645'

@@ -7,7 +7,6 @@
 
 using namespace antlr4;
 
-using namespace dsql.parser;
 
 SqlParsingLexer::SqlParsingLexer(CharStream *input) : Lexer(input) {
   _interpreter = new atn::LexerATNSimulator(this, _atn, _decisionToDFA, _sharedContextCache);

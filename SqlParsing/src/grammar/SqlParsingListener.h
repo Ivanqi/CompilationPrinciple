@@ -8,8 +8,6 @@
 #include "SqlParsingParser.h"
 
 
-namespace dsql.parser {
-
 /**
  * This interface defines an abstract listener for a parse tree produced by SqlParsingParser.
  */
@@ -349,4 +347,3 @@ public:
 
 };
 
-}  // namespace dsql.parser

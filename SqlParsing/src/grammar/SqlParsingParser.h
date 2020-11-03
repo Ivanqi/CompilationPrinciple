@@ -7,7 +7,6 @@
 #include "antlr4-runtime.h"
 
 
-namespace dsql.parser {
 
 
 class  SqlParsingParser : public antlr4::Parser {
@@ -2823,4 +2822,3 @@ private:
   static Initializer _init;
 };
 
-}  // namespace dsql.parser

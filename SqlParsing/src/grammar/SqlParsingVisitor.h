@@ -8,7 +8,6 @@
 #include "SqlParsingParser.h"
 
 
-namespace dsql.parser {
 
 /**
  * This class defines an abstract visitor for a parse tree
@@ -243,4 +242,3 @@ public:
 
 };
 
-}  // namespace dsql.parser

@@ -8,8 +8,6 @@
 #include "SqlParsingListener.h"
 
 
-namespace dsql.parser {
-
 /**
  * This class provides an empty implementation of SqlParsingListener,
  * which can be extended to create a listener which only needs to handle a subset
@@ -356,4 +354,3 @@ public:
 
 };
 
-}  // namespace dsql.parser

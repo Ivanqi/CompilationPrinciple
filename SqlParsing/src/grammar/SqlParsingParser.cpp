@@ -9,7 +9,6 @@
 
 
 using namespace antlrcpp;
-using namespace dsql.parser;
 using namespace antlr4;
 
 SqlParsingParser::SqlParsingParser(TokenStream *input) : Parser(input) {
