@@ -41,12 +41,9 @@ antlrcpp::Any SQLVisitor::visitSelect_core(SqlParsingParser::Select_coreContext 
             tmp = visitExpr(ctx->expr(0));
             if (tmp.is<std::list<WhereExpr*>>()) {
                 whereExprs = tmp.as<std::list<WhereExpr*>>();
-            } else {
-                std::cout << "visitTable_or_subquery whereExprs error " << std::endl; 
             }
         }
     }
-    std::cout << "xxxx" << std::endl;
     result = new SelectStmt(tableName, whereExprs);
 
     return result;
@@ -76,7 +73,7 @@ antlrcpp::Any SQLVisitor::visitTable_name(SqlParsingParser::Table_nameContext *c
 antlrcpp::Any SQLVisitor::visitAny_name(SqlParsingParser::Any_nameContext *ctx)
 {
     antlrcpp::Any result = nullptr;
-    std::cout << ctx->toString() << std::endl;
+    std::cout << ctx->getText() << std::endl;
 
     if (ctx->IDENTIFIER() != nullptr) {
         result = ctx->IDENTIFIER()->getText();
@@ -99,16 +96,14 @@ void addWhereExpr(std::list<WhereExpr*> l, antlrcpp::Any obj)
 antlrcpp::Any SQLVisitor::visitExpr(SqlParsingParser::ExprContext *ctx)
 {
     antlrcpp::Any result = nullptr;
+    std::list<WhereExpr*> list;
     
     if (ctx->AND() != nullptr) {
         antlrcpp::Any left =  visitExpr(ctx->expr(0));
         antlrcpp::Any right = visitExpr(ctx->expr(1));
 
-        std::list<WhereExpr*> list;
         addWhereExpr(list, left);
         addWhereExpr(list, right);
-        result = list;
-
 
     } else if (ctx->ASSIGN() != nullptr) {
 
@@ -116,6 +111,8 @@ antlrcpp::Any SQLVisitor::visitExpr(SqlParsingParser::ExprContext *ctx)
         std::string right = visitExpr(ctx->expr(1));
 
         result = new WhereExpr(left, "=", right);
+        list.push_back(result);
+        result = list;        
 
     } else if (ctx->literal_value() != nullptr) {
         result = visitLiteral_value(ctx->literal_value());

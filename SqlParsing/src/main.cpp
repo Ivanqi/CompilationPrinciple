@@ -7,6 +7,7 @@
 #include "SQLVisitor.h"
 #include "SelectStmt.h"
 #include "WhereExpr.h"
+#include "tree/ParseTree.h"
 
 using namespace std;
 using namespace antlr4;
@@ -20,6 +21,11 @@ map<string, string> region2DB = {
 };
 
 int main(int argc, const char* argv[]) {
+
+    if (argc < 2) {
+        cout << "缺少测试文件" << endl; 
+        return 0;
+    }
 
     const char* filepath = argv[1];
 
@@ -37,9 +43,10 @@ int main(int argc, const char* argv[]) {
 
     // 语法解析
     SqlParsingParser *parser = new SqlParsingParser(tokens);
+    tree::ParseTree *tree = parser->sql_stmt();
 
     // 以 lisp格式打印AST
-    cout << parser->sql_stmt()->toStringTree(parser) << endl;
+    cout << tree->toStringTree(parser) << endl;
 
     cout << " --------- " << endl;
 
@@ -47,7 +54,7 @@ int main(int argc, const char* argv[]) {
     SQLVisitor *visitor = new SQLVisitor();
 
     SelectStmt *select;
-    antlrcpp::Any result = visitor->visit(parser->sql_stmt());
+    antlrcpp::Any result = visitor->visit(tree);
     if (result.is<SelectStmt*>()) {
         select = result.as<SelectStmt*>();
     } else {
@@ -55,7 +62,7 @@ int main(int argc, const char* argv[]) {
         return 0;
     }
 
-    string dbName;
+    string dbName = "";
 
     if (select->tableName_ == "orders") {
         if (select->whereExprs_.size() > 0) {
@@ -63,9 +70,9 @@ int main(int argc, const char* argv[]) {
             for (it = select->whereExprs_.begin(); it != select->whereExprs_.end(); it++) {
                 WhereExpr *expr = *it;
                 // 根据 cust_id 或 order_id 来确定库的名称
-                if (expr->columnName_ == "curst_id" || expr->columnName_ == "order_id") {
+                if (expr->columnName_.compare("curst_id") || expr->columnName_.compare("order_id")) {
                     // 取编号的前4位，即区域编码
-                    string region = expr->value_.substr(1, 5);
+                    string region = expr->value_.substr(1, 4);
                     // 根据区域编码，获取库名称
                     dbName = region2DB[region];
                     break;
