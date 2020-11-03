@@ -1,3 +1,4 @@
 .vscode
 playscript-cpp/build
 playscript-cpp/src/grammar/.antlr
+SqlParsing/build
