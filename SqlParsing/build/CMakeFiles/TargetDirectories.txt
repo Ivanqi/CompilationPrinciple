@@ -1,4 +1,0 @@
-/data/web/log_service/CompilationPrinciple/SqlParsing/build/CMakeFiles/rebuild_cache.dir
-/data/web/log_service/CompilationPrinciple/SqlParsing/build/CMakeFiles/edit_cache.dir
-/data/web/log_service/CompilationPrinciple/SqlParsing/build/CMakeFiles/play.dir
-/data/web/log_service/CompilationPrinciple/SqlParsing/build/CMakeFiles/antlr-cpp-runtime.dir
