@@ -22,6 +22,21 @@ set(src_dir
     src/grammar/PlayReportListener.cpp
     src/grammar/PlayReportParser.cpp
     src/grammar/PlayReportVisitor.cpp
+    src/grammar/ReportTemplate.cpp
+    src/grammar/TabularData.cpp
+    src/grammar/PlayReport.cpp
+    src/grammar/PrimitiveType.cpp
+    src/grammar/BinaryOp.cpp
+    src/grammar/Add.cpp
+    src/grammar/Minus.cpp
+    src/grammar/Mul.cpp
+    src/grammar/Div.cpp
+    src/grammar/EQ.cpp
+    src/grammar/GE.cpp
+    src/grammar/GT.cpp
+    src/grammar/LE.cpp
+    src/grammar/LT.cpp
+    src/grammar/FieldEvaluator.cpp
 )
 
 file(GLOB antrl-cpp-src

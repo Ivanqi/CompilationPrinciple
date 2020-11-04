@@ -2,4 +2,6 @@
 playscript-cpp/build
 playscript-cpp/src/grammar/.antlr
 SqlParsing/build
+SqlParsing/src/grammar/.antlr
 report/build
+report/src/grammar/.antlr
