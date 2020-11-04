@@ -10,8 +10,8 @@ message(STATUS "PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}")
 
 INCLUDE_DIRECTORIES(
     src/grammar
-    third_party/
-    third_party/antlr4-cpp-runtime-4.8/src
+    ../third_party/
+    ../third_party/antlr4-cpp-runtime-4.8/src
     src/
 )
 
@@ -52,14 +52,14 @@ set(src_dir
 )
 
 file(GLOB antrl-cpp-src
-    third_party/antlr4-cpp-runtime-4.8/src/*.cpp
-    third_party/antlr4-cpp-runtime-4.8/src/atn/*.cpp
-    third_party/antlr4-cpp-runtime-4.8/src/dfa/*.cpp
-    third_party/antlr4-cpp-runtime-4.8/src/misc/*.cpp
-    third_party/antlr4-cpp-runtime-4.8/src/support/*.cpp
-    third_party/antlr4-cpp-runtime-4.8/src/tree/*.cpp
-    third_party/antlr4-cpp-runtime-4.8/src/tree/pattern/*.cpp
-    third_party/antlr4-cpp-runtime-4.8/src/tree/xpath/*.cpp
+    ../third_party/antlr4-cpp-runtime-4.8/src/*.cpp
+    ../third_party/antlr4-cpp-runtime-4.8/src/atn/*.cpp
+    ../third_party/antlr4-cpp-runtime-4.8/src/dfa/*.cpp
+    ../third_party/antlr4-cpp-runtime-4.8/src/misc/*.cpp
+    ../third_party/antlr4-cpp-runtime-4.8/src/support/*.cpp
+    ../third_party/antlr4-cpp-runtime-4.8/src/tree/*.cpp
+    ../third_party/antlr4-cpp-runtime-4.8/src/tree/pattern/*.cpp
+    ../third_party/antlr4-cpp-runtime-4.8/src/tree/xpath/*.cpp
 )
 
 LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/lib)
