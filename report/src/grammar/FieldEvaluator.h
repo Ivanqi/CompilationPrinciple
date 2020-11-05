@@ -5,6 +5,7 @@
 #include "PlayReportParser.h"
 
 class TabularData;
+class PrimitiveType;
 class Add;
 class Minus;
 class Mul;
@@ -45,7 +46,7 @@ class FieldEvaluator: public PlayReportBaseVisitor
 
         antlrcpp::Any visitPrimary(PlayReportParser::PrimaryContext *ctx);
 
-        ntlrcpp::Any visitLiteral(PlayReportParser::LiteralContext *ctx);
+        antlrcpp::Any visitLiteral(PlayReportParser::LiteralContext *ctx);
 
         antlrcpp::Any visitFloatLiteral(PlayReportParser::FloatLiteralContext *ctx);
 

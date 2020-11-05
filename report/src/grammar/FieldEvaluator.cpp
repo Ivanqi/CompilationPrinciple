@@ -9,21 +9,22 @@
 #include "LE.h"
 #include "LT.h"
 #include "PrimitiveType.h"
+#include "TabularData.h"
 
 #include <string>
 #include <algorithm>
 
 FieldEvaluator::FieldEvaluator()
 {
-    Add *add = new Add();
-    Minus *minus = new Minus();
-    Mul *mul = new Mul();
-    Div *div = new Div();
-    EQ *eq = new EQ();
-    GE *ge = new GE();
-    GT *gt = new GT();
-    LE *le = new LE();
-    LT *lt = new LT;
+    add = new Add();
+    minus = new Minus();
+    mul = new Mul();
+    div = new Div();
+    eq = new EQ();
+    ge = new GE();
+    gt = new GT();
+    le = new LE();
+    lt = new LT;
 }
 
 FieldEvaluator::FieldEvaluator(TabularData *data): data_(data)
@@ -93,6 +94,8 @@ antlrcpp::Any FieldEvaluator::visitExpression(PlayReportParser::ExpressionContex
     } else if (ctx->functionCall() != nullptr) {
         rtn = visitFunctionCall(ctx->functionCall());
     }
+
+    return rtn;
 }
 
 antlrcpp::Any FieldEvaluator::visitPrimary(PlayReportParser::PrimaryContext *ctx)
@@ -134,6 +137,8 @@ antlrcpp::Any FieldEvaluator::visitLiteral(PlayReportParser::LiteralContext *ctx
     } else if (ctx->CHAR_LITERAL() != nullptr) {
         rtn = ctx->CHAR_LITERAL()->getText()[0];
     }
+
+    return rtn;
 }
 
 antlrcpp::Any FieldEvaluator::visitFloatLiteral(PlayReportParser::FloatLiteralContext *ctx)
@@ -156,7 +161,8 @@ antlrcpp::Any FieldEvaluator::visitFunctionCall(PlayReportParser::FunctionCallCo
     antlrcpp::Any rtn = nullptr;
 
     std::string functionName = ctx->IDENTIFIER()->getText();
-    functionName = std::transform(functionName.begin(), functionName.end(), functionName.begin(), std::tolower);
+    std::transform(functionName.begin(), functionName.end(), functionName.begin(), 
+        [](unsigned char c) -> unsigned char { return std::tolower(c); });
 
     if (functionName.compare("rank")) {
         rtn = rank(ctx);
@@ -185,6 +191,25 @@ antlrcpp::Any FieldEvaluator::visitExpressionList(PlayReportParser::ExpressionLi
     return rtn;
 }
 
+static bool max_compare(antlrcpp::Any a, antlrcpp::Any b)
+{
+    if (a.is<int>() && b.is<int>()) {
+        return (a.as<int>() > b.as<int>());
+
+    } else if (a.is<long>() && b.is<long>()) {
+        return (a.as<long>() > b.as<long>());
+
+    } else if (a.is<float>() && b.is<float>()) {
+        return (a.as<float>() > b.as<float>());
+
+    } else if (a.is<double>() && b.is<double>()) {
+        return (a.as<double>() > b.as<double>());
+
+    } else {
+        return false;
+    }
+}
+
 // 求排序值(向量)
 antlrcpp::Any FieldEvaluator::rank(PlayReportParser::FunctionCallContext *ctx)
 {
@@ -208,28 +233,36 @@ antlrcpp::Any FieldEvaluator::rank(PlayReportParser::FunctionCallContext *ctx)
             std::vector<antlrcpp::Any> paramCol = tmp.as<std::vector<antlrcpp::Any>>();
             std::vector<antlrcpp::Any> sorted;
             sorted.assign(paramCol.begin(), paramCol.end());
-            std::sort(sorted.begin(), sorted.end());
+            std::sort(sorted.begin(), sorted.end(), max_compare);
 
             std::vector<antlrcpp::Any> rankList(paramCol.size());
             rank = rankList;
 
             int numRows = data_->getNumRows();
-            // todo 这里有点问题
+   
+            // O(n^2)
             for (antlrcpp::Any obj: paramCol) {
-                auto iter = std::find(sorted.begin(), sorted.end(), obj);
-                int index = std::distance(sorted.begin(), iter);
-
+                int index = 0;
+                for (antlrcpp::Any o: sorted) {
+                    if (o.equals(obj)){
+                        break;
+                    }
+                    index++;
+                }
                 rankList.push_back(numRows - index);
             }
+
         } else {    //  标量
             rank = 1;
         }
 
         // 增加一个字段
-        data_->getField(functionFieldName);
-
-        return rtn;
+        data_->setField(functionFieldName, rank);
     }
+
+    data_->getField(functionFieldName);
+    return rtn;
+
 }
 
 // 求最大值（标量）
@@ -246,29 +279,195 @@ antlrcpp::Any FieldEvaluator::max(PlayReportParser::FunctionCallContext *ctx)
         }
 
         // 计算 max
-        antlrcpp::Any rtn = nullptr;
+        antlrcpp::Any max = nullptr;
+        antlrcpp::Any field = data_->getField(fieldName);
+        // todo 这里有点问题
+        if (field.is<std::vector<antlrcpp::Any>>()) {
+            std::vector<antlrcpp::Any> paramCol = field.as<std::vector<antlrcpp::Any>>();
+            if (paramCol.size() > 0) {
+                antlrcpp::Any result = std::max_element(paramCol.begin(), paramCol.end(), max_compare);
+
+                if (result.is<int>()) {
+                    max = result.as<int>();
+
+                } else if (result.is<long>()) {
+                    max = result.as<long>();
+
+                } else if (result.is<float>()) {
+                    max = result.as<float>();
+
+                } else if (result.is<double>()) {
+                    max = result.as<double>();
+                }
+            }
+        } else {    // 标量
+            max = field;
+        }
+
+        // 增加一个field
+        data_->setField(functionFieldName, max);
+    }
+
+    rtn = data_->getField(functionFieldName);
+    return rtn;
+}
+
+// 求汇总值（标量）
+antlrcpp::Any FieldEvaluator::sum(PlayReportParser::FunctionCallContext *ctx)
+{
+    antlrcpp::Any rtn = nullptr;
+    std::string functionFieldName = ctx->getText();
+
+    if (!data_->hasField(functionFieldName)) {
+        // 计算参数列 
+        std::string fieldName = ctx->expressionList()->expression(0)->getText();
+        if (!data_->hasField(functionFieldName)) {
+            addCalculatedField(ctx->expressionList()->expression(0));
+        }
+
+        // 计算 max
+        antlrcpp::Any sum = nullptr;
         antlrcpp::Any field = data_->getField(fieldName);
 
         if (field.is<std::vector<antlrcpp::Any>>()) {
             std::vector<antlrcpp::Any> paramCol = field.as<std::vector<antlrcpp::Any>>();
             if (paramCol.size() > 0) {
-                antlrcpp::Any firstTmp = paramCol[0];
-                if (firstTmp.is<int>()) {
-                    max = paramCol
+                auto tmp = 0;
+                for (antlrcpp::Any obj: paramCol) {
+                    if (obj.is<int>()) {
+                        tmp += obj.as<int>();
+
+                    } else if (obj.is<long>()) {
+                        tmp += obj.as<long>();
+
+                    } else if (obj.is<float>()) {
+                        tmp += obj.as<float>();
+
+                    } else if (obj.is<double>()) {
+                        tmp += obj.as<double>();
+                    }
                 }
+                sum = tmp;
             }
+        } else {    // 标量
+            sum = field;
         }
+
+        // 增加一个field
+        data_->setField(functionFieldName, sum);
     }
+
+    rtn = data_->getField(functionFieldName);
+    return rtn;
 }
 
-// 求汇总值（标量）
-antlrcpp::Any FieldEvaluator::sum(PlayReportParser::FunctionCallContext *ctx);
-
 // 求累计汇总值（向量）
-antlrcpp::Any FieldEvaluator::runningSum(PlayReportParser::FunctionCallContext *ctx);
+antlrcpp::Any FieldEvaluator::runningSum(PlayReportParser::FunctionCallContext *ctx)
+{
+    antlrcpp::Any rtn = nullptr;
+    std::string functionFieldName = ctx->getText();
+
+    if (!data_->hasField(functionFieldName)) {
+        // 计算参数列 
+        std::string fieldName = ctx->expressionList()->expression(0)->getText();
+        if (!data_->hasField(functionFieldName)) {
+            addCalculatedField(ctx->expressionList()->expression(0));
+        }
+
+        antlrcpp::Any runningSum = nullptr;
+
+        // 计算rank
+        antlrcpp::Any field = data_->getField(fieldName);
+
+        if (field.is<std::vector<antlrcpp::Any>>()) {
+            std::vector<antlrcpp::Any> paramCol = field.as<std::vector<antlrcpp::Any>>();
+            if (paramCol.size() > 0) {
+                antlrcpp::Any first = paramCol[0];                
+                if (first.is<int>()) {
+                    std::vector<int> runningSumTmp;
+                    int iSum = 0;
+                    for (antlrcpp::Any o: paramCol) {
+                        iSum += o.as<int>();
+                        runningSumTmp.push_back(iSum);
+                    }
+
+                } else if (first.is<long>()) {
+                    long lSum = 0l;
+                    std::vector<long> runningSumTmp;
+                    for (antlrcpp::Any o: paramCol) {
+                        lSum += o.as<long>();
+                        runningSumTmp.push_back(lSum);
+                    }
+
+                } else if (first.is<double>()) {
+                    double dSum = 0.0;
+                    std::vector<double> runningSumTmp;
+                    for (antlrcpp::Any o: paramCol) {
+                        dSum += o.as<double>();
+                        runningSumTmp.push_back(dSum);
+                    }
+
+                }
+            }
+
+        } else {    // 标量
+            runningSum = data_->getField(fieldName);
+        }
+
+        // 增加一个字段
+        data_->setField(functionFieldName, runningSum);
+    }
+
+    rtn = data_->getField(functionFieldName);
+
+    return rtn;
+}
 
 // 根据公式，往数据源里添加一个计算字段
-void FieldEvaluator::addCalculatedField(PlayReportParser::ExpressionContext *ctx);
+void FieldEvaluator::addCalculatedField(PlayReportParser::ExpressionContext *ctx)
+{
+    antlrcpp::Any value = nullptr;
+    std::string fieldName = ctx->getText();
+    data_->setField(fieldName, value);
+}
 
 // 工具性的方法
-PrimitiveType* FieldEvaluator::calcType(antlrcpp::Any obj1, antlrcpp::Any obj2);
+PrimitiveType* FieldEvaluator::calcType(antlrcpp::Any obj1, antlrcpp::Any obj2)
+{
+    PrimitiveType *type = PrimitiveType::String;
+
+    // 处理向量的情况
+    bool obj1Status = obj1.is<std::vector<antlrcpp::Any>>();
+    if (obj1Status) {
+        std::vector<antlrcpp::Any> tmp1 = obj1.as<std::vector<antlrcpp::Any>>();
+        if (tmp1.size() > 0) {
+            obj1 = tmp1[0];
+        }
+    }
+
+    bool obj2Status = obj2.is<std::vector<antlrcpp::Any>>();
+    if (obj2Status) {
+        std::vector<antlrcpp::Any> tmp2 = obj2.as<std::vector<antlrcpp::Any>>();
+        if (tmp2.size() > 0) {
+            obj2 = tmp2[0];
+        }
+    }
+
+    if (obj1.is<std::string>() || obj2.is<std::string>()) {
+        type = PrimitiveType::String;
+
+    } else if (obj1.is<double>() || obj2.is<double>()) {
+        type = PrimitiveType::Double;
+
+    } else if (obj1.is<float>() || obj2.is<float>()) {
+        type = PrimitiveType::Float;
+
+    } else if (obj1.is<long>() || obj2.is<long>()) {
+        type = PrimitiveType::Long;
+
+    } else if (obj1.is<int>() || obj2.is<int>()) {
+        type = PrimitiveType::Integer;
+    }
+
+    return type;
+}

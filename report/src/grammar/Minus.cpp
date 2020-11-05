@@ -2,7 +2,7 @@
 #include "PrimitiveType.h"
 #include <string.h>
 
-antlrcpp::Any Minus::op(antlrcpp::Any obj1, antlrcpp::Any obj2, PrimitiveType targetType)
+antlrcpp::Any Minus::op(antlrcpp::Any obj1, antlrcpp::Any obj2, PrimitiveType *targetType)
 {
     antlrcpp::Any rtn = nullptr;
     

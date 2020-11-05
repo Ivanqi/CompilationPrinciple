@@ -6,19 +6,19 @@
 #include "antlr4-runtime.h"
 #include "PlayReportParser.h"
 #include "PlayReportLexer.h"
-using namespace antlr4;
+
+class ReportTemplate;
+class TabularData;
 
 class PlayReport
-{
-    class ReportTemplate;
-    class TabularData;
+{   
     public:
         PlayReport()
         {
 
         }
 
-        std::string renderReport(ReportTemplate *template, TabularData *data);
+        std::string renderReport(ReportTemplate *temp, TabularData *data);
 
         PlayReportParser::BracedExpressionContext* parse(std::string exp);
 };
