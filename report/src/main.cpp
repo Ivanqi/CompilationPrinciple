@@ -17,8 +17,8 @@ int main(int argc, const char* argv[]) {
     cout << reportString << endl;
 
     // 打印报表2
-    reportString = report->renderReport(ReportTemplate::sampleReport2(), TabularData::sampleData()); 
-    cout << reportString << endl;
+    // reportString = report->renderReport(ReportTemplate::sampleReport2(), TabularData::sampleData()); 
+    // cout << reportString << endl;
 
     return 0;
 }

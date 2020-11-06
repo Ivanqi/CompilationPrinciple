@@ -29,7 +29,7 @@ FieldEvaluator::FieldEvaluator()
 
 FieldEvaluator::FieldEvaluator(TabularData *data): data_(data)
 {
-
+    FieldEvaluator();
 }
 
 antlrcpp::Any FieldEvaluator::visitBracedExpression(PlayReportParser::BracedExpressionContext *ctx)
@@ -102,12 +102,13 @@ antlrcpp::Any FieldEvaluator::visitPrimary(PlayReportParser::PrimaryContext *ctx
 {
     antlrcpp::Any rtn = nullptr;
 
-    if (ctx->literal() != nullptr) {
-        rtn = visitLiteral(ctx->literal());
-
-    } else if (ctx->IDENTIFIER() != nullptr) {
+    if (ctx->IDENTIFIER() != nullptr) {
         std::string fieldName = ctx->IDENTIFIER()->getText();
-        rtn = data_->getField(fieldName);
+        antlrcpp::Any tmp = data_->getField(fieldName);
+        rtn = tmp;
+
+    } else if (ctx->literal() != nullptr) {
+        rtn = visitLiteral(ctx->literal());
     }
 
     return rtn;
@@ -249,7 +250,7 @@ antlrcpp::Any FieldEvaluator::rank(PlayReportParser::FunctionCallContext *ctx)
                     }
                     index++;
                 }
-                rankList.push_back(numRows - index);
+                rankList.emplace_back(numRows - index);
             }
 
         } else {    //  标量
@@ -388,7 +389,7 @@ antlrcpp::Any FieldEvaluator::runningSum(PlayReportParser::FunctionCallContext *
                     int iSum = 0;
                     for (antlrcpp::Any o: paramCol) {
                         iSum += o.as<int>();
-                        runningSumTmp.push_back(iSum);
+                        runningSumTmp.emplace_back(iSum);
                     }
 
                 } else if (first.is<long>()) {
@@ -396,7 +397,7 @@ antlrcpp::Any FieldEvaluator::runningSum(PlayReportParser::FunctionCallContext *
                     std::vector<long> runningSumTmp;
                     for (antlrcpp::Any o: paramCol) {
                         lSum += o.as<long>();
-                        runningSumTmp.push_back(lSum);
+                        runningSumTmp.emplace_back(lSum);
                     }
 
                 } else if (first.is<double>()) {
@@ -404,7 +405,7 @@ antlrcpp::Any FieldEvaluator::runningSum(PlayReportParser::FunctionCallContext *
                     std::vector<double> runningSumTmp;
                     for (antlrcpp::Any o: paramCol) {
                         dSum += o.as<double>();
-                        runningSumTmp.push_back(dSum);
+                        runningSumTmp.emplace_back(dSum);
                     }
 
                 }
