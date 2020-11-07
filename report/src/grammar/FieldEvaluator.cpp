@@ -104,7 +104,7 @@ antlrcpp::Any FieldEvaluator::visitPrimary(PlayReportParser::PrimaryContext *ctx
 
     if (ctx->IDENTIFIER() != nullptr) {
         std::string fieldName = ctx->IDENTIFIER()->getText();
-        antlrcpp::Any tmp = data_->getField(fieldName);
+        vector<antlrcpp::Any> tmp = data_->getField(fieldName);
         rtn = tmp;
 
     } else if (ctx->literal() != nullptr) {
