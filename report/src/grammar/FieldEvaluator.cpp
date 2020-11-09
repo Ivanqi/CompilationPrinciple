@@ -1,35 +1,14 @@
 #include "FieldEvaluator.h"
-#include "Add.h"
-#include "Minus.h"
-#include "Mul.h"
-#include "Div.h"
-#include "EQ.h"
-#include "GE.h"
-#include "GT.h"
-#include "LE.h"
-#include "LT.h"
+
 #include "PrimitiveType.h"
 #include "TabularData.h"
 
 #include <string>
 #include <algorithm>
-
-FieldEvaluator::FieldEvaluator()
-{
-    add = new Add();
-    minus = new Minus();
-    mul = new Mul();
-    div = new Div();
-    eq = new EQ();
-    ge = new GE();
-    gt = new GT();
-    le = new LE();
-    lt = new LT;
-}
+using namespace std;
 
 FieldEvaluator::FieldEvaluator(TabularData *data): data_(data)
 {
-    FieldEvaluator();
 }
 
 antlrcpp::Any FieldEvaluator::visitBracedExpression(PlayReportParser::BracedExpressionContext *ctx)
@@ -45,43 +24,43 @@ antlrcpp::Any FieldEvaluator::visitExpression(PlayReportParser::ExpressionContex
         antlrcpp::Any left = visitExpression(ctx->expression(0));
         antlrcpp::Any right = visitExpression(ctx->expression(1));
 
-        PrimitiveType *type = calcType(left, right);
+        PrimitiveType *type = calcType(&left, &right);
 
         switch (ctx->bop->getType()) {
             case PlayReportParser::ADD:
-                rtn = add->vectorOp(left, right, type);
+                rtn = add->vectorOp(move(left), move(right), type);
                 break;
             
             case PlayReportParser::SUB:
-                rtn = minus->vectorOp(left, right, type);
+                rtn = minus->vectorOp(move(left), move(right), type);
                 break;
             
             case PlayReportParser::MUL:
-                rtn = mul->vectorOp(left, right, type);
+                rtn = mul->vectorOp(move(left), move(right), type);
                 break;
             
             case PlayReportParser::DIV:
-                rtn = div->vectorOp(left, right, type);
+                rtn = div->vectorOp(move(left), move(right), type);
                 break;
             
             case PlayReportParser::EQUAL:
-                rtn = eq->vectorOp(left, right, type);
+                rtn = eq->vectorOp(move(left), move(right), type);
                 break;
             
             case PlayReportParser::LE:
-                rtn = le->vectorOp(left, right, type);
+                rtn = le->vectorOp(move(left), move(right), type);
                 break;
             
             case PlayReportParser::LT:
-                rtn = lt->vectorOp(left, right, type);
+                rtn = lt->vectorOp(move(left), move(right), type);
                 break;
             
             case PlayReportParser::GE:
-                rtn = ge->vectorOp(left, right, type);
+                rtn = ge->vectorOp(move(left), move(right), type);
                 break;
             
             case PlayReportParser::GT:
-                rtn = gt->vectorOp(left, right, type);
+                rtn = gt->vectorOp(move(left), move(right), type);
                 break;
             
             default:
@@ -103,7 +82,7 @@ antlrcpp::Any FieldEvaluator::visitPrimary(PlayReportParser::PrimaryContext *ctx
     antlrcpp::Any rtn = nullptr;
 
     if (ctx->IDENTIFIER() != nullptr) {
-        std::string fieldName = ctx->IDENTIFIER()->getText();
+        string fieldName = ctx->IDENTIFIER()->getText();
         vector<antlrcpp::Any> tmp = data_->getField(fieldName);
         rtn = tmp;
 
@@ -161,9 +140,9 @@ antlrcpp::Any FieldEvaluator::visitFunctionCall(PlayReportParser::FunctionCallCo
 {
     antlrcpp::Any rtn = nullptr;
 
-    std::string functionName = ctx->IDENTIFIER()->getText();
-    std::transform(functionName.begin(), functionName.end(), functionName.begin(), 
-        [](unsigned char c) -> unsigned char { return std::tolower(c); });
+    string functionName = ctx->IDENTIFIER()->getText();
+    transform(functionName.begin(), functionName.end(), functionName.begin(), 
+        [](unsigned char c) -> unsigned char { return tolower(c); });
 
     if (functionName.compare("rank")) {
         rtn = rank(ctx);
@@ -216,11 +195,11 @@ antlrcpp::Any FieldEvaluator::rank(PlayReportParser::FunctionCallContext *ctx)
 {
     antlrcpp::Any rtn = nullptr;
 
-    std::string functionFieldName = ctx->getText();
+    string functionFieldName = ctx->getText();
 
     if (!data_->hasField(functionFieldName)) {
         // 计算参数列
-        std::string fieldName = ctx->expressionList()->expression(0)->getText();
+        string fieldName = ctx->expressionList()->expression(0)->getText();
         if (!data_->hasField(fieldName)) {
             addCalculatedField(ctx->expressionList()->expression(0));
         }
@@ -231,12 +210,12 @@ antlrcpp::Any FieldEvaluator::rank(PlayReportParser::FunctionCallContext *ctx)
         antlrcpp::Any tmp = data_->getField(fieldName);
 
         if (tmp.is<std::vector<antlrcpp::Any>>()) {
-            std::vector<antlrcpp::Any> paramCol = tmp.as<std::vector<antlrcpp::Any>>();
-            std::vector<antlrcpp::Any> sorted;
+            vector<antlrcpp::Any> paramCol = tmp.as<std::vector<antlrcpp::Any>>();
+            vector<antlrcpp::Any> sorted;
             sorted.assign(paramCol.begin(), paramCol.end());
-            std::sort(sorted.begin(), sorted.end(), max_compare);
+            sort(sorted.begin(), sorted.end(), max_compare);
 
-            std::vector<antlrcpp::Any> rankList(paramCol.size());
+            vector<antlrcpp::Any> rankList(paramCol.size());
             rank = rankList;
 
             int numRows = data_->getNumRows();
@@ -270,7 +249,7 @@ antlrcpp::Any FieldEvaluator::rank(PlayReportParser::FunctionCallContext *ctx)
 antlrcpp::Any FieldEvaluator::max(PlayReportParser::FunctionCallContext *ctx)
 {
     antlrcpp::Any rtn = nullptr;
-    std::string functionFieldName = ctx->getText();
+    string functionFieldName = ctx->getText();
 
     if (!data_->hasField(functionFieldName)) {
         // 计算参数列 
@@ -284,7 +263,7 @@ antlrcpp::Any FieldEvaluator::max(PlayReportParser::FunctionCallContext *ctx)
         antlrcpp::Any field = data_->getField(fieldName);
         // todo 这里有点问题
         if (field.is<std::vector<antlrcpp::Any>>()) {
-            std::vector<antlrcpp::Any> paramCol = field.as<std::vector<antlrcpp::Any>>();
+            vector<antlrcpp::Any> paramCol = field.as<std::vector<antlrcpp::Any>>();
             if (paramCol.size() > 0) {
                 antlrcpp::Any result = std::max_element(paramCol.begin(), paramCol.end(), max_compare);
 
@@ -317,11 +296,11 @@ antlrcpp::Any FieldEvaluator::max(PlayReportParser::FunctionCallContext *ctx)
 antlrcpp::Any FieldEvaluator::sum(PlayReportParser::FunctionCallContext *ctx)
 {
     antlrcpp::Any rtn = nullptr;
-    std::string functionFieldName = ctx->getText();
+    string functionFieldName = ctx->getText();
 
     if (!data_->hasField(functionFieldName)) {
         // 计算参数列 
-        std::string fieldName = ctx->expressionList()->expression(0)->getText();
+        string fieldName = ctx->expressionList()->expression(0)->getText();
         if (!data_->hasField(functionFieldName)) {
             addCalculatedField(ctx->expressionList()->expression(0));
         }
@@ -330,8 +309,8 @@ antlrcpp::Any FieldEvaluator::sum(PlayReportParser::FunctionCallContext *ctx)
         antlrcpp::Any sum = nullptr;
         antlrcpp::Any field = data_->getField(fieldName);
 
-        if (field.is<std::vector<antlrcpp::Any>>()) {
-            std::vector<antlrcpp::Any> paramCol = field.as<std::vector<antlrcpp::Any>>();
+        if (field.is<vector<antlrcpp::Any>>()) {
+            vector<antlrcpp::Any> paramCol = field.as<vector<antlrcpp::Any>>();
             if (paramCol.size() > 0) {
                 auto tmp = 0;
                 for (antlrcpp::Any obj: paramCol) {
@@ -366,11 +345,11 @@ antlrcpp::Any FieldEvaluator::sum(PlayReportParser::FunctionCallContext *ctx)
 antlrcpp::Any FieldEvaluator::runningSum(PlayReportParser::FunctionCallContext *ctx)
 {
     antlrcpp::Any rtn = nullptr;
-    std::string functionFieldName = ctx->getText();
+    string functionFieldName = ctx->getText();
 
     if (!data_->hasField(functionFieldName)) {
         // 计算参数列 
-        std::string fieldName = ctx->expressionList()->expression(0)->getText();
+        string fieldName = ctx->expressionList()->expression(0)->getText();
         if (!data_->hasField(functionFieldName)) {
             addCalculatedField(ctx->expressionList()->expression(0));
         }
@@ -380,12 +359,12 @@ antlrcpp::Any FieldEvaluator::runningSum(PlayReportParser::FunctionCallContext *
         // 计算rank
         antlrcpp::Any field = data_->getField(fieldName);
 
-        if (field.is<std::vector<antlrcpp::Any>>()) {
-            std::vector<antlrcpp::Any> paramCol = field.as<std::vector<antlrcpp::Any>>();
+        if (field.is<vector<antlrcpp::Any>>()) {
+            vector<antlrcpp::Any> paramCol = field.as<vector<antlrcpp::Any>>();
             if (paramCol.size() > 0) {
                 antlrcpp::Any first = paramCol[0];                
                 if (first.is<int>()) {
-                    std::vector<int> runningSumTmp;
+                    vector<int> runningSumTmp;
                     int iSum = 0;
                     for (antlrcpp::Any o: paramCol) {
                         iSum += o.as<int>();
@@ -394,7 +373,7 @@ antlrcpp::Any FieldEvaluator::runningSum(PlayReportParser::FunctionCallContext *
 
                 } else if (first.is<long>()) {
                     long lSum = 0l;
-                    std::vector<long> runningSumTmp;
+                    vector<long> runningSumTmp;
                     for (antlrcpp::Any o: paramCol) {
                         lSum += o.as<long>();
                         runningSumTmp.emplace_back(lSum);
@@ -402,7 +381,7 @@ antlrcpp::Any FieldEvaluator::runningSum(PlayReportParser::FunctionCallContext *
 
                 } else if (first.is<double>()) {
                     double dSum = 0.0;
-                    std::vector<double> runningSumTmp;
+                    vector<double> runningSumTmp;
                     for (antlrcpp::Any o: paramCol) {
                         dSum += o.as<double>();
                         runningSumTmp.emplace_back(dSum);
@@ -428,7 +407,7 @@ antlrcpp::Any FieldEvaluator::runningSum(PlayReportParser::FunctionCallContext *
 void FieldEvaluator::addCalculatedField(PlayReportParser::ExpressionContext *ctx)
 {
     antlrcpp::Any value = nullptr;
-    std::string fieldName = ctx->getText();
+    string fieldName = ctx->getText();
     data_->setField(fieldName, value);
 }
 
@@ -438,23 +417,23 @@ PrimitiveType* FieldEvaluator::calcType(antlrcpp::Any obj1, antlrcpp::Any obj2)
     PrimitiveType *type = PrimitiveType::String;
 
     // 处理向量的情况
-    bool obj1Status = obj1.is<std::vector<antlrcpp::Any>>();
+    bool obj1Status = obj1.is<vector<antlrcpp::Any>>();
     if (obj1Status) {
-        std::vector<antlrcpp::Any> tmp1 = obj1.as<std::vector<antlrcpp::Any>>();
+        vector<antlrcpp::Any> tmp1 = obj1.as<vector<antlrcpp::Any>>();
         if (tmp1.size() > 0) {
             obj1 = tmp1[0];
         }
     }
 
-    bool obj2Status = obj2.is<std::vector<antlrcpp::Any>>();
+    bool obj2Status = obj2.is<vector<antlrcpp::Any>>();
     if (obj2Status) {
-        std::vector<antlrcpp::Any> tmp2 = obj2.as<std::vector<antlrcpp::Any>>();
+        vector<antlrcpp::Any> tmp2 = obj2.as<vector<antlrcpp::Any>>();
         if (tmp2.size() > 0) {
             obj2 = tmp2[0];
         }
     }
 
-    if (obj1.is<std::string>() || obj2.is<std::string>()) {
+    if (obj1.is<string>() || obj2.is<string>()) {
         type = PrimitiveType::String;
 
     } else if (obj1.is<double>() || obj2.is<double>()) {

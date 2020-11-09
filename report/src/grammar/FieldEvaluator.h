@@ -4,17 +4,18 @@
 #include "PlayReportBaseVisitor.h"
 #include "PlayReportParser.h"
 
+#include "Add.h"
+#include "Minus.h"
+#include "Mul.h"
+#include "Div.h"
+#include "EQ.h"
+#include "GE.h"
+#include "GT.h"
+#include "LE.h"
+#include "LT.h"
+
 class TabularData;
 class PrimitiveType;
-class Add;
-class Minus;
-class Mul;
-class Div;
-class EQ;
-class GE;
-class GT;
-class LE;
-class LT;
 
 class FieldEvaluator: public PlayReportBaseVisitor
 {
@@ -23,19 +24,17 @@ class FieldEvaluator: public PlayReportBaseVisitor
         // 报表数据
         TabularData *data_ = nullptr;
 
-        Add *add = nullptr;
-        Minus *minus = nullptr;
-        Mul *mul = nullptr;
-        Div *div = nullptr;
-        EQ *eq = nullptr;
-        GE *ge = nullptr;
-        GT *gt = nullptr;
-        LE *le = nullptr;
-        LT *lt = nullptr;
+        Add *add = new Add();
+        Minus *minus = new Minus();
+        Mul *mul = new Mul();
+        Div *div = new Div();
+        EQ *eq = new EQ();
+        GE *ge =  new GE();
+        GT *gt = new GT();
+        LE *le = new LE();
+        LT *lt = new LT();
 
     public:
-        FieldEvaluator();
-
         FieldEvaluator(TabularData *data);
 
     public:
