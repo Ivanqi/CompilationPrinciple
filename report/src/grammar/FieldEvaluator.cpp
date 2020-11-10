@@ -2,6 +2,7 @@
 
 #include "PrimitiveType.h"
 #include "TabularData.h"
+#include "DyArray.h"
 
 #include <string>
 #include <algorithm>
@@ -24,48 +25,50 @@ antlrcpp::Any FieldEvaluator::visitExpression(PlayReportParser::ExpressionContex
         antlrcpp::Any left = visitExpression(ctx->expression(0));
         antlrcpp::Any right = visitExpression(ctx->expression(1));
 
-        PrimitiveType *type = calcType(&left, &right);
 
-        switch (ctx->bop->getType()) {
-            case PlayReportParser::ADD:
-                rtn = add->vectorOp(move(left), move(right), type);
-                break;
+        PrimitiveType *type = calcType(left, right);
+        
+        cout << "xxxx" << endl;
+        // switch (ctx->bop->getType()) {
+        //     case PlayReportParser::ADD:
+        //         rtn = add->vectorOp(move(left), move(right), type);
+        //         break;
             
-            case PlayReportParser::SUB:
-                rtn = minus->vectorOp(move(left), move(right), type);
-                break;
+        //     case PlayReportParser::SUB:
+        //         rtn = minus->vectorOp(move(left), move(right), type);
+        //         break;
             
-            case PlayReportParser::MUL:
-                rtn = mul->vectorOp(move(left), move(right), type);
-                break;
+        //     case PlayReportParser::MUL:
+        //         rtn = mul->vectorOp(move(left), move(right), type);
+        //         break;
             
-            case PlayReportParser::DIV:
-                rtn = div->vectorOp(move(left), move(right), type);
-                break;
+        //     case PlayReportParser::DIV:
+        //         rtn = div->vectorOp(move(left), move(right), type);
+        //         break;
             
-            case PlayReportParser::EQUAL:
-                rtn = eq->vectorOp(move(left), move(right), type);
-                break;
+        //     case PlayReportParser::EQUAL:
+        //         rtn = eq->vectorOp(move(left), move(right), type);
+        //         break;
             
-            case PlayReportParser::LE:
-                rtn = le->vectorOp(move(left), move(right), type);
-                break;
+        //     case PlayReportParser::LE:
+        //         rtn = le->vectorOp(move(left), move(right), type);
+        //         break;
             
-            case PlayReportParser::LT:
-                rtn = lt->vectorOp(move(left), move(right), type);
-                break;
+        //     case PlayReportParser::LT:
+        //         rtn = lt->vectorOp(move(left), move(right), type);
+        //         break;
             
-            case PlayReportParser::GE:
-                rtn = ge->vectorOp(move(left), move(right), type);
-                break;
+        //     case PlayReportParser::GE:
+        //         rtn = ge->vectorOp(move(left), move(right), type);
+        //         break;
             
-            case PlayReportParser::GT:
-                rtn = gt->vectorOp(move(left), move(right), type);
-                break;
+        //     case PlayReportParser::GT:
+        //         rtn = gt->vectorOp(move(left), move(right), type);
+        //         break;
             
-            default:
-                break;
-        }
+        //     default:
+        //         break;
+        // }
 
     } else if (ctx->primary() != nullptr) {
         rtn = visitPrimary(ctx->primary());
@@ -83,7 +86,7 @@ antlrcpp::Any FieldEvaluator::visitPrimary(PlayReportParser::PrimaryContext *ctx
 
     if (ctx->IDENTIFIER() != nullptr) {
         string fieldName = ctx->IDENTIFIER()->getText();
-        vector<antlrcpp::Any> tmp = data_->getField(fieldName);
+        antlrcpp::Any tmp = data_->getField(fieldName);
         rtn = tmp;
 
     } else if (ctx->literal() != nullptr) {

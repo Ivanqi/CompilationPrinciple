@@ -1,6 +1,6 @@
 #ifndef STACK_H
 #define STACK_H
- #pragma once
+#pragma once
 
 #include <list>
 
