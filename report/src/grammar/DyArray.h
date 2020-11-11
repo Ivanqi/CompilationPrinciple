@@ -18,15 +18,33 @@ class DyArray
         int curSize;    // 数组当前包含元素的个数
 
     private:
-        bool initArray();
+        bool initArray()
+        {
+            arr = new DArr*[capacity];
+
+            if (!arr) {
+                return false;
+            }
+
+            for (int i = 0; i < capacity; ++i) {
+                arr[i] = nullptr;
+            }
+            return true;
+        }
 
         bool resize();
 
     public:
 
-        DyArray(int cap);
+        DyArray(int cap):capacity(cap), curSize(0)
+        {
+            initArray();
+        }
 
-        DyArray();
+        DyArray() : capacity(DEFAULT_CAP), curSize(0)
+        {
+            initArray();
+        }
 
         ~DyArray()
         {
@@ -39,9 +57,47 @@ class DyArray
 
         void dump();
 
-        bool insert(const T& value);
+        bool insert(const T value)
+        {
+            if (curSize > capacity) {
+                resize();
+            }
 
-        const T& getIdx(int index);
+            int hole = curSize++;
+            arr[hole] = value;
+            return true;
+        }
+
+        const T getIdx(int index)
+        {
+            if (index > curSize) {
+                return nullptr;
+            }
+
+            return arr[index];
+        }
 };
+
+template<typename T>
+bool DyArray<T>::resize()
+{
+    DArr **temp = new DArr* [2 * capacity];
+    for (int i = 0; i < 2 * capacity; i++) {
+        temp[i] = nullptr;
+    }
+
+    if (!temp) {
+        return false;
+    }
+
+    capacity = 2 * capacity;
+
+    for (int i = 0; i < curSize; ++i) {
+        temp[i] = arr[i];
+    }
+
+    delete [] arr;
+    arr = temp;
+}
 
 #endif

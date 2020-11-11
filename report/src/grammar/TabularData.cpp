@@ -52,7 +52,7 @@ TabularData* TabularData::sampleData()
 
     data->numRows = 5;
 
-    DyArray<antlrcpp::Any> col1;
+    DyArray<antlrcpp::Any> col1(DEFAULT_CAP);
 
     col1.insert("电话销售部");
     col1.insert("现场销售部");
@@ -61,7 +61,7 @@ TabularData* TabularData::sampleData()
     col1.insert("微商销售部");
     data->fieldValues["dept"] = col1;
 
-    DyArray<antlrcpp::Any> col2;
+    DyArray<antlrcpp::Any> col2(DEFAULT_CAP);
     col2.insert(10);
     col2.insert(20);
     col2.insert(15);
@@ -69,7 +69,7 @@ TabularData* TabularData::sampleData()
     col2.insert(12);
     data->fieldValues["num_person"] = col2;
 
-    DyArray<antlrcpp::Any> col3;
+    DyArray<antlrcpp::Any> col3(DEFAULT_CAP);
     col3.insert(2345.0);
     col3.insert(5860.0);
     col3.insert(3045.0);
