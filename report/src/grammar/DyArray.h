@@ -8,31 +8,19 @@ class DyArray
 {
     private:
 
-        struct DArr
-        {
-            T *arr;
-        };
-
-        DArr **arr;     // 数组
+        T *arr;         // 数组
         int capacity;   // 数组容量
         int curSize;    // 数组当前包含元素的个数
-
+    
     private:
         bool initArray()
         {
-            arr = new DArr*[capacity];
+            arr = new T[capacity];
 
-            if (!arr) {
-                return false;
-            }
-
-            for (int i = 0; i < capacity; ++i) {
-                arr[i] = nullptr;
-            }
-            return true;
+            return arr != nullptr;
         }
 
-        bool resize();
+        void reSize();
 
     public:
 
@@ -48,56 +36,44 @@ class DyArray
 
         ~DyArray()
         {
-            for (int i = 0; i < curSize; ++i) {
-                delete arr[i];
-            }
-
             delete [] arr;
         }
 
-        void dump();
+        void insert(int index, T e);
 
-        bool insert(const T value)
+        void push_back(T e)
         {
-            if (curSize > capacity) {
-                resize();
-            }
-
-            int hole = curSize++;
-            arr[hole] = value;
-            return true;
+            insert(curSize, e);
         }
 
-        const T getIdx(int index)
-        {
-            if (index > curSize) {
-                return nullptr;
-            }
+        T& operator[](int i) {
+		    return arr[i];
+	    }
 
-            return arr[index];
+        int get(int index);
+
+        void set(int index, T e);
+
+        bool contains(T e);
+
+        //删除并返回
+        T remove(int index);
+
+        int size() 
+        {
+        	return curSize;
         }
+
+        int length()
+        {
+            return curSize;
+        }
+
+        bool IsEmpty() {
+        	return curSize == 0;
+        }
+
+        void toString();
 };
-
-template<typename T>
-bool DyArray<T>::resize()
-{
-    DArr **temp = new DArr* [2 * capacity];
-    for (int i = 0; i < 2 * capacity; i++) {
-        temp[i] = nullptr;
-    }
-
-    if (!temp) {
-        return false;
-    }
-
-    capacity = 2 * capacity;
-
-    for (int i = 0; i < curSize; ++i) {
-        temp[i] = arr[i];
-    }
-
-    delete [] arr;
-    arr = temp;
-}
 
 #endif
