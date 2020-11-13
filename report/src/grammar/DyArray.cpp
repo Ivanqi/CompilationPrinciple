@@ -1,4 +1,4 @@
-#include "demo_DyArray_1.h"
+#include "DyArray.h"
 #include <iostream>
 
 template<typename T>
