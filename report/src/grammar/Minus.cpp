@@ -1,6 +1,7 @@
 #include "Minus.h"
 #include "PrimitiveType.h"
 #include <string.h>
+#include <stdio.h>
 
 antlrcpp::Any Minus::op(antlrcpp::Any obj1, antlrcpp::Any obj2, PrimitiveType *targetType)
 {
@@ -16,7 +17,11 @@ antlrcpp::Any Minus::op(antlrcpp::Any obj1, antlrcpp::Any obj2, PrimitiveType *t
         rtn = obj1.as<long>() - obj2.as<long>();
         
     } else if (targetType == PrimitiveType::Double) {
-        rtn = obj1.as<double>() - obj2.as<double>();
+        if (obj1.is<double>() && obj2.as<double>()) {
+            rtn = obj1.as<double>() - obj2.as<double>();
+        } else {
+            printf("obj1 or obj2 isn't double");
+        }
 
     } else if (targetType == PrimitiveType::Short) {
         rtn = obj1.as<short>() - obj2.as<short>();

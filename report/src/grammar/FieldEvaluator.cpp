@@ -6,6 +6,7 @@
 
 #include <string>
 #include <algorithm>
+#include <iostream>
 using namespace std;
 
 FieldEvaluator::FieldEvaluator(TabularData *data): data_(data)
@@ -26,49 +27,76 @@ antlrcpp::Any FieldEvaluator::visitExpression(PlayReportParser::ExpressionContex
         antlrcpp::Any right = visitExpression(ctx->expression(1));
 
 
-        PrimitiveType *type = calcType(left, right);
+        PrimitiveType *type = calcType(&left, &right);
+
+        if (left.is<int>()) {
+            std::cout << "left is int" << std::endl;
+        } else if (left.is<double>()) {
+            std::cout << "left is double" << std::endl;
+        } else if (left.is<string>()) {
+            std::cout << "left is string" << std::endl;
+        } else if (left.is<float>()) {
+            std::cout << "left is float" << std::endl;
+        } else if (left.is<long>()) {
+            std::cout << "left is long" << std::endl;
+        } else {
+            cout << "无法判断 left的类型" << std::endl;
+        }
+
+        if (right.is<int>()) {
+            std::cout << "right is int" << std::endl;
+        } else if (right.is<double>()) {
+            std::cout << "right is double" << std::endl;
+        } else if (right.is<string>()) {
+            std::cout << "right is string" << std::endl;
+        } else if (right.is<float>()) {
+            std::cout << "right is float" << std::endl;
+        } else if (right.is<long>()) {
+            std::cout << "right is long" << std::endl;
+        } else {
+            cout << "无法判断 right的类型" << std::endl;
+        }
         
-        cout << "xxxx" << endl;
-        // switch (ctx->bop->getType()) {
-        //     case PlayReportParser::ADD:
-        //         rtn = add->vectorOp(move(left), move(right), type);
-        //         break;
+        switch (ctx->bop->getType()) {
+            case PlayReportParser::ADD:
+                rtn = add->vectorOp(left, right, type);
+                break;
             
-        //     case PlayReportParser::SUB:
-        //         rtn = minus->vectorOp(move(left), move(right), type);
-        //         break;
+            case PlayReportParser::SUB:
+                rtn = minus->vectorOp(left, right, type);
+                break;
             
-        //     case PlayReportParser::MUL:
-        //         rtn = mul->vectorOp(move(left), move(right), type);
-        //         break;
+            case PlayReportParser::MUL:
+                rtn = mul->vectorOp(left, right, type);
+                break;
             
-        //     case PlayReportParser::DIV:
-        //         rtn = div->vectorOp(move(left), move(right), type);
-        //         break;
+            case PlayReportParser::DIV:
+                rtn = div->vectorOp(left, right, type);
+                break;
             
-        //     case PlayReportParser::EQUAL:
-        //         rtn = eq->vectorOp(move(left), move(right), type);
-        //         break;
+            case PlayReportParser::EQUAL:
+                rtn = eq->vectorOp(left, right, type);
+                break;
             
-        //     case PlayReportParser::LE:
-        //         rtn = le->vectorOp(move(left), move(right), type);
-        //         break;
+            case PlayReportParser::LE:
+                rtn = le->vectorOp(left, right, type);
+                break;
             
-        //     case PlayReportParser::LT:
-        //         rtn = lt->vectorOp(move(left), move(right), type);
-        //         break;
+            case PlayReportParser::LT:
+                rtn = lt->vectorOp(left, right, type);
+                break;
             
-        //     case PlayReportParser::GE:
-        //         rtn = ge->vectorOp(move(left), move(right), type);
-        //         break;
+            case PlayReportParser::GE:
+                rtn = ge->vectorOp(left, right, type);
+                break;
             
-        //     case PlayReportParser::GT:
-        //         rtn = gt->vectorOp(move(left), move(right), type);
-        //         break;
+            case PlayReportParser::GT:
+                rtn = gt->vectorOp(left, right, type);
+                break;
             
-        //     default:
-        //         break;
-        // }
+            default:
+                break;
+        }
 
     } else if (ctx->primary() != nullptr) {
         rtn = visitPrimary(ctx->primary());
@@ -86,8 +114,20 @@ antlrcpp::Any FieldEvaluator::visitPrimary(PlayReportParser::PrimaryContext *ctx
 
     if (ctx->IDENTIFIER() != nullptr) {
         string fieldName = ctx->IDENTIFIER()->getText();
-        antlrcpp::Any tmp = data_->getField(fieldName);
-        rtn = tmp;
+        std::cout << fieldName << std::endl;
+        rtn = data_->getField(fieldName);
+
+        if (fieldName == "num_person") {
+            std::cout << "num_person check" << std::endl;
+            if (rtn.is<DyArray<antlrcpp::Any>*>()) {
+                DyArray<antlrcpp::Any>* tmp = rtn.as<DyArray<antlrcpp::Any>*>();
+                for (int i = 0; i < tmp->size(); i++) {
+                    if ((*tmp)[i].is<int>()) {
+                        std::cout << (*tmp)[i].as<int>()  << std::endl;
+                    }
+                }
+            }
+        }
 
     } else if (ctx->literal() != nullptr) {
         rtn = visitLiteral(ctx->literal());
@@ -415,40 +455,54 @@ void FieldEvaluator::addCalculatedField(PlayReportParser::ExpressionContext *ctx
 }
 
 // 工具性的方法
-PrimitiveType* FieldEvaluator::calcType(antlrcpp::Any obj1, antlrcpp::Any obj2)
+PrimitiveType* FieldEvaluator::calcType(antlrcpp::Any *obj1, antlrcpp::Any *obj2)
 {
     PrimitiveType *type = PrimitiveType::String;
 
     // 处理向量的情况
-    bool obj1Status = obj1.is<vector<antlrcpp::Any>>();
+    bool obj1Status = obj1->is<DyArray<antlrcpp::Any>*>();
     if (obj1Status) {
-        vector<antlrcpp::Any> tmp1 = obj1.as<vector<antlrcpp::Any>>();
-        if (tmp1.size() > 0) {
-            obj1 = tmp1[0];
+        DyArray<antlrcpp::Any> *tmp1 = obj1->as<DyArray<antlrcpp::Any>*>();
+        if (tmp1->size() > 0) {
+            obj1 = &tmp1->get(0);
         }
     }
 
-    bool obj2Status = obj2.is<vector<antlrcpp::Any>>();
+    bool obj2Status = obj2->is<DyArray<antlrcpp::Any>*>();
     if (obj2Status) {
-        vector<antlrcpp::Any> tmp2 = obj2.as<vector<antlrcpp::Any>>();
-        if (tmp2.size() > 0) {
-            obj2 = tmp2[0];
+        DyArray<antlrcpp::Any> *tmp2 = obj2->as<DyArray<antlrcpp::Any>*>();
+        if (tmp2->size() > 0) {
+            obj2 = &tmp2->get(0);
         }
     }
 
-    if (obj1.is<string>() || obj2.is<string>()) {
+    if (obj2->is<int>()) {
+        std::cout << "obj2 is int" << std::endl;
+    } else if (obj2->is<double>()) {
+        std::cout << "obj2 is double" << std::endl;
+    } else if (obj2->is<string>()) {
+        std::cout << "obj2 is string" << std::endl;
+    } else if (obj2->is<float>()) {
+        std::cout << "obj2 is float" << std::endl;
+    } else if (obj2->is<long>()) {
+        std::cout << "obj2 is long" << std::endl;
+    } else {
+        cout << "无法判断 obj2的类型" << std::endl;
+    }
+
+    if (obj1->is<string>() || obj2->is<string>()) {
         type = PrimitiveType::String;
 
-    } else if (obj1.is<double>() || obj2.is<double>()) {
+    } else if (obj1->is<double>() || obj2->is<double>()) {
         type = PrimitiveType::Double;
 
-    } else if (obj1.is<float>() || obj2.is<float>()) {
+    } else if (obj1->is<float>() || obj2->is<float>()) {
         type = PrimitiveType::Float;
 
-    } else if (obj1.is<long>() || obj2.is<long>()) {
+    } else if (obj1->is<long>() || obj2->is<long>()) {
         type = PrimitiveType::Long;
 
-    } else if (obj1.is<int>() || obj2.is<int>()) {
+    } else if (obj1->is<int>() || obj2->is<int>()) {
         type = PrimitiveType::Integer;
     }
 

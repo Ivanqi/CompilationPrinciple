@@ -37,7 +37,6 @@ set(src_dir
     src/grammar/LE.cpp
     src/grammar/LT.cpp
     src/grammar/FieldEvaluator.cpp
-    src/grammar/DyArray.cpp
 )
 
 file(GLOB antrl-cpp-src
