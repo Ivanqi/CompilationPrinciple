@@ -26,36 +26,7 @@ antlrcpp::Any FieldEvaluator::visitExpression(PlayReportParser::ExpressionContex
         antlrcpp::Any left = visitExpression(ctx->expression(0));
         antlrcpp::Any right = visitExpression(ctx->expression(1));
 
-
-        PrimitiveType *type = calcType(&left, &right);
-
-        if (left.is<int>()) {
-            std::cout << "left is int" << std::endl;
-        } else if (left.is<double>()) {
-            std::cout << "left is double" << std::endl;
-        } else if (left.is<string>()) {
-            std::cout << "left is string" << std::endl;
-        } else if (left.is<float>()) {
-            std::cout << "left is float" << std::endl;
-        } else if (left.is<long>()) {
-            std::cout << "left is long" << std::endl;
-        } else {
-            cout << "无法判断 left的类型" << std::endl;
-        }
-
-        if (right.is<int>()) {
-            std::cout << "right is int" << std::endl;
-        } else if (right.is<double>()) {
-            std::cout << "right is double" << std::endl;
-        } else if (right.is<string>()) {
-            std::cout << "right is string" << std::endl;
-        } else if (right.is<float>()) {
-            std::cout << "right is float" << std::endl;
-        } else if (right.is<long>()) {
-            std::cout << "right is long" << std::endl;
-        } else {
-            cout << "无法判断 right的类型" << std::endl;
-        }
+        PrimitiveType *type = calcType(left, right);
         
         switch (ctx->bop->getType()) {
             case PlayReportParser::ADD:
@@ -114,20 +85,7 @@ antlrcpp::Any FieldEvaluator::visitPrimary(PlayReportParser::PrimaryContext *ctx
 
     if (ctx->IDENTIFIER() != nullptr) {
         string fieldName = ctx->IDENTIFIER()->getText();
-        std::cout << fieldName << std::endl;
         rtn = data_->getField(fieldName);
-
-        if (fieldName == "num_person") {
-            std::cout << "num_person check" << std::endl;
-            if (rtn.is<DyArray<antlrcpp::Any>*>()) {
-                DyArray<antlrcpp::Any>* tmp = rtn.as<DyArray<antlrcpp::Any>*>();
-                for (int i = 0; i < tmp->size(); i++) {
-                    if ((*tmp)[i].is<int>()) {
-                        std::cout << (*tmp)[i].as<int>()  << std::endl;
-                    }
-                }
-            }
-        }
 
     } else if (ctx->literal() != nullptr) {
         rtn = visitLiteral(ctx->literal());
@@ -455,55 +413,89 @@ void FieldEvaluator::addCalculatedField(PlayReportParser::ExpressionContext *ctx
 }
 
 // 工具性的方法
-PrimitiveType* FieldEvaluator::calcType(antlrcpp::Any *obj1, antlrcpp::Any *obj2)
+PrimitiveType* FieldEvaluator::calcType(antlrcpp::Any &obj1, antlrcpp::Any &obj2)
 {
     PrimitiveType *type = PrimitiveType::String;
 
     // 处理向量的情况
-    bool obj1Status = obj1->is<DyArray<antlrcpp::Any>*>();
+    bool obj1Status = obj1.is<DyArray<antlrcpp::Any>*>();
     if (obj1Status) {
-        DyArray<antlrcpp::Any> *tmp1 = obj1->as<DyArray<antlrcpp::Any>*>();
+        DyArray<antlrcpp::Any> *tmp1 = obj1.as<DyArray<antlrcpp::Any>*>();
         if (tmp1->size() > 0) {
-            obj1 = &tmp1->get(0);
+            obj1 = tmp1->get(0);
         }
     }
 
-    bool obj2Status = obj2->is<DyArray<antlrcpp::Any>*>();
+    bool obj2Status = obj2.is<DyArray<antlrcpp::Any>*>();
     if (obj2Status) {
-        DyArray<antlrcpp::Any> *tmp2 = obj2->as<DyArray<antlrcpp::Any>*>();
+        DyArray<antlrcpp::Any> *tmp2 = obj2.as<DyArray<antlrcpp::Any>*>();
         if (tmp2->size() > 0) {
-            obj2 = &tmp2->get(0);
+            obj2 = tmp2->get(0);
         }
     }
 
-    if (obj2->is<int>()) {
-        std::cout << "obj2 is int" << std::endl;
-    } else if (obj2->is<double>()) {
-        std::cout << "obj2 is double" << std::endl;
-    } else if (obj2->is<string>()) {
-        std::cout << "obj2 is string" << std::endl;
-    } else if (obj2->is<float>()) {
-        std::cout << "obj2 is float" << std::endl;
-    } else if (obj2->is<long>()) {
-        std::cout << "obj2 is long" << std::endl;
-    } else {
-        cout << "无法判断 obj2的类型" << std::endl;
+    if (obj1.is<string>() || obj2.is<string>()) {
+        type = PrimitiveType::String;
+        return type;
     }
 
-    if (obj1->is<string>() || obj2->is<string>()) {
-        type = PrimitiveType::String;
+    auto obj1V = 0;
+    auto obj2V = 0;
 
-    } else if (obj1->is<double>() || obj2->is<double>()) {
+    if (obj1.is<int>()) {
+        obj1V = obj1.as<int>();
+    } else if (obj1.is<double>()) {
+        obj1V = obj1.as<double>();
+    } else if (obj1.is<float>()) {
+        obj1V = obj1.as<float>();
+    } else if (obj1.is<long>()) {
+        obj1V = obj1.as<long>();
+    } 
+
+    if (obj2.is<int>()) {
+        obj2V = obj2.as<int>();
+    } else if (obj2.is<double>()) {
+        obj2V = obj2.as<double>();
+    } else if (obj2.is<float>()) {
+        obj2V = obj2.as<float>();
+    } else if (obj2.is<long>()) {
+        obj2V = obj2.as<long>();
+    }
+
+     if (obj1.is<double>() || obj2.is<double>()) {
         type = PrimitiveType::Double;
+        double tmp1 = obj1V;
+        double tmp2 = obj2V;
 
-    } else if (obj1->is<float>() || obj2->is<float>()) {
+        obj1 = tmp1;
+        obj2 = tmp2;
+
+    } else if (obj1.is<float>() || obj2.is<float>()) {
         type = PrimitiveType::Float;
 
-    } else if (obj1->is<long>() || obj2->is<long>()) {
+        float tmp1 = obj1V;
+        float tmp2 = obj2V;
+
+        obj1 = tmp1;
+        obj2 = tmp2;
+
+    } else if (obj1.is<long>() || obj2.is<long>()) {
         type = PrimitiveType::Long;
 
-    } else if (obj1->is<int>() || obj2->is<int>()) {
+        long tmp1 = obj1V;
+        long tmp2 = obj2V;
+
+        obj1 = tmp1;
+        obj2 = tmp2;
+
+    } else if (obj1.is<int>() || obj2.is<int>()) {
         type = PrimitiveType::Integer;
+
+        int tmp1 = obj1V;
+        int tmp2 = obj2V;
+
+        obj1 = tmp1;
+        obj2 = tmp2;
     }
 
     return type;

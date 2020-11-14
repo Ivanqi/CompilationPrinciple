@@ -21,8 +21,8 @@ antlrcpp::Any Div::op(antlrcpp::Any obj1, antlrcpp::Any obj2, PrimitiveType *tar
             std::cout << "obj1 isn't double" << std::endl;
         } 
 
-        if (!obj2.is<int>()) {
-            std::cout << "obj2 isn't int" << std::endl;
+        if (!obj2.is<double>()) {
+            std::cout << "obj2 isn't double" << std::endl;
         }
         rtn = obj1.as<double>() / obj2.as<double>();
 
