@@ -72,7 +72,7 @@ class FieldEvaluator: public PlayReportBaseVisitor
         void addCalculatedField(PlayReportParser::ExpressionContext *ctx);
 
         // 工具性的方法
-        PrimitiveType* calcType(antlrcpp::Any &obj1, antlrcpp::Any &obj2);
+        PrimitiveType* calcType(antlrcpp::Any obj1, antlrcpp::Any obj2);
 };
 
 

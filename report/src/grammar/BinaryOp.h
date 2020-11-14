@@ -11,6 +11,7 @@ class BinaryOp
         antlrcpp::Any vectorOp(antlrcpp::Any obj1, antlrcpp::Any obj2, PrimitiveType *targetType);
 
         virtual antlrcpp::Any op(antlrcpp::Any obj1, antlrcpp::Any obj2, PrimitiveType *targetType) = 0;
+
 };
 
 #endif

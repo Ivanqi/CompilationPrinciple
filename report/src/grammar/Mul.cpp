@@ -1,25 +1,39 @@
 #include "Mul.h"
 #include "PrimitiveType.h"
 #include <string.h>
+#include "common.h"
 
 antlrcpp::Any Mul::op(antlrcpp::Any obj1, antlrcpp::Any obj2, PrimitiveType *targetType)
 {
     antlrcpp::Any rtn = nullptr;
+
+    auto obj1V = Common::conversionType(obj1);
+    auto obj2V = Common::conversionType(obj2);
     
     if (targetType == PrimitiveType::Integer) {
-        rtn = obj1.as<int>() * obj2.as<int>();
+        int tmp1 = obj1V;
+        int tmp2 = obj2V;
+        rtn = obj1V * obj2V;
 
     } else if (targetType == PrimitiveType::Float) {
-        rtn = obj1.as<float>() * obj2.as<float>(); 
+        float tmp1 = obj1V;
+        float tmp2 = obj2V;
+        rtn = obj1V * obj2V;
 
     } else if (targetType == PrimitiveType::Long) {
-        rtn = obj1.as<long>() * obj2.as<long>();
+        long tmp1 = obj1V;
+        long tmp2 = obj2V;
+        rtn = obj1V * obj2V;
         
     } else if (targetType == PrimitiveType::Double) {
-        rtn = obj1.as<double>() * obj2.as<double>();
+        double tmp1 = obj1V;
+        double tmp2 = obj2V;
+        rtn = obj1V * obj2V;
 
     } else if (targetType == PrimitiveType::Short) {
-        rtn = obj1.as<short>() * obj2.as<short>();
+        short tmp1 = obj1V;
+        short tmp2 = obj2V;
+        rtn = obj1V * obj2V;
         
     }
 

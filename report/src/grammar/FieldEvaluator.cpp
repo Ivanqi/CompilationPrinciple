@@ -413,7 +413,7 @@ void FieldEvaluator::addCalculatedField(PlayReportParser::ExpressionContext *ctx
 }
 
 // 工具性的方法
-PrimitiveType* FieldEvaluator::calcType(antlrcpp::Any &obj1, antlrcpp::Any &obj2)
+PrimitiveType* FieldEvaluator::calcType(antlrcpp::Any obj1, antlrcpp::Any obj2)
 {
     PrimitiveType *type = PrimitiveType::String;
 
@@ -436,66 +436,18 @@ PrimitiveType* FieldEvaluator::calcType(antlrcpp::Any &obj1, antlrcpp::Any &obj2
 
     if (obj1.is<string>() || obj2.is<string>()) {
         type = PrimitiveType::String;
-        return type;
-    }
 
-    auto obj1V = 0;
-    auto obj2V = 0;
-
-    if (obj1.is<int>()) {
-        obj1V = obj1.as<int>();
-    } else if (obj1.is<double>()) {
-        obj1V = obj1.as<double>();
-    } else if (obj1.is<float>()) {
-        obj1V = obj1.as<float>();
-    } else if (obj1.is<long>()) {
-        obj1V = obj1.as<long>();
-    } 
-
-    if (obj2.is<int>()) {
-        obj2V = obj2.as<int>();
-    } else if (obj2.is<double>()) {
-        obj2V = obj2.as<double>();
-    } else if (obj2.is<float>()) {
-        obj2V = obj2.as<float>();
-    } else if (obj2.is<long>()) {
-        obj2V = obj2.as<long>();
-    }
-
-     if (obj1.is<double>() || obj2.is<double>()) {
+    } else if (obj1.is<double>() || obj2.is<double>()) {
         type = PrimitiveType::Double;
-        double tmp1 = obj1V;
-        double tmp2 = obj2V;
-
-        obj1 = tmp1;
-        obj2 = tmp2;
 
     } else if (obj1.is<float>() || obj2.is<float>()) {
         type = PrimitiveType::Float;
 
-        float tmp1 = obj1V;
-        float tmp2 = obj2V;
-
-        obj1 = tmp1;
-        obj2 = tmp2;
-
     } else if (obj1.is<long>() || obj2.is<long>()) {
         type = PrimitiveType::Long;
 
-        long tmp1 = obj1V;
-        long tmp2 = obj2V;
-
-        obj1 = tmp1;
-        obj2 = tmp2;
-
     } else if (obj1.is<int>() || obj2.is<int>()) {
         type = PrimitiveType::Integer;
-
-        int tmp1 = obj1V;
-        int tmp2 = obj2V;
-
-        obj1 = tmp1;
-        obj2 = tmp2;
     }
 
     return type;

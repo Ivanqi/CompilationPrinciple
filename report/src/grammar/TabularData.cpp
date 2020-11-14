@@ -1,5 +1,6 @@
 #include "TabularData.h"
 #include "DyArray.h"
+#include "CharStr.h"
 
 #include <memory>
 
@@ -16,9 +17,9 @@ antlrcpp::Any TabularData::getFieldValue(string fieldName, int rowIndex)
 
     rtn = fieldValues[fieldName];
 
-    if (rtn.is<DyArray<antlrcpp::Any>>()) {
+    if (rtn.is<DyArray<antlrcpp::Any>*>()) {
         DyArray<antlrcpp::Any> *tmp = rtn.as<DyArray<antlrcpp::Any>*>();
-        rtn = tmp->get(rowIndex);   
+        rtn = tmp->get(rowIndex);
     }
 
     return rtn;
@@ -54,11 +55,11 @@ TabularData* TabularData::sampleData()
 
     DyArray<antlrcpp::Any> *col1 = new DyArray<antlrcpp::Any>();
 
-    col1->push_back("电话销售部");
-    col1->push_back("现场销售部");
-    col1->push_back("电子商务部");
-    col1->push_back("渠道销售部");
-    col1->push_back("微商销售部");
+    col1->push_back(new CharStr("电话销售部"));
+    col1->push_back(new CharStr("现场销售部"));
+    col1->push_back(new CharStr("电子商务部"));
+    col1->push_back(new CharStr("渠道销售部"));
+    col1->push_back(new CharStr("微商销售部"));
     data->fieldValues["dept"] = col1;
 
     DyArray<antlrcpp::Any> *col2 = new DyArray<antlrcpp::Any>();
