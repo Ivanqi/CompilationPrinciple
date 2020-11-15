@@ -2,6 +2,8 @@
 #define DYARRAY_H
 
 #include <iostream>
+#include <functional>
+
 #define DEFAULT_CAP 10
 
 template<typename T>
@@ -12,6 +14,7 @@ class DyArray
         T *arr;         // 数组
         int capacity;   // 数组容量
         int curSize;    // 数组当前包含元素的个数
+        std::function<bool(T,T)> compareFunc;
     
     private:
         bool initArray()
@@ -32,6 +35,43 @@ class DyArray
 
             delete [] arr;
             arr = newdata;
+        }
+
+        void quickSort(T *sortArr, int p, int r)
+        {
+            int q;
+
+            if (p >= r) {
+                return ;
+            }
+
+            q = partition(sortArr, p, r);
+            quickSort(arr, p, q - 1);
+            quickSort(arr, q + 1, r);
+        }
+
+        int partition(T *sortArr, int p, int r)
+        {
+            int i, j;
+
+            i = j = p;
+
+            for (; j < r; j++) {
+                if (compareFunc(arr[j], arr[r])) {
+                    if (i != j) {
+                        std::swap(sortArr[i], sortArr[j]);
+                    }
+                    i++;
+                }
+            }
+
+            std::swap(sortArr[i], sortArr[r]);
+            return i;
+        }
+
+        static bool defaultCompare(T a, T b)
+        {
+            return (a < b) ? true : false;
         }
 
     public:
@@ -159,6 +199,22 @@ class DyArray
                 }
             }
             std::cout << std::endl;
+        }
+
+        T* sort(bool (*compare)(T, T))
+        {
+            T *sortArr = arr;
+            compareFunc = compare;
+            quickSort(sortArr, 0, curSize - 1);
+            return sortArr;
+        }
+
+        T* sort()
+        {
+            T *sortArr = arr;
+            compareFunc = DyArray::defaultCompare;
+            quickSort(sortArr, 0, curSize - 1);
+            return sortArr;
         }
 };
 
