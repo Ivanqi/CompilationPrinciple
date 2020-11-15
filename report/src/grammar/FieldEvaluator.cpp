@@ -145,16 +145,16 @@ antlrcpp::Any FieldEvaluator::visitFunctionCall(PlayReportParser::FunctionCallCo
     transform(functionName.begin(), functionName.end(), functionName.begin(), 
         [](unsigned char c) -> unsigned char { return tolower(c); });
 
-    if (functionName.compare("rank")) {
+    if (functionName.compare("rank") == 0) {
         rtn = rank(ctx);
 
-    } else if (functionName.compare("max")) {
+    } else if (functionName.compare("max") == 0) {
         rtn = max(ctx);
 
-    } else if (functionName.compare("sum")) {
+    } else if (functionName.compare("sum") == 0) {
         rtn = sum(ctx);
 
-    } else if (functionName.compare("runningsum")) {
+    } else if (functionName.compare("runningsum") == 0) {
         rtn = runningSum(ctx);
     }
 
@@ -254,8 +254,8 @@ antlrcpp::Any FieldEvaluator::max(PlayReportParser::FunctionCallContext *ctx)
 
     if (!data_->hasField(functionFieldName)) {
         // 计算参数列 
-        std::string fieldName = ctx->expressionList()->expression(0)->getText();
-        if (!data_->hasField(functionFieldName)) {
+        string fieldName = ctx->expressionList()->expression(0)->getText();
+        if (!data_->hasField(fieldName)) {
             addCalculatedField(ctx->expressionList()->expression(0));
         }
 
@@ -263,24 +263,24 @@ antlrcpp::Any FieldEvaluator::max(PlayReportParser::FunctionCallContext *ctx)
         antlrcpp::Any max = nullptr;
         antlrcpp::Any field = data_->getField(fieldName);
         // todo 这里有点问题
-        if (field.is<std::vector<antlrcpp::Any>>()) {
-            vector<antlrcpp::Any> paramCol = field.as<std::vector<antlrcpp::Any>>();
-            if (paramCol.size() > 0) {
-                antlrcpp::Any result = std::max_element(paramCol.begin(), paramCol.end(), max_compare);
+        if (field.is<DyArray<antlrcpp::Any>*>()) {
+            DyArray<antlrcpp::Any> *paramCol = field.as<DyArray<antlrcpp::Any>*>();
+            // if (paramCol->size() > 0) {
+            //     antlrcpp::Any result = std::max_element(paramCol.begin(), paramCol.end(), max_compare);
 
-                if (result.is<int>()) {
-                    max = result.as<int>();
+            //     if (result.is<int>()) {
+            //         max = result.as<int>();
 
-                } else if (result.is<long>()) {
-                    max = result.as<long>();
+            //     } else if (result.is<long>()) {
+            //         max = result.as<long>();
 
-                } else if (result.is<float>()) {
-                    max = result.as<float>();
+            //     } else if (result.is<float>()) {
+            //         max = result.as<float>();
 
-                } else if (result.is<double>()) {
-                    max = result.as<double>();
-                }
-            }
+            //     } else if (result.is<double>()) {
+            //         max = result.as<double>();
+            //     }
+            // }
         } else {    // 标量
             max = field;
         }

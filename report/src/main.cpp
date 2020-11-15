@@ -13,12 +13,12 @@ int main(int argc, const char* argv[]) {
     PlayReport *report = new PlayReport();
 
     // 打印报表1
-    string reportString = report->renderReport(ReportTemplate::sampleReport1(), TabularData::sampleData());
-    cout << reportString << endl;
+    // string reportString = report->renderReport(ReportTemplate::sampleReport1(), TabularData::sampleData());
+    // cout << reportString << endl;
 
     // 打印报表2
-    // reportString = report->renderReport(ReportTemplate::sampleReport2(), TabularData::sampleData()); 
-    // cout << reportString << endl;
+    string reportString = report->renderReport(ReportTemplate::sampleReport2(), TabularData::sampleData()); 
+    cout << reportString << endl;
 
     return 0;
 }
