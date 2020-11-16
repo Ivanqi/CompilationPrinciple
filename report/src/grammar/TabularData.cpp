@@ -3,6 +3,7 @@
 #include "CharStr.h"
 
 #include <memory>
+#include <iostream>
 
 using namespace std;
 
@@ -16,6 +17,16 @@ antlrcpp::Any TabularData::getFieldValue(string fieldName, int rowIndex)
     antlrcpp::Any rtn = nullptr;
 
     rtn = fieldValues[fieldName];
+
+    if (fieldName == "runningsum(sales_amount)") {
+        cout << "runningsum(sales_amount) check" << endl;
+
+        if (rtn.is<DyArray<antlrcpp::Any>*>()) {
+            cout << "runningsum(sales_amount) yes" << endl;     
+        } else {
+            cout << "runningsum(sales_amount) no" << endl;
+        }
+    }
 
     if (rtn.is<DyArray<antlrcpp::Any>*>()) {
         DyArray<antlrcpp::Any> *tmp = rtn.as<DyArray<antlrcpp::Any>*>();

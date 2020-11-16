@@ -15,6 +15,7 @@ class DyArray
         int capacity;   // 数组容量
         int curSize;    // 数组当前包含元素的个数
         std::function<bool(T,T)> compareFunc;
+        T *sortArr;    // 排序数组
     
     private:
         bool initArray()
@@ -22,6 +23,15 @@ class DyArray
             arr = new T[capacity];
 
             return arr != nullptr;
+        }
+
+        T* createSortArr()
+        {
+            sortArr = new T[capacity];
+            for (int i = 0; i < curSize; i++) {
+                sortArr[i] = arr[i];
+            }
+            return sortArr;
         }
 
         void reSize()
@@ -46,8 +56,8 @@ class DyArray
             }
 
             q = partition(sortArr, p, r);
-            quickSort(arr, p, q - 1);
-            quickSort(arr, q + 1, r);
+            quickSort(sortArr, p, q - 1);
+            quickSort(sortArr, q + 1, r);
         }
 
         int partition(T *sortArr, int p, int r)
@@ -57,7 +67,7 @@ class DyArray
             i = j = p;
 
             for (; j < r; j++) {
-                if (compareFunc(arr[j], arr[r])) {
+                if (compareFunc(sortArr[j], sortArr[r])) {
                     if (i != j) {
                         std::swap(sortArr[i], sortArr[j]);
                     }
@@ -203,7 +213,7 @@ class DyArray
 
         T* sort(bool (*compare)(T, T))
         {
-            T *sortArr = arr;
+            T *sortArr = createSortArr();
             compareFunc = compare;
             quickSort(sortArr, 0, curSize - 1);
             return sortArr;
@@ -211,10 +221,17 @@ class DyArray
 
         T* sort()
         {
-            T *sortArr = arr;
+            T *sortArr = createSortArr();
             compareFunc = DyArray::defaultCompare;
             quickSort(sortArr, 0, curSize - 1);
             return sortArr;
+        }
+
+        T max_element(bool (*compare)(T, T))
+        {
+            T *sArr = sort(compare);
+
+            return sArr[0];
         }
 };
 

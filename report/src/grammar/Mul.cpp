@@ -1,7 +1,7 @@
 #include "Mul.h"
 #include "PrimitiveType.h"
-#include <string.h>
 #include "common.h"
+#include <iostream>
 
 antlrcpp::Any Mul::op(antlrcpp::Any obj1, antlrcpp::Any obj2, PrimitiveType *targetType)
 {
@@ -9,6 +9,7 @@ antlrcpp::Any Mul::op(antlrcpp::Any obj1, antlrcpp::Any obj2, PrimitiveType *tar
 
     auto obj1V = Common::conversionType(obj1);
     auto obj2V = Common::conversionType(obj2);
+
     
     if (targetType == PrimitiveType::Integer) {
         int tmp1 = obj1V;

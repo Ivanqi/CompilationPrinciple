@@ -3,6 +3,7 @@
 #include "PrimitiveType.h"
 #include "TabularData.h"
 #include "DyArray.h"
+#include "common.h"
 
 #include <string>
 #include <algorithm>
@@ -207,41 +208,38 @@ antlrcpp::Any FieldEvaluator::rank(PlayReportParser::FunctionCallContext *ctx)
 
         antlrcpp::Any rank = nullptr;
 
+
         // 计算rank
-        antlrcpp::Any tmp = data_->getField(fieldName);
+        antlrcpp::Any field = data_->getField(fieldName);
 
-        if (tmp.is<std::vector<antlrcpp::Any>>()) {
-            vector<antlrcpp::Any> paramCol = tmp.as<std::vector<antlrcpp::Any>>();
-            vector<antlrcpp::Any> sorted;
-            sorted.assign(paramCol.begin(), paramCol.end());
-            sort(sorted.begin(), sorted.end(), max_compare);
-
-            vector<antlrcpp::Any> rankList(paramCol.size());
+        if (field.is<DyArray<antlrcpp::Any>*>()) {
+            DyArray<antlrcpp::Any> *paramCol = field.as<DyArray<antlrcpp::Any>*>();
+            antlrcpp::Any *sorted = paramCol->sort(max_compare);
+            DyArray<antlrcpp::Any> *rankList = new DyArray<antlrcpp::Any>();            
+            
+            int numRows = data_->getNumRows();
             rank = rankList;
 
-            int numRows = data_->getNumRows();
-   
             // O(n^2)
-            for (antlrcpp::Any obj: paramCol) {
-                int index = 0;
-                for (antlrcpp::Any o: sorted) {
-                    if (o.equals(obj)){
+            for (int i = 0; i < paramCol->size(); i++) {
+                for (int j = 0; j < paramCol->size(); j++) {
+                    auto paramColVal = Common::conversionType(paramCol->get(i));
+                    auto sortedVal = Common::conversionType(sorted[j]);
+                    if (paramColVal == sortedVal) {
+                        rankList->push_back(j + 1);
                         break;
                     }
-                    index++;
                 }
-                rankList.emplace_back(numRows - index);
             }
-
+                        
         } else {    //  标量
             rank = 1;
+            // 增加一个字段
         }
-
-        // 增加一个字段
         data_->setField(functionFieldName, rank);
     }
 
-    data_->getField(functionFieldName);
+    rtn = data_->getField(functionFieldName);
     return rtn;
 
 }
@@ -262,25 +260,25 @@ antlrcpp::Any FieldEvaluator::max(PlayReportParser::FunctionCallContext *ctx)
         // 计算 max
         antlrcpp::Any max = nullptr;
         antlrcpp::Any field = data_->getField(fieldName);
-        // todo 这里有点问题
         if (field.is<DyArray<antlrcpp::Any>*>()) {
             DyArray<antlrcpp::Any> *paramCol = field.as<DyArray<antlrcpp::Any>*>();
-            // if (paramCol->size() > 0) {
-            //     antlrcpp::Any result = std::max_element(paramCol.begin(), paramCol.end(), max_compare);
 
-            //     if (result.is<int>()) {
-            //         max = result.as<int>();
+            if (paramCol->size() > 0) {
+                antlrcpp::Any result = paramCol->max_element(max_compare);
 
-            //     } else if (result.is<long>()) {
-            //         max = result.as<long>();
+                if (result.is<int>()) {
+                    max = result.as<int>();
 
-            //     } else if (result.is<float>()) {
-            //         max = result.as<float>();
+                } else if (result.is<long>()) {
+                    max = result.as<long>();
 
-            //     } else if (result.is<double>()) {
-            //         max = result.as<double>();
-            //     }
-            // }
+                } else if (result.is<float>()) {
+                    max = result.as<float>();
+
+                } else if (result.is<double>()) {
+                    max = result.as<double>();
+                }
+            }
         } else {    // 标量
             max = field;
         }
@@ -302,7 +300,7 @@ antlrcpp::Any FieldEvaluator::sum(PlayReportParser::FunctionCallContext *ctx)
     if (!data_->hasField(functionFieldName)) {
         // 计算参数列 
         string fieldName = ctx->expressionList()->expression(0)->getText();
-        if (!data_->hasField(functionFieldName)) {
+        if (!data_->hasField(fieldName)) {
             addCalculatedField(ctx->expressionList()->expression(0));
         }
 
@@ -310,26 +308,16 @@ antlrcpp::Any FieldEvaluator::sum(PlayReportParser::FunctionCallContext *ctx)
         antlrcpp::Any sum = nullptr;
         antlrcpp::Any field = data_->getField(fieldName);
 
-        if (field.is<vector<antlrcpp::Any>>()) {
-            vector<antlrcpp::Any> paramCol = field.as<vector<antlrcpp::Any>>();
-            if (paramCol.size() > 0) {
-                auto tmp = 0;
-                for (antlrcpp::Any obj: paramCol) {
-                    if (obj.is<int>()) {
-                        tmp += obj.as<int>();
-
-                    } else if (obj.is<long>()) {
-                        tmp += obj.as<long>();
-
-                    } else if (obj.is<float>()) {
-                        tmp += obj.as<float>();
-
-                    } else if (obj.is<double>()) {
-                        tmp += obj.as<double>();
-                    }
+        if (field.is<DyArray<antlrcpp::Any>*>()) {
+            DyArray<antlrcpp::Any> *paramCol = field.as<DyArray<antlrcpp::Any>*>();
+            auto sumTmp = 0;
+            if (paramCol->size() > 0) {
+                for (int i = 0; i < paramCol->size(); i++) {
+                    auto tmp = Common::conversionType(paramCol->get(i));
+                    sumTmp += tmp;
                 }
-                sum = tmp;
             }
+            sum = sumTmp;
         } else {    // 标量
             sum = field;
         }
@@ -351,7 +339,7 @@ antlrcpp::Any FieldEvaluator::runningSum(PlayReportParser::FunctionCallContext *
     if (!data_->hasField(functionFieldName)) {
         // 计算参数列 
         string fieldName = ctx->expressionList()->expression(0)->getText();
-        if (!data_->hasField(functionFieldName)) {
+        if (!data_->hasField(fieldName)) {
             addCalculatedField(ctx->expressionList()->expression(0));
         }
 
@@ -360,34 +348,17 @@ antlrcpp::Any FieldEvaluator::runningSum(PlayReportParser::FunctionCallContext *
         // 计算rank
         antlrcpp::Any field = data_->getField(fieldName);
 
-        if (field.is<vector<antlrcpp::Any>>()) {
-            vector<antlrcpp::Any> paramCol = field.as<vector<antlrcpp::Any>>();
-            if (paramCol.size() > 0) {
-                antlrcpp::Any first = paramCol[0];                
-                if (first.is<int>()) {
-                    vector<int> runningSumTmp;
-                    int iSum = 0;
-                    for (antlrcpp::Any o: paramCol) {
-                        iSum += o.as<int>();
-                        runningSumTmp.emplace_back(iSum);
-                    }
+        if (field.is<DyArray<antlrcpp::Any>*>()) {
+            DyArray<antlrcpp::Any> *paramCol = field.as<DyArray<antlrcpp::Any>*>();
+            DyArray<antlrcpp::Any> *runningSumTmp = new DyArray<antlrcpp::Any>();
+            runningSum = runningSumTmp;
 
-                } else if (first.is<long>()) {
-                    long lSum = 0l;
-                    vector<long> runningSumTmp;
-                    for (antlrcpp::Any o: paramCol) {
-                        lSum += o.as<long>();
-                        runningSumTmp.emplace_back(lSum);
-                    }
-
-                } else if (first.is<double>()) {
-                    double dSum = 0.0;
-                    vector<double> runningSumTmp;
-                    for (antlrcpp::Any o: paramCol) {
-                        dSum += o.as<double>();
-                        runningSumTmp.emplace_back(dSum);
-                    }
-
+            if (paramCol->size() > 0) {
+                auto iSum = 0;
+                for (int i = 0; i < paramCol->size(); i++) {
+                    auto tmp = Common::conversionType(paramCol->get(i));
+                    iSum += tmp;
+                    runningSumTmp->push_back(iSum);
                 }
             }
 

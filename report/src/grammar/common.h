@@ -1,23 +1,28 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include "antlr4-runtime.h"
+#include <stdio.h>
 class Common
 {
     public:
         static auto conversionType(antlrcpp::Any obj)
         {
-            auto tmp = 0;
+            auto ret = 0.0;
 
-            if (obj.is<int>()) {
-                tmp = obj.as<int>();
-            } else if (obj.is<double>()) {
-                tmp = obj.as<double>();
+            if (obj.is<double>()) {
+                double tmp = obj.as<double>();
+                ret = tmp;
             } else if (obj.is<float>()) {
-                tmp = obj.as<float>();
+                float tmp = obj.as<float>();
+                ret = tmp;
             } else if (obj.is<long>()) {
-                tmp = obj.as<long>();
-            }
-            return tmp;
+                long tmp = obj.as<long>();
+                ret = tmp;
+            } else if (obj.is<int>()) {
+                int tmp = obj.as<int>();
+                ret = tmp;
+            } 
+            return ret;
         }
 };
 

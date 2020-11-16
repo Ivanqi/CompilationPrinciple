@@ -34,7 +34,6 @@ string PlayReport::renderReport(ReportTemplate *temp, TabularData *data)
         fieldNames.push_back(fieldName);
 
         if (!data->hasField(fieldName)) {
-            cout << fieldName << endl;
             antlrcpp::Any field = evaluator->visit(fieldAST);
             data->setField(fieldName, field);
         }

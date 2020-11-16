@@ -9,6 +9,7 @@ antlrcpp::Any Div::op(antlrcpp::Any obj1, antlrcpp::Any obj2, PrimitiveType *tar
 
     auto obj1V = Common::conversionType(obj1);
     auto obj2V = Common::conversionType(obj2);
+
     
     if (targetType == PrimitiveType::Integer) {
         int tmp1 = obj1V;
@@ -34,7 +35,6 @@ antlrcpp::Any Div::op(antlrcpp::Any obj1, antlrcpp::Any obj2, PrimitiveType *tar
         short tmp1 = obj1V;
         short tmp2 = obj2V;
         rtn = tmp1 / tmp2;
-        
     }
 
     return rtn;
