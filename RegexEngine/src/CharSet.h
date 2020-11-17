@@ -39,12 +39,12 @@ class CharSet
         static vector<char> Alphabet;
 
         // 一些常量
-        static CharSet digit;
-        static CharSet smallLetter;
-        static CharSet capitalLeter;
-        static CharSet letter;
-        static CharSet letterOrDigit;
-        static CharSet whiteSpace;
+        static CharSet* digit;
+        static CharSet* smallLetter;
+        static CharSet* capitalLeter;
+        static CharSet* letter;
+        static CharSet* letterOrDigit;
+        static CharSet* whiteSpace;
 
         CharSet()
         {
