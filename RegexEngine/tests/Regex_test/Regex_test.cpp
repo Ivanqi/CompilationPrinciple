@@ -13,12 +13,12 @@ void test_case_1() {
     rootNode->dump();
 
     cout << "\nNFA states:" << endl;
-    State **states = regexToNFA(rootNode);
+    State **states = Regex::regexToNFA(rootNode);
     states[0]->dump();
 }
 
 int main() {
-    
+
     test_case_1();
     return 0;
 }

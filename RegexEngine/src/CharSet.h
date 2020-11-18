@@ -29,7 +29,7 @@ class CharSet
         bool exclude = false;
 
         // 子集
-        vector<charSet*> subSets;
+        vector<CharSet*> subSets;
 
         // ascii表，也就是0到127
         static vector<char> ascii;
@@ -56,18 +56,18 @@ class CharSet
             CharSet(fromChar, fromChar, false);
         }
 
-        CharSet(char fromChar, cha toChar)
+        CharSet(char fromChar, char toChar)
         {
             CharSet(fromChar, toChar, false);
         }
 
-        CharSet(char fromChar, cha toChar, bool exclude)
+        CharSet(char fromChar, char toChar, bool exclude)
             :fromChar(fromChar), toChar(fromChar), exclude(exclude)
         {
             
         }
 
-        void addSubSet(char charSet);
+        void addSubSet(CharSet *charSet);
 
 
         /**
@@ -90,18 +90,18 @@ class CharSet
         /**
          * 初始化字母表。目前支持整个ASCII表，128个值
          */
-        static vector<char> ascii();
+        static vector<char> asciiDeclare();
 
         /**
          * 包含字母和数字的字母表
          */
-        static vector<char> letterAndDigits();
+        static vector<char> letterAndDigitsDeclare();
 
-        static CharSet* initLetterOrDigit();
+        static CharSet* initLetterOrDigitDeclare();
 
-        static CharSet* initLetter();
+        static CharSet* initLetterDeclare();
 
-        static CharSet* initWhiteSpace();
+        static CharSet* initWhiteSpaceDeclare();
 
         bool equals(Any obj);
 

@@ -2,8 +2,10 @@
 #define REGEX_H
 
 #include <string>
-#include <vecotr>
+#include <vector>
 #include <map>
+
+#include "State.h"
 
 class State;
 class GrammarNode;
@@ -57,7 +59,7 @@ class Regex
         /**
          * 把NFA转换成
          */
-        static std::vecotr<DFAState*> NFA2DFA(State *startState, std::vecotr<char> alphabet);
+        static std::vector<DFAState*> NFA2DFA(State *startState, std::vector<char> alphabet);
 
         /**
          * 根据NFA State集合，查找是否已经存在一个DFAState，包含同样的NFA状态

@@ -14,7 +14,7 @@ class DFAState: public State
 {
     private:
         // 组成这个DFAState的NFAState的集合
-        std::set<State*> states = nullptr
+        std::set<State*> states;
 
     public:
         DFAState(std::set<State*> states)

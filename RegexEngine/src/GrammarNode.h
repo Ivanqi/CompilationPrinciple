@@ -18,7 +18,7 @@ enum GrammarNodeType
     Epsilon // 空集
 };
 
-class Token;
+class Tokens;
 class CharSet;
 class Any;
 
@@ -50,7 +50,7 @@ class GrammarNode
         string name;
 
         // 语法规则中的Token,即终结符
-        Token *token = nullptr;
+        Tokens *tokens = nullptr;
 
         // 是否被词法处理器忽略，比如空白字符
         bool neglect = false;
@@ -64,33 +64,39 @@ class GrammarNode
 
         }
 
-        GrammarNode(string name, GrammarNodeType type, GrammarNode *child, Token *token)
+        GrammarNode(string name, GrammarNodeType type)
+            :name(name), type(type)
+        {
+
+        }
+
+        GrammarNode(string name, GrammarNodeType type, GrammarNode *child, Tokens *tokens)
             :name(name), type(type)
         {
             children.push_back(child);
-            token = token;
+            tokens = tokens;
         }
 
-        GrammarNode(string name, GrammarNodeType type, vector<GrammarNode> child, Token *token)
-            :name(name), type(type), token(token)
+        GrammarNode(string name, GrammarNodeType type, vector<GrammarNode*> child, Tokens *tokens)
+            :name(name), type(type), tokens(tokens)
         {
-            children.push_back(child);
+            children.insert(children.end(), child.begin(), child.end());
         }
 
-        GrammarNode(Token *token)
-            :token(token)
+        GrammarNode(Tokens *tokens)
+            :tokens(tokens)
         {
 
         }
 
         GrammarNode(CharSet *charSet)
-            :charSet(charSet);
+            :charSet(charSet)
         {
             type = GrammarNodeType::Char;
         }
 
         GrammarNode(string name, CharSet *charSet)
-            :name(name), charSet(charSet);
+            :name(name), charSet(charSet)
         {
             type = GrammarNodeType::Char;
         }
@@ -103,7 +109,7 @@ class GrammarNode
 
         GrammarNode* createChild(string name, GrammarNodeType type);
 
-        GrammarNode* createChild(Token *token);
+        GrammarNode* createChild(Tokens *tokens);
 
         // 添加子节点，并创建缺省名称
         void addChild(GrammarNode *child);
@@ -159,7 +165,7 @@ class GrammarNode
         /**
          * 打印图。因为存在循环引用，所有不能以树状的方式打印
          */
-        static vovid dumpGraph(GrammarNode *node, set<GrammarNode*> dumpedNodes);
+        static void dumpGraph(GrammarNode *node, set<GrammarNode*> dumpedNodes);
 
         /**
          * 以某节点作为起始节点，判读是树还是图
@@ -199,7 +205,7 @@ class GrammarNode
 
         int getMaxTimes();
 
-        Token* getToken();
+        Tokens* getToken();
 
         bool isNeglect();
 

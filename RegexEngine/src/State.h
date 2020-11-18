@@ -1,4 +1,4 @@
-#include STATE_H
+#ifndef STATE_H
 #define STATE_H
 
 #include <string>
@@ -49,7 +49,7 @@ class State
 
         }
 
-        void addTransition(Transition *transition, State *toState)
+        void addTransition(Transition *transition, State *toState);
 
         /**
          * 把另一个状态的连线全部拷贝成自己的

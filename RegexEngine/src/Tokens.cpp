@@ -1,83 +1,83 @@
-#include "Token.h"
+#include "Tokens.h"
 
-Token* Token::EOF = new Token("$");
+Tokens* Tokens::eof = new Tokens("$");
 
 // Token类型
-string Token::getType()
+string Tokens::getType()
 {
     return type;
 }
 
-void Token::setType(string type)
+void Tokens::setType(string type)
 {
     type = type;
 }
 
-string Token::getText()
+string Tokens::getText()
 {
     return text;
 }
 
-void Token::setText(string text)
+void Tokens::setText(string text)
 {
     text = text;
 }
 
-int Token::getStartPos()
+int Tokens::getStartPos()
 {
     return startPos;
 }
 
-void Token::setStartPos(int startPos)
+void Tokens::setStartPos(int startPos)
 {
     startPos = startPos;
 }
 
-int Token::getEndPos()
+int Tokens::getEndPos()
 {
     return endPos;
 }
 
-void Token::setEndPos(int endPos)
+void Tokens::setEndPos(int endPos)
 {
     endPos = endPos;
 }
 
-int Token::getLineNumber()
+int Tokens::getLineNumber()
 {
     return lineNumber;
 }
 
-void Token::setLineNumber(int lineNumber)
+void Tokens::setLineNumber(int lineNumber)
 {
     lineNumber = lineNumber;
 }
 
-int Token::getStartColumn()
+int Tokens::getStartColumn()
 {
     return startColumn;
 }
 
-void Token::setStartColumn(int startColumn)
+void Tokens::setStartColumn(int startColumn)
 {
     startColumn = startColumn;
 }
 
-int Token::getEndColumn()
+int Tokens::getEndColumn()
 {
     return endColumn;
 }
 
-void Token::setEndColumn(int endColumn)
+void Tokens::setEndColumn(int endColumn)
 {
     endColumn = endColumn;
 }
 
-bool Token::equals(Any obj)
+bool Tokens::equals(Any obj)
 {
-    if (this == obj) return true;
+    // if (this == obj) return true;
 
-    Token *token = obj.as<Token*>();
+    Tokens *token = obj.as<Tokens*>();
 
     if (!token->equals(token->type)) {
         return false;
@@ -96,7 +96,7 @@ bool Token::equals(Any obj)
     return true;
 }
 
-string Token::toString()
+string Tokens::toString()
 {
     string rtn = type;
 

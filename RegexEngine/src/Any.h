@@ -177,7 +177,10 @@ struct Any
             return *this;
         }
 
-        virtual ~Any();
+        ~Any()
+        {
+            delete _ptr;
+        }
 
         virtual bool equals (Any other) const
         {
@@ -190,9 +193,9 @@ Any::Any(std::nullptr_t&& ) : _ptr(nullptr)
 {
 }
 
-Any::~Any()
-{
-    delete _ptr;
-}
+// Any::~Any()
+// {
+//     delete _ptr;
+// }
 
 #endif

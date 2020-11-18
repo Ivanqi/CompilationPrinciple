@@ -1,6 +1,6 @@
 #include "GrammarNode.h"
 #include "CharSet.h"
-#include "Token.h"
+#include "Tokens.h"
 #include "Any.h"
 
 GrammarNode* GrammarNode::createChild(CharSet *charSet)
@@ -31,9 +31,9 @@ GrammarNode* GrammarNode::createChild(string name, GrammarNodeType type)
     return grammarNode;
 }
 
-GrammarNode* GrammarNode::createChild(Token *token)
+GrammarNode* GrammarNode::createChild(Tokens *tokens)
 {
-    GrammarNode *grammarNode = new GrammarNode(token);
+    GrammarNode *grammarNode = new GrammarNode(tokens);
     grammarNode->type = GrammarNodeType::Token;
     addChild(grammarNode);
     return grammarNode;
@@ -99,8 +99,8 @@ string GrammarNode::getName()
 
 string GrammarNode::getGrammarName()
 {
-    if (token != nullptr) {
-        return token->getType();
+    if (tokens != nullptr) {
+        return tokens->getType();
     } else if (isNamedNode()) {
         return name;
     }
@@ -132,7 +132,7 @@ bool GrammarNode::equals(Any obj)
 
     // 比较Token
     if (type == GrammarNodeType::Token) {
-        return token->equals(node->token);
+        return tokens->equals(node->tokens);
     } else if (type == GrammarNodeType::Epsilon) {  // Epsilon
        return true; 
     } else if (type == GrammarNodeType::Char) { // 比较字符集合
@@ -162,15 +162,15 @@ string GrammarNode::toString()
 
     if (charSet != nullptr) {
         rtn = charSet->toString();
-    } else if (token != nullptr) {
-        if (token->getText().length() > 0) {
-            rtn = "'" + token->getText() + "'";
+    } else if (tokens != nullptr) {
+        if (tokens->getText().length() > 0) {
+            rtn = "'" + tokens->getText() + "'";
         } else {
-            rtn = token->getType();
+            rtn = tokens->getType();
         }
     } else if (name.length() > 0) {
         rtn = name;
-    } else if (type != nullptr) {
+    } else if (type >= 0) {
         rtn = to_string(type);
     } else {
         rtn = "GrammarNode";
@@ -184,7 +184,7 @@ string GrammarNode::toString()
         } else if (minTimes == 1 && maxTimes == -1) {
             rtn = rtn + "+";
         } else {
-            rtn = rnt + "(" + minTimes + "," + maxTimes + ")";
+            rtn = rtn + "(" + to_string(minTimes) + "," + to_string(maxTimes) + ")";
         }
     }
 
@@ -296,7 +296,7 @@ void dumpGraph(GrammarNode *node, set<GrammarNode*> dumpedNodes)
     }
     dumpedNodes.insert(node);
 
-    for (GrammarNode *child : node->children) {
+    for (GrammarNode *child : node->getChildren()) {
         if (dumpedNodes.find(child) != dumpedNodes.end()) {
             dumpGraph(child, dumpedNodes);
         }
@@ -351,7 +351,7 @@ bool GrammarNode::isNullable()
     } else if (type == GrammarNodeType::Or) {
         bool anyNullable = false;
         for (GrammarNode *child : children) {
-            if (child->isNullable) {
+            if (child->isNullable()) {
                 anyNullable = true;
                 break;
             }
@@ -374,9 +374,9 @@ vector<GrammarNode*>  GrammarNode::getAllNodes()
 
 void GrammarNode::getAllNodes(GrammarNode *node, vector<GrammarNode*> allNodes)
 {
-    allNodes.insert(node);
+    allNodes.push_back(node);
     for (GrammarNode *child: node->children) {
-        auto it = find(allNodes.begin(), allNodes.end(), child)
+        auto it = find(allNodes.begin(), allNodes.end(), child);
         if (it != allNodes.end()) {
             getAllNodes(child, allNodes);
         }
@@ -396,7 +396,7 @@ bool GrammarNode::isLeaf()
  */
 bool GrammarNode::isToken()
 {
-    return token != nullptr;
+    return tokens != nullptr;
 }
 
 CharSet* GrammarNode::getCharSet()
@@ -414,12 +414,12 @@ int GrammarNode::getMaxTimes()
     return maxTimes;
 }
 
-Token* GrammarNode::getToken()
+Tokens* GrammarNode::getToken()
 {
-    return token;
+    return tokens;
 }
 
-bool iGrammarNode::isNeglect()
+bool GrammarNode::isNeglect()
 {
     return neglect;
 }

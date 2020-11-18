@@ -1,5 +1,5 @@
-#ifndef TOKEN_H
-#define TOKEN_H
+#ifndef TOKENS_H
+#define TOKENS_H
 
 #include <string>
 #include <Any.h>
@@ -9,7 +9,7 @@ using namespace std;
  * 一个简单的Token
  * 具体文本值，类型，在字符串中的位置等属性
  */
-class Token
+class Tokens
 {
     private:
         // token 类型
@@ -28,12 +28,12 @@ class Token
         int endColumn = 0;
 
         // 程序结束符号
-        static Token* EOF;
+        static Tokens* eof;
 
     public:
-        Token(string type);
+        Tokens(string type);
 
-        Token(string type, string text);
+        Tokens(string type, string text);
 
         // Token类型
         string getType();

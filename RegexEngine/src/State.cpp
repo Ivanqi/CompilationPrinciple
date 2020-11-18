@@ -2,6 +2,8 @@
 #include "Transition.h"
 #include "GrammarNode.h"
 
+int State::count = 0;
+
 void State::addTransition(Transition *transition, State *toState)
 {
     transitions.push_back(transition);
@@ -73,7 +75,7 @@ void State::dump(State *state, set<State*> dumpedStates)
 
     for (Transition *transition: state->getTransitions()) {
         State *state2 = state->getState(transition);
-        if (dumpedStates.find() != dumpedStates.end()) {
+        if (dumpedStates.find(state2) != dumpedStates.end()) {
             dump(state2, dumpedStates);
         }
     }

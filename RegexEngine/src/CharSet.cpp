@@ -1,17 +1,17 @@
 #include "CharSet.h"
 
-vector<char> CharSet::ascii = CharSet::ascii();
+vector<char> CharSet::ascii = CharSet::asciiDeclare();
 
-vector<char> CharSet::letterAndDigits = CharSet::letterAndDigits();
+vector<char> CharSet::letterAndDigits = CharSet::letterAndDigitsDeclare();
 
 vector<char> CharSet::Alphabet = CharSet::ascii;
 
 CharSet* CharSet::digit = new CharSet('0', '9');                // 数字
 CharSet* CharSet::smallLetter = new CharSet('a', 'z');          // 小写字母
 CharSet* CharSet::capitalLeter = new CharSet('A', 'Z');         // 大写字母
-CharSet* CharSet::letter = CharSet::initLetter();               // 字母，包括大写和小写
-CharSet* CharSet::letterOrDigit = CharSet::initLetterOrDigit(); // 字母和数字
-CharSet* CharSet::whiteSpace = CharSet::initWhiteSpace();       // 空白字符
+CharSet* CharSet::letter = CharSet::initLetterDeclare();               // 字母，包括大写和小写
+CharSet* CharSet::letterOrDigit = CharSet::initLetterOrDigitDeclare(); // 字母和数字
+CharSet* CharSet::whiteSpace = CharSet::initWhiteSpaceDeclare();       // 空白字符
 
 void CharSet::addSubSet(CharSet *charSet)
 {
@@ -23,7 +23,7 @@ void CharSet::addSubSet(CharSet *charSet)
  */
 bool CharSet::match(char ch)
 {
-    bool ret = false;
+    bool rtn = false;
     if (subSets.size() > 0) {
         for (CharSet *subSet: subSets) {
             rtn = subSet->match(ch);
@@ -47,9 +47,9 @@ string CharSet::toString()
     if (subSets.size() > 0) {
         string sb;
         if (exclude) {
-            sb.append('^');
+            sb.append("^");
             if (subSets.size() > 1) {
-                sb.append('(');
+                sb.append("(");
             }
         }
 
@@ -57,11 +57,11 @@ string CharSet::toString()
             if (i > 0) {
                 sb.append("|");
             }
-            sb.append(subSets[i]);
+            sb.append(subSets[i]->toString());
         }
 
         if (exclude && subSets.size() > 1) {
-            sb.append(')');
+            sb.append(")");
         }
 
         return sb;
@@ -70,10 +70,14 @@ string CharSet::toString()
         sb.push_back(fromChar);
         return sb;
     } else {
+        string fromCharS;
+        string toCharS;
+        fromCharS.push_back(fromChar);
+        toCharS.push_back(toChar);
         if (exclude) {
-            return "[^" + fromChar + " - " + toChar + "]";
+            return "[^" + fromCharS + " - " + fromCharS + "]";
         } else {
-            return "[" + fromChar + " - " + toChar + "]";
+            return "[" + fromCharS + " - " + fromCharS + "]";
         }
     }
 }
@@ -123,7 +127,7 @@ CharSet* CharSet::getSupplementarySet()
 /**
  * 初始化字母表。目前支持整个ASCII表，128个值
  */
-vector<char> CharSet::ascii()
+vector<char> CharSet::asciiDeclare()
 {
     vector<char> Alphabet;
 
@@ -137,7 +141,7 @@ vector<char> CharSet::ascii()
 /**
  * 包含字母和数字的字母表
  */
-vector<char> CharSet::letterAndDigits()
+vector<char> CharSet::letterAndDigitsDeclare()
 {
     vector<char> Alphabet;
 
@@ -156,7 +160,7 @@ vector<char> CharSet::letterAndDigits()
     return Alphabet;
 }
 
-CharSet* CharSet::initLetterOrDigit()
+CharSet* CharSet::initLetterOrDigitDeclare()
 {
     CharSet *charSet = new CharSet();
     charSet->addSubSet(digit);
@@ -165,7 +169,7 @@ CharSet* CharSet::initLetterOrDigit()
     return charSet;
 }
 
-CharSet* CharSet::initLetter()
+CharSet* CharSet::initLetterDeclare()
 {
     CharSet *charSet = new CharSet();
     charSet->addSubSet(smallLetter);
@@ -174,10 +178,10 @@ CharSet* CharSet::initLetter()
 }
 
 
-CharSet* CharSet::initWhiteSpace()
+CharSet* CharSet::initWhiteSpaceDeclare()
 {
     CharSet *charSet = new CharSet();
-    charSet->addSubSet(new CharSet('    '));
+    charSet->addSubSet(new CharSet(' '));
     charSet->addSubSet(new CharSet('\t'));
     charSet->addSubSet(new CharSet('\n'));
     return charSet;
@@ -212,6 +216,6 @@ bool CharSet::isEmpty()
         }
         return empty;
     } else {
-        return fromChar == nullptr;
+        return fromChar == '\0';
     }
 }

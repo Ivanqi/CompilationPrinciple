@@ -6,7 +6,7 @@ class Any;
 
 class Transition
 {
-    private:
+    public:
         /**
          * 对于重复的情况，最终可以重复几次
          * 这是把GrammarNode中的maxTimes属性转义到这里来了
@@ -18,10 +18,10 @@ class Transition
         /**
          * 是否满足迁移条件
          */
-        bool match(Any obj) = 0;
+        virtual bool match(Any obj) = 0;
 
         // 是否是一个Epsilon转换
-        bool isEpsilon() = 0;
+        virtual bool isEpsilon() = 0;
 
         int getMaxtTime()
         {

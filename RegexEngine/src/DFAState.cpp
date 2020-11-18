@@ -1,6 +1,7 @@
 #include "DFAState.h"
 #include "Any.h"
 #include "Transition.h"
+#include "GrammarNode.h"
 
 std::set<State*> DFAState::getStates()
 {
@@ -23,7 +24,25 @@ DFAState* DFAState::getNextState(Any obj)
     return nullptr;
 }
 
-std::string DFAState::toString();
+std::string DFAState::toString()
+{
+    string rtn = State::toString();
+    rtn += "\tNFA states: ";
+    int i = 0;
+
+    for (State *state: states) {
+        if (i++ > 0) {
+            rtn += ", ";
+        }
+        rtn += state->getName();
+        if (state->getGrammarNode() != nullptr && state->getGrammarNode()->isNamedNode()) {
+            rtn += "(" + state->getGrammarNode()->getName() + ")";
+        }
+    }
+
+    rtn += "\n";
+    return rtn;
+}
 
 /**
  * 只要它所包含的NFA有一个是接受状态，该DFAState就是接受状态

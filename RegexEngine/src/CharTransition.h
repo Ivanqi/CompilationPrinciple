@@ -19,15 +19,13 @@ class CharTransition: public Transition
         }
 
         CharTransition(CharSet *charSet)
-            condition = CharSet
         {
-
+            condition = charSet;
         }
 
         CharTransition(int maxTimes)
-            :maxTimes(maxTimes)
         {
-
+            Transition::maxTimes = maxTimes;
         }
 
         /**
