@@ -3,9 +3,9 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <iostream>
+#include <algorithm>
 
-// #include "CharSet.h"
-// #include "Token.h"
 using namespace std;
 
 // 语法节点的类型
@@ -117,7 +117,7 @@ class GrammarNode
         /**
          * 子节点列表，只读
          */
-        vector<GrammarNode*> chaildren();
+        vector<GrammarNode*> getChildren();
 
         int getChildCount();
 
@@ -157,11 +157,53 @@ class GrammarNode
         static void dumpTree(GrammarNode *node, string indent);
 
         /**
+         * 打印图。因为存在循环引用，所有不能以树状的方式打印
+         */
+        static vovid dumpGraph(GrammarNode *node, set<GrammarNode*> dumpedNodes);
+
+        /**
          * 以某节点作为起始节点，判读是树还是图
          */
         static bool isGraph(GrammarNode *node, set<GrammarNode*> scannedNodes);
 
-        
+        /**
+         * 该节点是否是可空的，也就是能否返回Epsilon
+         * 算法：
+         *  1. 如果是Epsilon节点，或者是 * 或 ?,可空
+         *  2. And节点：所有子节点都可空
+         *  3. Or节点: 任意子节点可空
+         *  4. 其他，不为空
+         */
+        bool isNullable();
+
+        /**
+         * 获得以本节点为起始节点，能到达的所有语法节点
+         */
+        vector<GrammarNode*>  getAllNodes();
+
+        static void getAllNodes(GrammarNode *node, vector<GrammarNode*> allNodes);
+
+        /**
+         * 是否是叶子节点
+         */
+        bool isLeaf();
+
+        /**
+         * 是否代表一个Token
+         */
+        bool isToken();
+
+        CharSet* getCharSet();
+
+        int getMinTimes();
+
+        int getMaxTimes();
+
+        Token* getToken();
+
+        bool isNeglect();
+
+        void setNeglect(bool neglect);
 };
 
 #endif
