@@ -31,9 +31,17 @@ class Tokens
         static Tokens* eof;
 
     public:
-        Tokens(string type);
+        Tokens(string type)
+            :type(type)
+        {
+            
+        }
 
-        Tokens(string type, string text);
+        Tokens(string type, string text)
+            :type(type), text(text)
+        {
+
+        }
 
         // Token类型
         string getType();

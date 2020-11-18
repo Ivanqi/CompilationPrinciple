@@ -289,7 +289,7 @@ void GrammarNode::dumpTree(GrammarNode *node, string indent)
 /**
  * 打印图。因为存在循环引用，所有不能以树状的方式打印
  */
-void dumpGraph(GrammarNode *node, set<GrammarNode*> dumpedNodes)
+void GrammarNode::dumpGraph(GrammarNode *node, set<GrammarNode*> dumpedNodes)
 {
     if (node->isNamedNode()) {
         cout << node->getText();
