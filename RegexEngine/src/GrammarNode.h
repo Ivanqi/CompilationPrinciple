@@ -70,6 +70,8 @@ class GrammarNode
 
         }
 
+        ~GrammarNode();
+
         GrammarNode(string name, GrammarNodeType type, GrammarNode *child, Tokens *tokens)
             :name(name), type(type)
         {
@@ -165,12 +167,12 @@ class GrammarNode
         /**
          * 打印图。因为存在循环引用，所有不能以树状的方式打印
          */
-        static void dumpGraph(GrammarNode *node, set<GrammarNode*> dumpedNodes);
+        static void dumpGraph(GrammarNode *node, set<GrammarNode*> &dumpedNodes);
 
         /**
          * 以某节点作为起始节点，判读是树还是图
          */
-        static bool isGraph(GrammarNode *node, set<GrammarNode*> scannedNodes);
+        static bool isGraph(GrammarNode *node, set<GrammarNode*> &scannedNodes);
 
         /**
          * 该节点是否是可空的，也就是能否返回Epsilon

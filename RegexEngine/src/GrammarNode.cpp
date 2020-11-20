@@ -3,6 +3,14 @@
 #include "Tokens.h"
 #include "Any.h"
 
+GrammarNode *GrammarNode::EPSILON = new GrammarNode(GrammarNodeType::Epsilon);
+
+GrammarNode::~GrammarNode()
+{
+    delete tokens;
+    delete GrammarNode::EPSILON;
+}
+
 GrammarNode* GrammarNode::createChild(CharSet *charSet)
 {
     GrammarNode *grammarNode = new GrammarNode(charSet);
@@ -43,7 +51,7 @@ GrammarNode* GrammarNode::createChild(Tokens *tokens)
 void GrammarNode::addChild(GrammarNode *child)
 {
     children.push_back(child);
-    if (child->name == "") {
+    if (child->name.length() <= 0) {
         child->name = "_" + child->type + children.size();
         if (name.size() > 0) {
             child->name = name + child->name;
@@ -61,7 +69,7 @@ void GrammarNode::addChild(GrammarNode *child)
  */
 bool GrammarNode::isNamedNode()
 {
-    if (name.length() > 1 && name[0] != '_') {
+    if (name.length() >= 1 && name[0] != '_') {
         return true;
     }
 
@@ -289,7 +297,7 @@ void GrammarNode::dumpTree(GrammarNode *node, string indent)
 /**
  * 打印图。因为存在循环引用，所有不能以树状的方式打印
  */
-void GrammarNode::dumpGraph(GrammarNode *node, set<GrammarNode*> dumpedNodes)
+void GrammarNode::dumpGraph(GrammarNode *node, set<GrammarNode*> &dumpedNodes)
 {
     if (node->isNamedNode()) {
         cout << node->getText();
@@ -306,7 +314,7 @@ void GrammarNode::dumpGraph(GrammarNode *node, set<GrammarNode*> dumpedNodes)
 /**
  * 以某节点作为起始节点，判读是树还是图
  */
-bool GrammarNode::isGraph(GrammarNode *node, set<GrammarNode*> scannedNodes)
+bool GrammarNode::isGraph(GrammarNode *node, set<GrammarNode*> &scannedNodes)
 {
     scannedNodes.insert(node);
     for (GrammarNode *child: node->children) {
