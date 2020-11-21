@@ -7,7 +7,7 @@ override SRC := $(SRC) $(TEST)
 TARGET := Regex
 CXX := g++
 INCLUDE := -I $(SRCDIR)/src/
-CFLAGS := -std=c++11 -g
+CFLAGS := -std=c++17 -g
 
 
 $(TARGET): $(SRC)

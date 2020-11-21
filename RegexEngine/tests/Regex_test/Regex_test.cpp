@@ -12,9 +12,9 @@ void test_case_1() {
     GrammarNode *rootNode = Regex::sampleGrammar1();
     rootNode->dump();
 
-    cout << "\nNFA states:" << endl;
-    State **states = Regex::regexToNFA(rootNode);
-    states[0]->dump();
+    // cout << "\nNFA states:" << endl;
+    // State **states = Regex::regexToNFA(rootNode);
+    // states[0]->dump();
 }
 
 int main() {

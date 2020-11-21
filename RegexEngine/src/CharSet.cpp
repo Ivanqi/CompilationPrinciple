@@ -13,6 +13,16 @@ CharSet* CharSet::letter = CharSet::initLetterDeclare();               // 字母
 CharSet* CharSet::letterOrDigit = CharSet::initLetterOrDigitDeclare(); // 字母和数字
 CharSet* CharSet::whiteSpace = CharSet::initWhiteSpaceDeclare();       // 空白字符
 
+CharSet::~CharSet()
+{
+    delete digit;
+    delete smallLetter;
+    delete capitalLeter;
+    delete letter;
+    delete letterOrDigit;
+    delete whiteSpace;
+}
+
 void CharSet::addSubSet(CharSet *charSet)
 {
     subSets.push_back(charSet);
@@ -201,6 +211,7 @@ bool CharSet::equals(Any obj)
             }
         }
     }
+    return false;
 }
 
 // 是不是空集

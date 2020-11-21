@@ -51,6 +51,8 @@ class CharSet
             
         }
 
+        ~CharSet();
+
         CharSet(char fromChar)
         {
             CharSet(fromChar, fromChar, false);
