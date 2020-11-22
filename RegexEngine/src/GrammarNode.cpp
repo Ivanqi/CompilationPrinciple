@@ -72,7 +72,7 @@ bool GrammarNode::isNamedNode()
 /**
  * 子节点列表，只读
  */
-vector<unique_ptr<GrammarNode>>& GrammarNode::getChildren()
+vector<shared_ptr<GrammarNode>>& GrammarNode::getChildren()
 {
     return children;
 }
@@ -148,7 +148,7 @@ bool GrammarNode::equals(Any obj)
     }
 
     for (int i = 0; i < getChildren().size(); i++) {
-        if (!children[i]->equals(node->children[i])) {
+        if (!children[i].get()->equals(node->children[i].get())) {
             return false;
         }
     }
@@ -223,7 +223,7 @@ string GrammarNode::getText()
                 sb.append(delim);
             }
 
-            GrammarNode *child = children[i];
+            GrammarNode *child = children[i].get();
 
             if (child->isNamedNode()) {
                 sb.append(child->toString());
@@ -285,7 +285,8 @@ void GrammarNode::dumpTree(GrammarNode *node, string indent)
         cout << indent << node->toString();
     }
 
-    for (GrammarNode *child : node->children) {
+    for (size_t i = 0; i < node->children.size(); i++) {
+        GrammarNode *child = node->children[i].get();
         dumpTree(child, indent + "\t");
     }
 }
@@ -298,9 +299,11 @@ void GrammarNode::dumpGraph(GrammarNode *node, set<GrammarNode*> &dumpedNodes)
     if (node->isNamedNode()) {
         cout << node->getText();
     }
+
     dumpedNodes.insert(node);
 
-    for (GrammarNode *child : node->getChildren()) {
+    for (size_t i = 0; i < node->children.size(); i++) {
+        GrammarNode *child = node->children[i].get();
         if (dumpedNodes.find(child) != dumpedNodes.end()) {
             dumpGraph(child, dumpedNodes);
         }
@@ -347,7 +350,8 @@ bool GrammarNode::isNullable()
         return true;
     } else if (type == GrammarNodeType::And) {
         bool allNullable = true;
-        for (GrammarNode *child : children) {
+        for (size_t i = 0; i < children.size(); i++) {
+            GrammarNode *child = children[i].get();
             if (!child->isNullable()) {
                 allNullable = false;
                 break;
@@ -356,8 +360,9 @@ bool GrammarNode::isNullable()
         rtn = allNullable;
     } else if (type == GrammarNodeType::Or) {
         bool anyNullable = false;
-        for (GrammarNode *child : children) {
-            if (child->isNullable()) {
+        for (size_t i = 0; i < children.size(); i++) {
+            GrammarNode *child = children[i].get();
+            if (!child->isNullable()) {
                 anyNullable = true;
                 break;
             }
@@ -381,7 +386,8 @@ vector<GrammarNode*>  GrammarNode::getAllNodes()
 void GrammarNode::getAllNodes(GrammarNode *node, vector<GrammarNode*> allNodes)
 {
     allNodes.push_back(node);
-    for (GrammarNode *child: node->children) {
+    for (size_t i = 0; i < node->children.size(); i++) {
+        GrammarNode *child = node->children[i].get();
         auto it = find(allNodes.begin(), allNodes.end(), child);
         if (it != allNodes.end()) {
             getAllNodes(child, allNodes);

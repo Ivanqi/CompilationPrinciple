@@ -42,7 +42,7 @@ class GrammarNode
 {
     private:
         // 子节点
-        vector<unique_ptr<GrammarNode>> children;
+        vector<shared_ptr<GrammarNode>> children;
 
         // 节点类型
         GrammarNodeType type;
@@ -82,11 +82,11 @@ class GrammarNode
         GrammarNode(string name, GrammarNodeType type, GrammarNode *child, Tokens *tokens)
             :name(name), type(type)
         {
-            // children.push_back(unique_ptr<GrammarNode>(child));
+            children.push_back(unique_ptr<GrammarNode>(child));
             tokens_.reset(tokens);
         }
 
-        GrammarNode(string name, GrammarNodeType type, vector<GrammarNode*> child, Tokens *tokens)
+        GrammarNode(string name, GrammarNodeType type, vector<shared_ptr<GrammarNode>>& child, Tokens *tokens)
             :name(name), type(type)
         {
             children.insert(children.end(), child.begin(), child.end());
@@ -132,7 +132,7 @@ class GrammarNode
         /**
          * 子节点列表，只读
          */
-        vector<unique_ptr<GrammarNode>>& getChildren();
+        vector<shared_ptr<GrammarNode>>& getChildren();
 
         int getChildCount();
 

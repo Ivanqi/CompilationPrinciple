@@ -190,20 +190,20 @@ GrammarNode* Regex::sampleGrammar1()
 {
     GrammarNode *node = new GrammarNode("regex1", GrammarNodeType::Or);
 
-    // int 关键字
+    // // int 关键字
     GrammarNode *intNode = node->createChild(GrammarNodeType::And);
     intNode->createChild(new CharSet('i'));
     intNode->createChild(new CharSet('n'));
     intNode->createChild(new CharSet('t'));
 
-    // 标识符
+    // // 标识符
     GrammarNode *idNode = node->createChild(GrammarNodeType::And);
     GrammarNode *firstLetter = idNode->createChild(CharSet::letter);
 
     GrammarNode *letterOrDigit = idNode->createChild(CharSet::letterOrDigit);
     letterOrDigit->setRepeatTimes(0, -1);
 
-    // 数字字面量
+    // // 数字字面量
     GrammarNode *literalNode = node->createChild(CharSet::digit);
     literalNode->setRepeatTimes(1, -1);
 
