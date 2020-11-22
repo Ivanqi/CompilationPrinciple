@@ -1,15 +1,8 @@
 #include "GrammarNode.h"
 #include "CharSet.h"
-#include "Tokens.h"
 #include "Any.h"
 
-GrammarNode *GrammarNode::EPSILON = new GrammarNode(GrammarNodeType::Epsilon);
-
-GrammarNode::~GrammarNode()
-{
-    delete tokens;
-    delete GrammarNode::EPSILON;
-}
+unique_ptr<GrammarNode> GrammarNode::EPSILON_ = unique_ptr<GrammarNode>(new GrammarNode(GrammarNodeType::Epsilon));
 
 GrammarNode* GrammarNode::createChild(CharSet *charSet)
 {
@@ -50,7 +43,7 @@ GrammarNode* GrammarNode::createChild(Tokens *tokens)
 // 添加子节点，并创建缺省名称
 void GrammarNode::addChild(GrammarNode *child)
 {
-    children.push_back(child);
+    children.emplace_back(unique_ptr<GrammarNode>(child));
     if (child->name.length() <= 0) {
         child->name = "_" + child->type + children.size();
         if (name.size() > 0) {
@@ -79,7 +72,7 @@ bool GrammarNode::isNamedNode()
 /**
  * 子节点列表，只读
  */
-vector<GrammarNode*> GrammarNode::getChildren()
+vector<unique_ptr<GrammarNode>>& GrammarNode::getChildren()
 {
     return children;
 }
@@ -91,7 +84,7 @@ int GrammarNode::getChildCount()
 
 GrammarNode* GrammarNode::getChild(int index)
 {
-    return children[index];
+    return children[index].get();
 }
 
 // 节点类型
@@ -107,8 +100,9 @@ string GrammarNode::getName()
 
 string GrammarNode::getGrammarName()
 {
-    if (tokens != nullptr) {
-        return tokens->getType();
+    Tokens *t = tokens_.get();
+    if (t != nullptr) {
+        return t->getType();
     } else if (isNamedNode()) {
         return name;
     }
@@ -140,7 +134,8 @@ bool GrammarNode::equals(Any obj)
 
     // 比较Token
     if (type == GrammarNodeType::Token) {
-        return tokens->equals(node->tokens);
+        Tokens *t = tokens_.get();
+        return t->equals(node->tokens_.get());
     } else if (type == GrammarNodeType::Epsilon) {  // Epsilon
        return true; 
     } else if (type == GrammarNodeType::Char) { // 比较字符集合
@@ -167,14 +162,15 @@ string GrammarNode::toString()
     if (type == GrammarNodeType::Epsilon) return "ε";
 
     string rtn;
+    Tokens *t = tokens_.get();
 
     if (charSet != nullptr) {
         rtn = charSet->toString();
-    } else if (tokens != nullptr) {
-        if (tokens->getText().length() > 0) {
-            rtn = "'" + tokens->getText() + "'";
+    } else if (t != nullptr) {
+        if (t->getText().length() > 0) {
+            rtn = "'" + t->getText() + "'";
         } else {
-            rtn = tokens->getType();
+            rtn = t->getType();
         }
     } else if (name.length() > 0) {
         rtn = name;
@@ -317,13 +313,15 @@ void GrammarNode::dumpGraph(GrammarNode *node, set<GrammarNode*> &dumpedNodes)
 bool GrammarNode::isGraph(GrammarNode *node, set<GrammarNode*> &scannedNodes)
 {
     scannedNodes.insert(node);
-    for (GrammarNode *child: node->children) {
+    for (size_t i = 0; i < node->children.size(); i++) {
+        GrammarNode *child = node->children[i].get();
         if (scannedNodes.find(child) != scannedNodes.end()) {
             return true;
         }
     }
 
-    for (GrammarNode *child : node->children) {
+    for (size_t i = 0; i < node->children.size(); i++) {
+        GrammarNode *child = node->children[i].get();
         bool rtn = isGraph(child, scannedNodes);
         if (rtn) {
             return true;
@@ -404,7 +402,7 @@ bool GrammarNode::isLeaf()
  */
 bool GrammarNode::isToken()
 {
-    return tokens != nullptr;
+    return tokens_.get() != nullptr;
 }
 
 CharSet* GrammarNode::getCharSet()
@@ -422,9 +420,9 @@ int GrammarNode::getMaxTimes()
     return maxTimes;
 }
 
-Tokens* GrammarNode::getToken()
+unique_ptr<Tokens>& GrammarNode::getToken()
 {
-    return tokens;
+    return tokens_;
 }
 
 bool GrammarNode::isNeglect()

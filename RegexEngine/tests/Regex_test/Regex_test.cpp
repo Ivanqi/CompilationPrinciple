@@ -12,6 +12,8 @@ void test_case_1() {
     GrammarNode *rootNode = Regex::sampleGrammar1();
     rootNode->dump();
 
+    delete rootNode;
+
     // cout << "\nNFA states:" << endl;
     // State **states = Regex::regexToNFA(rootNode);
     // states[0]->dump();

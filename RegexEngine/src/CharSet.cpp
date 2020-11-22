@@ -15,12 +15,12 @@ CharSet* CharSet::whiteSpace = CharSet::initWhiteSpaceDeclare();       // 空白
 
 CharSet::~CharSet()
 {
-    delete digit;
-    delete smallLetter;
-    delete capitalLeter;
-    delete letter;
-    delete letterOrDigit;
-    delete whiteSpace;
+    // delete digit;
+    // delete smallLetter;
+    // delete capitalLeter;
+    // delete letter;
+    // delete letterOrDigit;
+    // delete whiteSpace;
 }
 
 void CharSet::addSubSet(CharSet *charSet)

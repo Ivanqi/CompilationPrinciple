@@ -5,8 +5,17 @@
 #include <set>
 #include <iostream>
 #include <algorithm>
+#include <memory>
 
-using namespace std;
+#include "Tokens.h"
+
+using std::set;
+using std::vector;
+using std::string;
+using std::cout;
+using std::endl;
+using std::unique_ptr;
+using std::shared_ptr;
 
 // 语法节点的类型
 enum GrammarNodeType
@@ -18,7 +27,6 @@ enum GrammarNodeType
     Epsilon // 空集
 };
 
-class Tokens;
 class CharSet;
 class Any;
 
@@ -34,28 +42,28 @@ class GrammarNode
 {
     private:
         // 子节点
-        vector<GrammarNode*> children;
+        vector<unique_ptr<GrammarNode>> children;
 
         // 节点类型
         GrammarNodeType type;
 
         // 用于词法规则，指该节点能匹配的字符集合。其中Charset可以是一个树状集合，由多个子结合构成。比如: [a-z][A-Z][0-9]等
-        CharSet *charSet = nullptr;
+        CharSet *charSet{nullptr};
 
         // 改节点可以重复的次数
-        int minTimes = 1;
-        int maxTimes = 1;
+        int minTimes{1};
+        int maxTimes{1};
 
         // 节点名称，可以作为Token名称或非终结符名称
         string name;
 
         // 语法规则中的Token,即终结符
-        Tokens *tokens = nullptr;
+        unique_ptr<Tokens> tokens_;
 
         // 是否被词法处理器忽略，比如空白字符
-        bool neglect = false;
+        bool neglect{nullptr};
 
-        static GrammarNode *EPSILON;
+        static unique_ptr<GrammarNode> EPSILON_;
     
     public:
         GrammarNode(GrammarNodeType type)
@@ -70,25 +78,24 @@ class GrammarNode
 
         }
 
-        ~GrammarNode();
 
         GrammarNode(string name, GrammarNodeType type, GrammarNode *child, Tokens *tokens)
             :name(name), type(type)
         {
-            children.push_back(child);
-            tokens = tokens;
+            // children.push_back(unique_ptr<GrammarNode>(child));
+            tokens_.reset(tokens);
         }
 
         GrammarNode(string name, GrammarNodeType type, vector<GrammarNode*> child, Tokens *tokens)
-            :name(name), type(type), tokens(tokens)
+            :name(name), type(type)
         {
             children.insert(children.end(), child.begin(), child.end());
+            tokens_.reset(tokens);
         }
 
         GrammarNode(Tokens *tokens)
-            :tokens(tokens)
         {
-
+            tokens_.reset(tokens);
         }
 
         GrammarNode(CharSet *charSet)
@@ -125,7 +132,7 @@ class GrammarNode
         /**
          * 子节点列表，只读
          */
-        vector<GrammarNode*> getChildren();
+        vector<unique_ptr<GrammarNode>>& getChildren();
 
         int getChildCount();
 
@@ -207,7 +214,7 @@ class GrammarNode
 
         int getMaxTimes();
 
-        Tokens* getToken();
+        unique_ptr<Tokens>& getToken();
 
         bool isNeglect();
 
