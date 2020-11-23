@@ -2,11 +2,14 @@
 #define CHARSET_H
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "Any.h"
 
 using std::vector;
 using std::string;
+using std::unique_ptr;
+using std::shared_ptr;
 
 /**
  * 字符的集合
@@ -30,7 +33,8 @@ class CharSet
         bool exclude{false};
 
         // 子集
-        vector<CharSet*> subSets;
+        vector<shared_ptr<CharSet>> subSets;
+        // vector<CharSet*> subSets;
 
         // ascii表，也就是0到127
         static vector<char> ascii;
@@ -40,12 +44,12 @@ class CharSet
         static vector<char> Alphabet;
 
         // 一些常量
-        static CharSet* digit;
-        static CharSet* smallLetter;
-        static CharSet* capitalLeter;
-        static CharSet* letter;
-        static CharSet* letterOrDigit;
-        static CharSet* whiteSpace;
+        static shared_ptr<CharSet> digit;
+        static shared_ptr<CharSet> smallLetter;
+        static shared_ptr<CharSet> capitalLeter;
+        static shared_ptr<CharSet> letter;
+        static shared_ptr<CharSet> letterOrDigit;
+        static shared_ptr<CharSet> whiteSpace;
 
         CharSet()
         {
@@ -69,7 +73,7 @@ class CharSet
             
         }
 
-        void addSubSet(CharSet *charSet);
+        void addSubSet(shared_ptr<CharSet>& charSet);
 
 
         /**

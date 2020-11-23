@@ -7,15 +7,14 @@ vector<char> CharSet::letterAndDigits = CharSet::letterAndDigitsDeclare();
 
 vector<char> CharSet::Alphabet = CharSet::ascii;
 
-CharSet* CharSet::digit = new CharSet('0', '9');                // 数字
-CharSet* CharSet::smallLetter = new CharSet('a', 'z');          // 小写字母
-CharSet* CharSet::capitalLeter = new CharSet('A', 'Z');         // 大写字母
-CharSet* CharSet::letter = CharSet::initLetterDeclare();               // 字母，包括大写和小写
-CharSet* CharSet::letterOrDigit = CharSet::initLetterOrDigitDeclare(); // 字母和数字
-CharSet* CharSet::whiteSpace = CharSet::initWhiteSpaceDeclare();       // 空白字符
+shared_ptr<CharSet> CharSet::digit = shared_ptr<CharSet>(new CharSet('0', '9'));                        // 数字
+shared_ptr<CharSet> CharSet::smallLetter = shared_ptr<CharSet>(new CharSet('a', 'z'));                  // 小写字母
+shared_ptr<CharSet> CharSet::capitalLeter = shared_ptr<CharSet>(new CharSet('A', 'Z'));                 // 大写字母
+shared_ptr<CharSet> CharSet::letter = shared_ptr<CharSet>(CharSet::initLetterDeclare());                // 字母，包括大写和小写
+shared_ptr<CharSet> CharSet::letterOrDigit = shared_ptr<CharSet>(CharSet::initLetterOrDigitDeclare());  // 字母和数字
+shared_ptr<CharSet> CharSet::whiteSpace = shared_ptr<CharSet>(CharSet::initWhiteSpaceDeclare());        // 空白字符
 
-
-void CharSet::addSubSet(CharSet *charSet)
+void CharSet::addSubSet(shared_ptr<CharSet>& charSet)
 {
     subSets.push_back(charSet);
 }
@@ -27,7 +26,8 @@ bool CharSet::match(char ch)
 {
     bool rtn = false;
     if (subSets.size() > 0) {
-        for (CharSet *subSet: subSets) {
+        for (size_t i = 0; i < subSets.size(); i++) {
+            CharSet *subSet = subSets[i].get();
             rtn = subSet->match(ch);
             if (rtn){
                 break;
@@ -77,9 +77,9 @@ string CharSet::toString()
         fromCharS.push_back(fromChar_);
         toCharS.push_back(toChar_);
         if (exclude) {
-            return "[^" + fromCharS + " - " + fromCharS + "]";
+            return "[^" + fromCharS + " - " + toCharS + "]";
         } else {
-            return "[" + fromCharS + " - " + fromCharS + "]";
+            return "[" + fromCharS + " - " + toCharS + "]";
         }
     }
 }
@@ -90,37 +90,41 @@ string CharSet::toString()
  */
 CharSet* CharSet::getShorterForm()
 {
-    if (equals(digit)) {
-        return digit;
-    } else if (equals(smallLetter)) {
-        return smallLetter;
-    } else if (equals(capitalLeter)) {
-        return capitalLeter;
-    } else if (equals(letter)) {
-        return letter;
-    } else if (equals(letterOrDigit)) {
-        return letterOrDigit;
+    if (equals(digit.get())) {
+        return digit.get();
+    } else if (equals(smallLetter.get())) {
+        return smallLetter.get();
+    } else if (equals(capitalLeter.get())) {
+        return capitalLeter.get();
+    } else if (equals(letter.get())) {
+        return letter.get();
+    } else if (equals(letterOrDigit.get())) {
+        return letterOrDigit.get();
     } else {
         CharSet *charSet = getSupplementarySet();
         charSet->exclude = true;
         return charSet;
     }
+    
 }
 
 
 // 计算补集
 CharSet* CharSet::getSupplementarySet()
 {
-    CharSet *charSet = new CharSet();
+    auto charSetPtr = shared_ptr<CharSet>(new CharSet());
+    CharSet *charSet = charSetPtr.get();
 
     for (char ch: letterAndDigits) {    // TODO 需要直到该词法更准确的字符集
         if (!match(ch)) {
-            charSet->addSubSet(new CharSet(ch));
+            auto matchVal = shared_ptr<CharSet>(new CharSet(ch));
+            charSet->addSubSet(matchVal);
         }
     }
 
     if (charSet->subSets.size() == 0) {
-        charSet == letterOrDigit;
+        charSetPtr = letterOrDigit;
+        charSet = charSetPtr.get();
     }
 
     return charSet;
@@ -183,9 +187,13 @@ CharSet* CharSet::initLetterDeclare()
 CharSet* CharSet::initWhiteSpaceDeclare()
 {
     CharSet *charSet = new CharSet();
-    charSet->addSubSet(new CharSet(' '));
-    charSet->addSubSet(new CharSet('\t'));
-    charSet->addSubSet(new CharSet('\n'));
+    auto space = shared_ptr<CharSet>(new CharSet(' '));
+    auto interval = shared_ptr<CharSet>(new CharSet('\t'));
+    auto linbreak = shared_ptr<CharSet>(new CharSet('\n'));
+
+    charSet->addSubSet(space);
+    charSet->addSubSet(interval);
+    charSet->addSubSet(linbreak);
     return charSet;
 }
 
@@ -211,7 +219,8 @@ bool CharSet::isEmpty()
 {
     if (subSets.size() > 0) {
         bool empty = true;
-        for (CharSet *charSet: subSets) {
+        for (size_t i = 0; i < subSets.size(); i++) {
+            CharSet *charSet = subSets[i].get();
             if (!charSet->isEmpty()) {
                 empty = false;
                 break;

@@ -198,13 +198,13 @@ GrammarNode* Regex::sampleGrammar1()
 
     // // 标识符
     GrammarNode *idNode = node->createChild(GrammarNodeType::And);
-    GrammarNode *firstLetter = idNode->createChild(CharSet::letter);
+    GrammarNode *firstLetter = idNode->createChild(CharSet::letter.get());
 
-    GrammarNode *letterOrDigit = idNode->createChild(CharSet::letterOrDigit);
+    GrammarNode *letterOrDigit = idNode->createChild(CharSet::letterOrDigit.get());
     letterOrDigit->setRepeatTimes(0, -1);
 
     // // 数字字面量
-    GrammarNode *literalNode = node->createChild(CharSet::digit);
+    GrammarNode *literalNode = node->createChild(CharSet::digit.get());
     literalNode->setRepeatTimes(1, -1);
 
     return node;
