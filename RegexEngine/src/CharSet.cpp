@@ -1,4 +1,5 @@
 #include "CharSet.h"
+#include <string.h>
 
 vector<char> CharSet::ascii = CharSet::asciiDeclare();
 
@@ -13,15 +14,6 @@ CharSet* CharSet::letter = CharSet::initLetterDeclare();               // 字母
 CharSet* CharSet::letterOrDigit = CharSet::initLetterOrDigitDeclare(); // 字母和数字
 CharSet* CharSet::whiteSpace = CharSet::initWhiteSpaceDeclare();       // 空白字符
 
-CharSet::~CharSet()
-{
-    // delete digit;
-    // delete smallLetter;
-    // delete capitalLeter;
-    // delete letter;
-    // delete letterOrDigit;
-    // delete whiteSpace;
-}
 
 void CharSet::addSubSet(CharSet *charSet)
 {
@@ -42,7 +34,7 @@ bool CharSet::match(char ch)
             }
         }
     } else {
-        rtn = (fromChar <= ch && ch <= toChar);
+        rtn = (fromChar_ <= ch && ch <= toChar_);
     }
 
     if (exclude) {
@@ -75,15 +67,15 @@ string CharSet::toString()
         }
 
         return sb;
-    } else if (fromChar == toChar) {
+    } else if (fromChar_ == toChar_) {
         string sb;
-        sb.push_back(fromChar);
+        sb.push_back(fromChar_);
         return sb;
     } else {
         string fromCharS;
         string toCharS;
-        fromCharS.push_back(fromChar);
-        toCharS.push_back(toChar);
+        fromCharS.push_back(fromChar_);
+        toCharS.push_back(toChar_);
         if (exclude) {
             return "[^" + fromCharS + " - " + fromCharS + "]";
         } else {
@@ -142,7 +134,7 @@ vector<char> CharSet::asciiDeclare()
     vector<char> Alphabet;
 
     for (int i = 0; i < 128; i++) {
-        Alphabet.push_back((char)i);
+        Alphabet.emplace_back((char)i);
     }
 
     return Alphabet;
@@ -156,15 +148,15 @@ vector<char> CharSet::letterAndDigitsDeclare()
     vector<char> Alphabet;
 
     for (char i = '0'; i <= '9'; i++) {
-        Alphabet.push_back((char)i);
+        Alphabet.emplace_back((char)i);
     }
 
     for (char i = 'A'; i <= 'Z'; i++) {
-        Alphabet.push_back((char)i);
+        Alphabet.emplace_back((char)i);
     }
 
     for (char i = 'a'; i <= 'z'; i++) {
-        Alphabet.push_back((char)i);
+        Alphabet.emplace_back((char)i);
     }
 
     return Alphabet;
@@ -227,6 +219,6 @@ bool CharSet::isEmpty()
         }
         return empty;
     } else {
-        return fromChar == '\0';
+        return fromChar_ == ' ';
     }
 }

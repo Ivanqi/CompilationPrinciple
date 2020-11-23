@@ -5,7 +5,8 @@
 
 #include "Any.h"
 
-using namespace std;
+using std::vector;
+using std::string;
 
 /**
  * 字符的集合
@@ -20,13 +21,13 @@ class CharSet
 {
     public:
         // 起始字符
-        char fromChar;
+        char fromChar_{' '};
 
         // 终止字符
-        char toChar;
+        char toChar_{' '};
 
         // 是否是取补集,比如[^a]
-        bool exclude = false;
+        bool exclude{false};
 
         // 子集
         vector<CharSet*> subSets;
@@ -51,20 +52,19 @@ class CharSet
             
         }
 
-        ~CharSet();
 
         CharSet(char fromChar)
+            :fromChar_{fromChar}, toChar_{fromChar_}
         {
-            CharSet(fromChar, fromChar, false);
         }
 
         CharSet(char fromChar, char toChar)
+            :fromChar_{fromChar}, toChar_{toChar}
         {
-            CharSet(fromChar, toChar, false);
         }
 
         CharSet(char fromChar, char toChar, bool exclude)
-            :fromChar(fromChar), toChar(fromChar), exclude(exclude)
+            :fromChar_{fromChar}, toChar_{toChar}, exclude{exclude}
         {
             
         }

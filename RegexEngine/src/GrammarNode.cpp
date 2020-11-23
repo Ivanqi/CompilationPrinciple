@@ -45,7 +45,7 @@ void GrammarNode::addChild(GrammarNode *child)
 {
     children.emplace_back(unique_ptr<GrammarNode>(child));
     if (child->name.length() <= 0) {
-        child->name = "_" + child->type + children.size();
+        child->name = "_" + to_string(child->type) + to_string(children.size());
         if (name.size() > 0) {
             child->name = name + child->name;
         }
@@ -211,7 +211,7 @@ string GrammarNode::getText()
     string delim;
 
     if (type == GrammarNodeType::And) {
-        delim = " ";
+        delim = " & ";
     } else if (type == GrammarNodeType::Or) {
         delim = " | ";
     }
@@ -265,7 +265,8 @@ string GrammarNode::wrapNamedNode(string str)
 void GrammarNode::dump()
 {
     set<GrammarNode*> dumpedNodes;
-    if (isGraph(this, dumpedNodes)) {
+    bool isGraphs = isGraph(this, dumpedNodes);
+    if (isGraphs) {
         dumpGraph(this, dumpedNodes);
     } else {
         dumpTree(this, "");
@@ -282,7 +283,7 @@ void GrammarNode::dumpTree(GrammarNode *node, string indent)
     if (node->isNamedNode()) {
         cout << indent << node->getText() << endl;
     } else {
-        cout << indent << node->toString();
+        cout << indent << node->toString() << endl;
     }
 
     for (size_t i = 0; i < node->children.size(); i++) {
