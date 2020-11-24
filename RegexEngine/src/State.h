@@ -11,7 +11,14 @@
 class Transition;
 class GrammarNode;
 
-using namespace std;
+using std::string;
+using std::vector;
+using std::map;
+using std::set;
+using std::cout;
+using std::endl;
+
+
 
 // 代表有限自动机的一个状态
 class State

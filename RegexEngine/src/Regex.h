@@ -18,7 +18,7 @@ class Regex
         /**
          * 把正则表达式翻译成NFA
          */
-        static State** regexToNFA(GrammarNode *node);
+        static State[][2] regexToNFA(GrammarNode *node);
 
         /**
          * 支持 * ? +

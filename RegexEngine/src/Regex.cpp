@@ -9,59 +9,71 @@ using namespace std;
 /**
  * 把正则表达式翻译成NFA
  */
-State** Regex::regexToNFA(GrammarNode *node)
+State[][2] Regex::regexToNFA(GrammarNode *node)
 {
     // State *beginState = nullptr;
     // State *endState = nullptr;
     // State **lastChildState = new State*[2];
     // State **childState = nullptr;
+    State beginState;
+    State end;
+    State lastChildState[][2];
+    State **childState = nullptr;
 
-    // switch (node->getType()) {
-    //     // 转换 s|t
-    //     case GrammarNodeType::Or:
-    //         beginState = new State();   // 新的开始状态
-    //         endState = new State();     // 新的接受状态
+    switch (node->getType()) {
+        // 转换 s|t
+        case GrammarNodeType::Or:
+            // beginState = new State();   // 新的开始状态
+            // endState = new State();     // 新的接受状态
 
-    //         for (GrammarNode *child: node->getChildren()) {
-    //             // 递归，生成子图，返回头尾两个状态
-    //             State **childState = regexToNFA(child);
+            // for (GrammarNode *child: node->getChildren()) {
+            //     // 递归，生成子图，返回头尾两个状态
+            //     State **childState = regexToNFA(child);
 
-    //             // beginState，通过ε接到子图的开始状态
-    //             beginState->addTransition(new CharTransition(), childState[0]);
+            //     // beginState，通过ε接到子图的开始状态
+            //     beginState->addTransition(new CharTransition(), childState[0]);
 
-    //             // 子图的结束状态，通过ε接到endState
-    //             childState[1]->addTransition(new CharTransition(), endState);
-    //             childState[1]->setAcceptable(false);
-    //         }
-    //         break;
-    //     // 转换 st
-    //     case GrammarNodeType::And:
-    //         for (int i = 0; i < node->getChildCount(); i++) {
-    //             State **childState = regexToNFA(node->getChild(i)); // 生成子图
-    //             if (lastChildState != nullptr) {
-    //                 // 把前一个子图的接受状态和后一个子图的开始状态合并，把两个子图接到一起
-    //                 lastChildState[1]->copyTransitions(childState[0]);
-    //                 lastChildState[1]->setAcceptable(false);
-    //             }
-    //             lastChildState = childState;
+            //     // 子图的结束状态，通过ε接到endState
+            //     childState[1]->addTransition(new CharTransition(), endState);
+            //     childState[1]->setAcceptable(false);
+            // }
+            for (size_t i = 0; i < node->getChildren().size(); i++) {
+                // 递归，生成子图，返回头尾两个状态
+                GrammarNode *child = node->getChildren()[i].get();
+                childState = regexToNFA(child);
 
-    //             if (i == 0) {
-    //                 beginState = childState[0]; // 整体的开始状态
-    //                 endState = childState[1];
-    //             } else {
-    //                 endState = childState[1];   // 整体的接受状态
-    //             }
-    //         }
-    //         break;
-    //     // 处理普通的字符
-    //     case GrammarNodeType::Char:
-    //         beginState = new State();
-    //         endState = new State();
+                // beginState，通过ε接到子图的开始状态
+                beginState.addTransition(new CharTransition(), childState[0]);
+            }
+            break;
+        // 转换 st
+        case GrammarNodeType::And:
+            // for (int i = 0; i < node->getChildCount(); i++) {
+            //     State **childState = regexToNFA(node->getChild(i)); // 生成子图
+            //     if (lastChildState != nullptr) {
+            //         // 把前一个子图的接受状态和后一个子图的开始状态合并，把两个子图接到一起
+            //         lastChildState[1]->copyTransitions(childState[0]);
+            //         lastChildState[1]->setAcceptable(false);
+            //     }
+            //     lastChildState = childState;
 
-    //         // 图的边上是当前节点的charSet,也就是导致迁移字符的集合，比如所有字母
-    //         beginState->addTransition(new CharTransition(node->getCharSet()), endState);
-    //         break;
-    // }
+            //     if (i == 0) {
+            //         beginState = childState[0]; // 整体的开始状态
+            //         endState = childState[1];
+            //     } else {
+            //         endState = childState[1];   // 整体的接受状态
+            //     }
+            // }
+            break;
+        // 处理普通的字符
+        case GrammarNodeType::Char:
+            // beginState = new State();
+            // endState = new State();
+
+            // // 图的边上是当前节点的charSet,也就是导致迁移字符的集合，比如所有字母
+            // beginState->addTransition(new CharTransition(node->getCharSet()), endState);
+            // break;
+    }
 
     State **rtn = nullptr;
 
