@@ -7,6 +7,10 @@
 
 #include "State.h"
 
+using std::vector;
+using std::string;
+
+
 class State;
 class GrammarNode;
 class DFAState;
@@ -18,13 +22,13 @@ class Regex
         /**
          * 把正则表达式翻译成NFA
          */
-        static State[][2] regexToNFA(GrammarNode *node);
+        static vector<State> regexToNFA(GrammarNode *node);
 
         /**
          * 支持 * ? +
          * 在两边增加额外的状态，并增加额外的连线
          */
-        static State** addRepitition(State *state1, State *state2, GrammarNode *node);
+        static vector<State> addRepitition(State state1, State state2, GrammarNode *node);
         
         /**
          * 看看str是否符合NFA

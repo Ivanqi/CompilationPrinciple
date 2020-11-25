@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <string>
 #include <set>
 #include <iostream>
 
@@ -17,8 +16,6 @@ using std::map;
 using std::set;
 using std::cout;
 using std::endl;
-
-
 
 // 代表有限自动机的一个状态
 class State
@@ -37,7 +34,7 @@ class State
         vector<Transition*> transitions;
 
         // 连线与下一个状态的对照表
-        map<Transition*, State*> transition2State;
+        map<Transition*, State> transition2State;
 
         /**
          * 跟这个节点关联的语法
@@ -46,7 +43,7 @@ class State
         GrammarNode *grammarNode = nullptr;
 
     public:
-        State(): name(to_string(count++))
+        State(): name(std::to_string(count++))
         {
 
         }
@@ -56,7 +53,7 @@ class State
 
         }
 
-        void addTransition(Transition *transition, State *toState);
+        void addTransition(Transition *transition, State toState);
 
         /**
          * 把另一个状态的连线全部拷贝成自己的
@@ -64,12 +61,12 @@ class State
          */
         void copyTransitions(State *state);
 
-        State* getState(Transition *transition);
+        State getState(Transition *transition);
 
         /**
          * 获取某个状态的Transition // TODO 这里假设每两个状态之间只可能有一个Transition
          */
-        Transition* getTransitionTo(State *toState);
+        Transition* getTransitionTo(State toState);
 
         vector<Transition*> getTransitions()
         {
@@ -85,16 +82,16 @@ class State
 
         void setAcceptable(bool acceptable);
 
-        void dump()
-        {
-            set<State*> dumpedStates;
-            dump(this, dumpedStates);
-        }
+        // void dump()
+        // {
+        //     set<State*> dumpedStates;
+        //     dump(this, dumpedStates);
+        // }
 
         /**
          * 打印FSA中的所有状态
          */
-        static void dump(State *state, set<State*> dumpedStates);
+        // static void dump(State state, set<State> dumpedStates);
 
         string getName()
         {

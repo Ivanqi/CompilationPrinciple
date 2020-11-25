@@ -4,27 +4,27 @@
 #include "DFAState.h"
 #include "CharTransition.h"
 
-using namespace std;
 
 /**
  * 把正则表达式翻译成NFA
  */
-State[][2] Regex::regexToNFA(GrammarNode *node)
+vector<State> Regex::regexToNFA(GrammarNode *node)
 {
     // State *beginState = nullptr;
     // State *endState = nullptr;
     // State **lastChildState = new State*[2];
     // State **childState = nullptr;
     State beginState;
-    State end;
-    State lastChildState[][2];
-    State **childState = nullptr;
+    State endState;
+    // State lastChildState[][2];
+    vector<State> childState;
 
     switch (node->getType()) {
         // 转换 s|t
         case GrammarNodeType::Or:
             // beginState = new State();   // 新的开始状态
-            // endState = new State();     // 新的接受状态
+            // endState = new State();     
+            endState.setAcceptable(true);   // 新的接受状态
 
             // for (GrammarNode *child: node->getChildren()) {
             //     // 递归，生成子图，返回头尾两个状态
@@ -44,10 +44,15 @@ State[][2] Regex::regexToNFA(GrammarNode *node)
 
                 // beginState，通过ε接到子图的开始状态
                 beginState.addTransition(new CharTransition(), childState[0]);
+
+                // 子图的结束状态，通过ε接到endState
+                childState[1].addTransition(new CharTransition(), endState);
+                childState[1].setAcceptable(false);
             }
             break;
         // 转换 st
         case GrammarNodeType::And:
+
             // for (int i = 0; i < node->getChildCount(); i++) {
             //     State **childState = regexToNFA(node->getChild(i)); // 生成子图
             //     if (lastChildState != nullptr) {
@@ -64,27 +69,34 @@ State[][2] Regex::regexToNFA(GrammarNode *node)
             //         endState = childState[1];   // 整体的接受状态
             //     }
             // }
+            vector<State> lastChildState;
+            for (int i = 0; i < node->getChildCount(); i++) {
+                childState = regexToNFA(node->getChild(i)); // 生成子图
+                if (lastChildState.size() > 0) {
+                    // 把前一个子图的接受状态和后一个子图的开始状态合并，把两个子图接到一起
+                    lastChildState[1].copyTransitions(childState[0]);
+                }
+            }
             break;
         // 处理普通的字符
         case GrammarNodeType::Char:
             // beginState = new State();
             // endState = new State();
 
-            // // 图的边上是当前节点的charSet,也就是导致迁移字符的集合，比如所有字母
-            // beginState->addTransition(new CharTransition(node->getCharSet()), endState);
-            // break;
+            // 图的边上是当前节点的charSet,也就是导致迁移字符的集合，比如所有字母
+            beginState->addTransition(new CharTransition(node->getCharSet()), endState);
+            break;
     }
 
-    State **rtn = nullptr;
+    vector<State> rtn;
 
     // // 考虑重复的情况，增加必要的节点和边
-    // if (node->getMinTimes() != 1 || node->getMaxTimes() != 1) {
-    //     rtn = addRepitition(beginState, endState, node);
-    // } else {
-    //     rtn = new State*[2];
-    //     rtn[0] = beginState;
-    //     rtn[1] = endState;
-    // }
+    if (node->getMinTimes() != 1 || node->getMaxTimes() != 1) {
+        rtn = addRepitition(beginState, endState, node);
+    } else {
+        rtn[0] = beginState;
+        rtn[1] = endState;
+    }
 
     // // 为命了名的语法节点做标记，后面将用来设置Token类型
     // if (node->getName().length() > 0) {
@@ -97,7 +109,7 @@ State[][2] Regex::regexToNFA(GrammarNode *node)
  * 支持 * ? +
  * 在两边增加额外的状态，并增加额外的连线
  */
-State** Regex::addRepitition(State *state1, State *state2, GrammarNode *node)
+vector<State> Regex::addRepitition(State state1, State state2, GrammarNode *node)
 {
     // State *beginState = nullptr;
     // State *endState = nullptr;
@@ -122,7 +134,8 @@ State** Regex::addRepitition(State *state1, State *state2, GrammarNode *node)
     //     endState = state2;
     // }
 
-    State **rtn = new State*[2];
+    vector<State> rtn;
+    // State **rtn = new State*[2];
     // rtn[0] = beginState;
     // rtn[1] = endState;
     return rtn;

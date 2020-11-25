@@ -4,7 +4,7 @@
 
 int State::count = 0;
 
-void State::addTransition(Transition *transition, State *toState)
+void State::addTransition(Transition *transition, State toState)
 {
     transitions.push_back(transition);
     transition2State[transition] = toState;
@@ -20,7 +20,7 @@ void State::copyTransitions(State *state)
     transition2State = state->transition2State;
 }
 
-State* State::getState(Transition *transition)
+State State::getState(Transition *transition)
 {
     return transition2State[transition];
 }
@@ -28,10 +28,11 @@ State* State::getState(Transition *transition)
 /**
  * 获取某个状态的Transition // TODO 这里假设每两个状态之间只可能有一个Transition
  */
-Transition* State::getTransitionTo(State *toState)
+Transition* State::getTransitionTo(State toState)
 {
     for (Transition *transition: transitions) {
-        if (transition2State[transition] == toState) {
+        State tmp = transition2State[transition];
+        if (&tmp == &toState) {
             return transition;
         }
     }
@@ -50,9 +51,9 @@ string State::toString()
 
     if (transitions.size() > 0) {
         for (Transition *transition : transitions) {
-            State *state = transition2State[transition];
+            State state = transition2State[transition];
             int maxTime = transition->getMaxtTime();
-            sb.append("\t").append(to_string(maxTime)).append(" -> ").append(state->name).append("\n");
+            sb.append("\t").append(to_string(maxTime)).append(" -> ").append(state.name).append("\n");
         }
     } else {
         sb.append("\t(end)").append("\n");
@@ -68,15 +69,15 @@ string State::toString()
 /**
  * 打印FSA中的所有状态
  */
-void State::dump(State *state, set<State*> dumpedStates)
-{
-    cout << state->name << endl;
-    dumpedStates.insert(state);
+// void State::dump(State state, set<State> dumpedStates)
+// {
+//     cout << state.name << endl;
+//     dumpedStates.insert(state);
 
-    for (Transition *transition: state->getTransitions()) {
-        State *state2 = state->getState(transition);
-        if (dumpedStates.find(state2) != dumpedStates.end()) {
-            dump(state2, dumpedStates);
-        }
-    }
-}
+//     for (Transition *transition: state->getTransitions()) {
+//         State state2 = state.getState(transition);
+//         if (dumpedStates.find(&state2) != dumpedStates.end()) {
+//             dump(state2, dumpedStates);
+//         }
+//     }
+// }

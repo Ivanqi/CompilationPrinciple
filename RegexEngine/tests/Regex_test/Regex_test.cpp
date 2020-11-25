@@ -1,6 +1,7 @@
 #include "Regex.h"
 #include "GrammarNode.h"
 #include <iostream>
+#include <vector>
 using namespace std;
 
 /**
@@ -14,7 +15,7 @@ void test_case_1() {
 
 
     cout << "\nNFA states:" << endl;
-    State **states = Regex::regexToNFA(rootNode);
+    vector<State> states = Regex::regexToNFA(rootNode);
     // states[0]->dump();
 
     delete rootNode;
