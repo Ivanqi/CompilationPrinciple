@@ -6,7 +6,7 @@ int State::count = 0;
 
 void State::addTransition(Transition *transition, State toState)
 {
-    transitions.push_back(transition);
+    transitions.emplace_back(transition);
     transition2State[transition] = toState;
 }
 
@@ -14,10 +14,10 @@ void State::addTransition(Transition *transition, State toState)
  * 把另一个状态的连线全部拷贝成自己的
  * 这相当于把State这个节点替换成自己
  */
-void State::copyTransitions(State *state)
+void State::copyTransitions(State state)
 {
-    transitions = state->transitions;
-    transition2State = state->transition2State;
+    transitions = state.transitions;
+    transition2State = state.transition2State;
 }
 
 State State::getState(Transition *transition)

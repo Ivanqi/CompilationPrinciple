@@ -16,6 +16,10 @@ void test_case_1() {
 
     cout << "\nNFA states:" << endl;
     vector<State> states = Regex::regexToNFA(rootNode);
+    cout << endl;
+    for (int i = 0; i < states.size(); i++) {
+        cout << states[i].toString() << endl;
+    }
     // states[0]->dump();
 
     delete rootNode;

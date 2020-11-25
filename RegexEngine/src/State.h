@@ -59,7 +59,7 @@ class State
          * 把另一个状态的连线全部拷贝成自己的
          * 这相当于把State这个节点替换成自己
          */
-        void copyTransitions(State *state);
+        void copyTransitions(State state);
 
         State getState(Transition *transition);
 
