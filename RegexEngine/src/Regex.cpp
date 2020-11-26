@@ -66,6 +66,7 @@ vector<State> Regex::regexToNFA(GrammarNode *node)
     vector<State> rtn;
 
     // // 考虑重复的情况，增加必要的节点和边
+    cout << "node: " << node->toString() << " | getMinTimes: " << node->getMinTimes() << " | getMaxTimes: " << node->getMaxTimes() << endl;
     if (node->getMinTimes() != 1 || node->getMaxTimes() != 1) {
         rtn = addRepitition(beginState, endState, node);
     } else {
@@ -86,33 +87,32 @@ vector<State> Regex::regexToNFA(GrammarNode *node)
  */
 vector<State> Regex::addRepitition(State state1, State state2, GrammarNode *node)
 {
-    // State *beginState = nullptr;
-    // State *endState = nullptr;
+    State beginState;
+    State endState;
 
-    // // 允许循环
-    // if (node->getMaxTimes() == -1 || node->getMaxTimes() > 1) {
-    //     state2->addTransition(new CharTransition(node->getMaxTimes()), state1);
-    // }
+    // 允许循环
+    if (node->getMaxTimes() == -1 || node->getMaxTimes() > 1) {
+        state2.addTransition(new CharTransition(node->getMaxTimes()), state1);
+    }
 
-    // // 允许0次，这时候要再加上两个节点
-    // if (node->getMinTimes() == 0) {
-    //     beginState = new State();
-    //     endState = new State(true);
+    // 允许0次，这时候要再加上两个节点
+    if (node->getMinTimes() == 0) {
+        endState.setAcceptable(true);
 
-    //     beginState->addTransition(new CharTransition(), state1);
-    //     state2->addTransition(new CharTransition(), endState);
-    //     state2->setAcceptable(false);
+        beginState.addTransition(new CharTransition(), state1);
+        state2.addTransition(new CharTransition(), endState);
+        state2.setAcceptable(false);
 
-    //     beginState->addTransition(new CharTransition(), endState);
-    // } else {
-    //     beginState = state1;
-    //     endState = state2;
-    // }
+        beginState.addTransition(new CharTransition(), endState);
+    } else {
+        beginState = state1;
+        endState = state2;
+    }
 
     vector<State> rtn;
-    // State **rtn = new State*[2];
-    // rtn[0] = beginState;
-    // rtn[1] = endState;
+    rtn.emplace_back(beginState);
+    rtn.emplace_back(endState);
+
     return rtn;
 }
 

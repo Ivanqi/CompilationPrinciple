@@ -51,8 +51,8 @@ class GrammarNode
         CharSet *charSet{nullptr};
 
         // 改节点可以重复的次数
-        int minTimes{1};
-        int maxTimes{1};
+        int minTimes_{1};
+        int maxTimes_{1};
 
         // 节点名称，可以作为Token名称或非终结符名称
         string name;

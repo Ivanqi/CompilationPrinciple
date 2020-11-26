@@ -180,15 +180,15 @@ string GrammarNode::toString()
         rtn = "GrammarNode";
     }
 
-    if (minTimes != 1 || maxTimes != 1) {
-        if (minTimes == 0 && maxTimes == -1) {
+    if (minTimes_ != 1 || maxTimes_ != 1) {
+        if (minTimes_ == 0 && maxTimes_ == -1) {
             rtn = rtn + "*";
-        } else if (minTimes == 0 && maxTimes == 1) {
+        } else if (minTimes_ == 0 && maxTimes_ == 1) {
             rtn = rtn + "?";
-        } else if (minTimes == 1 && maxTimes == -1) {
+        } else if (minTimes_ == 1 && maxTimes_ == -1) {
             rtn = rtn + "+";
         } else {
-            rtn = rtn + "(" + to_string(minTimes) + "," + to_string(maxTimes) + ")";
+            rtn = rtn + "(" + to_string(minTimes_) + "," + to_string(maxTimes_) + ")";
         }
     }
 
@@ -197,8 +197,8 @@ string GrammarNode::toString()
 
 void GrammarNode::setRepeatTimes(int minTimes, int maxTimes)
 {
-    minTimes = minTimes;
-    maxTimes = maxTimes;
+    minTimes_ = minTimes;
+    maxTimes_ = maxTimes;
 }
 
 /**
@@ -347,7 +347,7 @@ bool GrammarNode::isNullable()
 {
     bool rtn = false;
 
-    if (minTimes == 0 || type == GrammarNodeType::Epsilon) {
+    if (minTimes_ == 0 || type == GrammarNodeType::Epsilon) {
         return true;
     } else if (type == GrammarNodeType::And) {
         bool allNullable = true;
@@ -419,12 +419,12 @@ CharSet* GrammarNode::getCharSet()
 
 int GrammarNode::getMinTimes()
 {
-    return minTimes;
+    return minTimes_;
 }
 
 int GrammarNode::getMaxTimes()
 {
-    return maxTimes;
+    return maxTimes_;
 }
 
 unique_ptr<Tokens>& GrammarNode::getToken()
