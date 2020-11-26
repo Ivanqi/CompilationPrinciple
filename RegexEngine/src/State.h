@@ -46,12 +46,11 @@ class State
     public:
         State(): name(std::to_string(count++))
         {
-
         }
 
         State(bool acceptable):acceptable(acceptable)
         {
-
+            State();
         }
 
         void addTransition(Transition *transition, State toState);

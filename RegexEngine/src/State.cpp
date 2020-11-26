@@ -1,6 +1,7 @@
 #include "State.h"
 #include "Transition.h"
 #include "GrammarNode.h"
+#include "CharTransition.h"
 
 int State::count = 0;
 
@@ -52,8 +53,7 @@ string State::toString()
     if (transitions.size() > 0) {
         for (Transition *transition : transitions) {
             State state = transition2State[transition];
-            int maxTime = transition->getMaxtTime();
-            sb.append("\t").append(to_string(maxTime)).append(" -> ").append(state.name).append("\n");
+            sb.append("\t").append( transition->toString()).append(" -> ").append(state.name).append("\n");
         }
     } else {
         sb.append("\t(end)").append("\n");

@@ -1,5 +1,6 @@
 #ifndef TRANSITION_H
 #define TRANSITION_H
+#include <string>
 // 状态迁移
 
 class Any;
@@ -12,7 +13,7 @@ class Transition
          * 这是把GrammarNode中的maxTimes属性转义到这里来了
          * 对于 ? maxTimes = 1, 对于 + 和 * ，maxTimes = -1;
          */
-        int maxTimes = 1;
+        int maxTimes{1};
 
     public:
         /**
@@ -22,6 +23,8 @@ class Transition
 
         // 是否是一个Epsilon转换
         virtual bool isEpsilon() = 0;
+
+        virtual std::string toString() = 0;
 
         int getMaxtTime()
         {

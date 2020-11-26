@@ -58,7 +58,7 @@ vector<State> Regex::regexToNFA(GrammarNode *node)
             
         // 处理普通的字符
         case GrammarNodeType::Char:
-
+            endState.setAcceptable(true); 
             // 图的边上是当前节点的charSet,也就是导致迁移字符的集合，比如所有字母
             beginState.addTransition(new CharTransition(node->getCharSet()), endState);
             break;
@@ -68,7 +68,7 @@ vector<State> Regex::regexToNFA(GrammarNode *node)
 
     // 考虑重复的情况，增加必要的节点和边
     if (node->getMinTimes() != 1 || node->getMaxTimes() != 1) {
-        rtn = addRepitition(&beginState, &endState, node);
+        rtn = addRepitition(beginState, endState, node);
     } else {
         rtn.emplace_back(beginState);
         rtn.emplace_back(endState);
@@ -128,7 +128,7 @@ bool Regex::matchWithNFA(State state, string str)
     cout << "NFA matching: '" << str << "'" << endl;
     int index = matchWithNFA(state, str, 0);
 
-    bool match = index = str.length();
+    bool match = index == str.length();
 
     cout << "matched?: " << match << "\n";
 
@@ -139,7 +139,7 @@ bool Regex::matchWithNFA(State state, string str)
  * 用NFA来匹配字符串
  * @param state 当前所在的状态
  * @param chars 要匹配的字符串，用数组表示
- * @param indexi 当前匹配的字符开始的位置
+ * @param indexi1 当前匹配的字符开始的位置
  * @return 匹配后，新的index的位置。指向匹配成功的字符的下一个字符
  */
 int Regex::matchWithNFA(State state, string str, int index1)
@@ -161,18 +161,18 @@ int Regex::matchWithNFA(State state, string str, int index1)
 
             if (index2 < str.length()) {
                 index2 = matchWithNFA(nextState, str, index1 + 1);
-            }
-        } else {
-            /**
-             * 如果已经扫描完所有的字符
-             * 检查当前状态是否是接受状态，或者可以通过epsilon到达接受状态
-             * 如果状态机还没有到达接受状态，本次匹配失败
-             */
-            if (acceptable(nextState)) {
-                break;
             } else {
-                index2 = -1;
-            }
+                /**
+                 * 如果已经扫描完所有的字符
+                 * 检查当前状态是否是接受状态，或者可以通过epsilon到达接受状态
+                 * 如果状态机还没有到达接受状态，本次匹配失败
+                 */
+                if (acceptable(nextState)) {
+                    break;
+                } else {
+                    index2 = -1;
+                }
+            }   
         }
     }
 

@@ -78,7 +78,6 @@ class GrammarNode
 
         }
 
-
         GrammarNode(string name, GrammarNodeType type, GrammarNode *child, Tokens *tokens)
             :name(name), type(type)
         {
