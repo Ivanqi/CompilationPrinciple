@@ -6,6 +6,7 @@
 #include <map>
 #include <set>
 #include <iostream>
+#include <algorithm>
 
 class Transition;
 class GrammarNode;
@@ -82,16 +83,16 @@ class State
 
         void setAcceptable(bool acceptable);
 
-        // void dump()
-        // {
-        //     set<State*> dumpedStates;
-        //     dump(this, dumpedStates);
-        // }
+        void dump()
+        {
+            vector<State*> dumpedStates;
+            dump(this, dumpedStates);
+        }
 
         /**
          * 打印FSA中的所有状态
          */
-        // static void dump(State state, set<State> dumpedStates);
+        static void dump(State state, vector<State*>& dumpedStates);
 
         string getName()
         {

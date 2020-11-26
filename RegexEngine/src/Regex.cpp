@@ -4,6 +4,7 @@
 #include "DFAState.h"
 #include "CharTransition.h"
 
+#include <string.h>
 
 /**
  * 把正则表达式翻译成NFA
@@ -65,8 +66,7 @@ vector<State> Regex::regexToNFA(GrammarNode *node)
 
     vector<State> rtn;
 
-    // // 考虑重复的情况，增加必要的节点和边
-    cout << "node: " << node->toString() << " | getMinTimes: " << node->getMinTimes() << " | getMaxTimes: " << node->getMaxTimes() << endl;
+    // 考虑重复的情况，增加必要的节点和边
     if (node->getMinTimes() != 1 || node->getMaxTimes() != 1) {
         rtn = addRepitition(beginState, endState, node);
     } else {
@@ -123,7 +123,17 @@ vector<State> Regex::addRepitition(State state1, State state2, GrammarNode *node
  * @param str
  * @return
  */
-// bool Regex::matchWithNFA(State *state, string str);
+bool Regex::matchWithNFA(State state, string str)
+{
+    cout << "NFA matching: '" << str << "'" << endl;
+    int index = matchWithNFA(state, str, 0);
+
+    bool match = index = str.length();
+
+    cout << "matched?: " << match << "\n";
+
+    return match;
+}
 
 /**
  * 用NFA来匹配字符串
@@ -132,7 +142,42 @@ vector<State> Regex::addRepitition(State state1, State state2, GrammarNode *node
  * @param indexi 当前匹配的字符开始的位置
  * @return 匹配后，新的index的位置。指向匹配成功的字符的下一个字符
  */
-// int Regex::matchWithNFA(State *state, char *chars, int index1);
+int Regex::matchWithNFA(State state, string str, int index1)
+{
+    cout << "trying state : " << state.getName() << ", index = " << index1 << endl;
+
+    int index2 = index1;
+
+    for (Transition *transition: state.getTransitions()) {
+        State nextState = state.getState(transition);
+        // epsilon转换
+        if (transition->isEpsilon()) {
+            index2 = matchWithNFA(nextState, str, index1);
+            if (index2 == str.length()) {
+                break;
+            }
+        } else if (transition->match(str[index1])) {  // 消化一个字符，指针前移
+            index2++;   // 消耗掉一个字符
+
+            if (index2 < str.length()) {
+                index2 = matchWithNFA(nextState, str, index1 + 1);
+            }
+        } else {
+            /**
+             * 如果已经扫描完所有的字符
+             * 检查当前状态是否是接受状态，或者可以通过epsilon到达接受状态
+             * 如果状态机还没有到达接受状态，本次匹配失败
+             */
+            if (acceptable(nextState)) {
+                break;
+            } else {
+                index2 = -1;
+            }
+        }
+    }
+
+    return index2;
+}
 
 // bool Regex::matchWithDFA(DFAState *state, string str);
 
@@ -144,7 +189,30 @@ vector<State> Regex::addRepitition(State state1, State state2, GrammarNode *node
 /**
  * 查找单曲状态是不是一个接受状态，或者可以通过epsilon迁移到一个接受状态
  */
-// bool Regex::acceptable(State *state);
+bool Regex::acceptable(State state)
+{
+    if (state.isAcceptable()) {
+        return true;
+    }
+
+    bool rtn = false;
+
+    for (Transition *transition : state.getTransitions()) {
+        if (transition->isEpsilon()) {
+            State nextState = state.getState(transition);
+            if (nextState.isAcceptable()) {
+                rtn = true;
+                break;
+            } else {
+                rtn = acceptable(nextState);
+                if (rtn) {
+                    break;
+                }
+            }
+        }
+    }
+    return rtn;
+}
 
 /**
  * 把NFA转换成

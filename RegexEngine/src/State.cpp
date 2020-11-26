@@ -69,15 +69,16 @@ string State::toString()
 /**
  * 打印FSA中的所有状态
  */
-// void State::dump(State state, set<State> dumpedStates)
-// {
-//     cout << state.name << endl;
-//     dumpedStates.insert(state);
+void State::dump(State state, vector<State*>& dumpedStates)
+{
+    cout << state.getName() << endl;
+    dumpedStates.emplace_back(&state);
 
-//     for (Transition *transition: state->getTransitions()) {
-//         State state2 = state.getState(transition);
-//         if (dumpedStates.find(&state2) != dumpedStates.end()) {
-//             dump(state2, dumpedStates);
-//         }
-//     }
-// }
+    for (Transition *transition: state.getTransitions()) {
+        State state2 = state.getState(transition);
+        auto it = std::find(dumpedStates.begin(), dumpedStates.end(), &state2);
+        if (it != dumpedStates.end()) {
+            dump(state2, dumpedStates);
+        }
+    }
+}

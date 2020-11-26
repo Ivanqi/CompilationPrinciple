@@ -16,11 +16,13 @@ void test_case_1() {
 
     cout << "\nNFA states:" << endl;
     vector<State> states = Regex::regexToNFA(rootNode);
-    cout << endl;
-    for (int i = 0; i < states.size(); i++) {
-        cout << states[i].toString() << endl;
-    }
-    // states[0]->dump();
+    states[0].dump();
+
+    // 用NFA来匹配
+    Regex::matchWithNFA(states[0], "int");
+    Regex::matchWithNFA(states[0], "intA");
+    Regex::matchWithNFA(states[0], "23");
+    Regex::matchWithNFA(states[0], "0A");
 
     delete rootNode;
 }
