@@ -1,5 +1,6 @@
 #include "Regex.h"
 #include "GrammarNode.h"
+#include "State.h"
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -16,7 +17,13 @@ void test_case_1() {
 
     cout << "\nNFA states:" << endl;
     vector<State> states = Regex::regexToNFA(rootNode);
-    states[0].dump();
+
+    for (int i = 0; i < states.size(); i++) {
+        cout << states[i].toString() << endl;
+    }
+
+    State::dump(states[0]);
+    cout << endl;
 
     // 用NFA来匹配
     Regex::matchWithNFA(states[0], "int");

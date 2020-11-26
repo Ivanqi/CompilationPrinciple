@@ -26,7 +26,7 @@ class State
         static int count;
 
         // 状态名称，是自动增长的数字, 0, 1...
-        string name;
+        string name{""};
 
         // 是不是最终状态(接受状态)
         bool acceptable;
@@ -41,7 +41,7 @@ class State
          * 跟这个节点关联的语法
          * 用于语法分析时，分辨哪个词法的结束状态
          */
-        GrammarNode *grammarNode = nullptr;
+        GrammarNode *grammarNode{nullptr};
 
     public:
         State(): name(std::to_string(count++))
@@ -83,16 +83,16 @@ class State
 
         void setAcceptable(bool acceptable);
 
-        void dump()
+        void static dump(State state)
         {
-            vector<State*> dumpedStates;
-            dump(this, dumpedStates);
+            map<State*, string> dumpedStates;
+            dump(state, dumpedStates);
         }
 
         /**
          * 打印FSA中的所有状态
          */
-        static void dump(State state, vector<State*>& dumpedStates);
+        static void dump(State state, map<State*, string>& dumpedStates);
 
         string getName()
         {

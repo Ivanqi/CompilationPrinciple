@@ -68,7 +68,7 @@ vector<State> Regex::regexToNFA(GrammarNode *node)
 
     // 考虑重复的情况，增加必要的节点和边
     if (node->getMinTimes() != 1 || node->getMaxTimes() != 1) {
-        rtn = addRepitition(beginState, endState, node);
+        rtn = addRepitition(&beginState, &endState, node);
     } else {
         rtn.emplace_back(beginState);
         rtn.emplace_back(endState);
@@ -104,7 +104,7 @@ vector<State> Regex::addRepitition(State state1, State state2, GrammarNode *node
         state2.setAcceptable(false);
 
         beginState.addTransition(new CharTransition(), endState);
-    } else {
+    } else {    // 1次
         beginState = state1;
         endState = state2;
     }
