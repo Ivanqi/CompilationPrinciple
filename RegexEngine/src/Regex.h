@@ -20,13 +20,13 @@ class Regex
         /**
          * 把正则表达式翻译成NFA
          */
-        static vector<State> regexToNFA(GrammarNode *node);
+        static vector<State*> regexToNFA(GrammarNode *node);
 
         /**
          * 支持 * ? +
          * 在两边增加额外的状态，并增加额外的连线
          */
-        static vector<State> addRepitition(State state1, State state2, GrammarNode *node);
+        static vector<State*> addRepitition(State *state1, State *state2, GrammarNode *node);
         
         /**
          * 看看str是否符合NFA
@@ -35,7 +35,7 @@ class Regex
          * @param str
          * @return
          */
-        static bool matchWithNFA(State state, string str);
+        static bool matchWithNFA(State *state, string str);
 
         /**
          * 用NFA来匹配字符串
@@ -44,7 +44,7 @@ class Regex
          * @param indexi 当前匹配的字符开始的位置
          * @return 匹配后，新的index的位置。指向匹配成功的字符的下一个字符
          */
-        static int matchWithNFA(State state, string str, int index1);
+        static int matchWithNFA(State *state, string str, int index1);
 
         static bool matchWithDFA(DFAState *state, string str);
 
@@ -56,7 +56,7 @@ class Regex
         /**
          * 查找单曲状态是不是一个接受状态，或者可以通过epsilon迁移到一个接受状态
          */
-        static bool acceptable(State state);
+        static bool acceptable(State *state);
 
         /**
          * 把NFA转换成

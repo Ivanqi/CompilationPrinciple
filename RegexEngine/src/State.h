@@ -21,6 +21,9 @@ using std::endl;
 // 代表有限自动机的一个状态
 class State
 {
+    private:
+        static map<State*, string> checkState;
+
     public:
         // 计数器
         static int count;
@@ -35,7 +38,7 @@ class State
         vector<Transition*> transitions;
 
         // 连线与下一个状态的对照表
-        map<Transition*, State> transition2State;
+        map<Transition*, State*> transition2State;
 
         /**
          * 跟这个节点关联的语法
@@ -48,25 +51,24 @@ class State
         {
         }
 
-        State(bool acceptable):acceptable(acceptable)
+        State(bool acceptable):acceptable(acceptable), name(std::to_string(count++))
         {
-            State();
         }
 
-        void addTransition(Transition *transition, State toState);
+        void addTransition(Transition *transition, State *toState);
 
         /**
          * 把另一个状态的连线全部拷贝成自己的
          * 这相当于把State这个节点替换成自己
          */
-        void copyTransitions(State state);
+        void copyTransitions(State *state);
 
-        State getState(Transition *transition);
+        State* getState(Transition *transition);
 
         /**
          * 获取某个状态的Transition // TODO 这里假设每两个状态之间只可能有一个Transition
          */
-        Transition* getTransitionTo(State toState);
+        Transition* getTransitionTo(State *toState);
 
         vector<Transition*> getTransitions()
         {
@@ -75,6 +77,8 @@ class State
 
         string toString();
 
+        void static showState(State *state);
+
         bool isAcceptable()
         {
             return acceptable;
@@ -82,7 +86,7 @@ class State
 
         void setAcceptable(bool acceptable);
 
-        void static dump(State state)
+        void static dump(State *state)
         {
             map<State*, string> dumpedStates;
             dump(state, dumpedStates);
@@ -91,7 +95,7 @@ class State
         /**
          * 打印FSA中的所有状态
          */
-        static void dump(State state, map<State*, string>& dumpedStates);
+        static void dump(State *state, map<State*, string>& dumpedStates);
 
         string getName()
         {

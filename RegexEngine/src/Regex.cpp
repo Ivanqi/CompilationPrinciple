@@ -9,17 +9,18 @@
 /**
  * 把正则表达式翻译成NFA
  */
-vector<State> Regex::regexToNFA(GrammarNode *node)
+vector<State*> Regex::regexToNFA(GrammarNode *node)
 {
-    State beginState;
-    State endState;
-    vector<State> lastChildState;
-    vector<State> childState;
+    State *beginState = nullptr;
+    State *endState = nullptr;
+    vector<State*> lastChildState;
+    vector<State*> childState;
 
     switch (node->getType()) {
         // 转换 s|t
         case GrammarNodeType::Or:
-            endState.setAcceptable(true);   // 新的接受状态
+            beginState = new State();
+            endState = new State(true);
 
             for (size_t i = 0; i < node->getChildren().size(); i++) {
                 // 递归，生成子图，返回头尾两个状态
@@ -27,11 +28,11 @@ vector<State> Regex::regexToNFA(GrammarNode *node)
                 childState = regexToNFA(child);
 
                 // beginState，通过ε接到子图的开始状态
-                beginState.addTransition(new CharTransition(), childState[0]);
+                beginState->addTransition(new CharTransition(), childState[0]);
 
                 // 子图的结束状态，通过ε接到endState
-                childState[1].addTransition(new CharTransition(), endState);
-                childState[1].setAcceptable(false);
+                childState[1]->addTransition(new CharTransition(), endState);
+                childState[1]->setAcceptable(false);
             }
             break;
 
@@ -41,8 +42,8 @@ vector<State> Regex::regexToNFA(GrammarNode *node)
                 childState = regexToNFA(node->getChild(i)); // 生成子图
                 if (lastChildState.size() > 0) {
                     // 把前一个子图的接受状态和后一个子图的开始状态合并，把两个子图接到一起
-                    lastChildState[1].copyTransitions(childState[0]);
-                    lastChildState[1].setAcceptable(false);
+                    lastChildState[1]->copyTransitions(childState[0]);
+                    lastChildState[1]->setAcceptable(false);
                 }
 
                 lastChildState = childState;
@@ -58,13 +59,14 @@ vector<State> Regex::regexToNFA(GrammarNode *node)
             
         // 处理普通的字符
         case GrammarNodeType::Char:
-            endState.setAcceptable(true); 
+            beginState = new State();
+            endState = new State(true);
             // 图的边上是当前节点的charSet,也就是导致迁移字符的集合，比如所有字母
-            beginState.addTransition(new CharTransition(node->getCharSet()), endState);
+            beginState->addTransition(new CharTransition(node->getCharSet()), endState);
             break;
     }
 
-    vector<State> rtn;
+    vector<State*> rtn;
 
     // 考虑重复的情况，增加必要的节点和边
     if (node->getMinTimes() != 1 || node->getMaxTimes() != 1) {
@@ -76,7 +78,7 @@ vector<State> Regex::regexToNFA(GrammarNode *node)
 
     // 为命了名的语法节点做标记，后面将用来设置Token类型
     if (node->getName().length() > 0) {
-        rtn[1].setGrammarNode(node);
+        rtn[1]->setGrammarNode(node);
     }
     return rtn;
 }
@@ -85,31 +87,32 @@ vector<State> Regex::regexToNFA(GrammarNode *node)
  * 支持 * ? +
  * 在两边增加额外的状态，并增加额外的连线
  */
-vector<State> Regex::addRepitition(State state1, State state2, GrammarNode *node)
+vector<State*> Regex::addRepitition(State *state1, State *state2, GrammarNode *node)
 {
-    State beginState;
-    State endState;
+    State *beginState;
+    State *endState;
 
     // 允许循环
     if (node->getMaxTimes() == -1 || node->getMaxTimes() > 1) {
-        state2.addTransition(new CharTransition(node->getMaxTimes()), state1);
+        state2->addTransition(new CharTransition(node->getMaxTimes()), state1);
     }
 
     // 允许0次，这时候要再加上两个节点
     if (node->getMinTimes() == 0) {
-        endState.setAcceptable(true);
+        beginState = new State();
+        endState = new State(true);
 
-        beginState.addTransition(new CharTransition(), state1);
-        state2.addTransition(new CharTransition(), endState);
-        state2.setAcceptable(false);
+        beginState->addTransition(new CharTransition(), state1);
+        state2->addTransition(new CharTransition(), endState);
+        state2->setAcceptable(false);
 
-        beginState.addTransition(new CharTransition(), endState);
+        beginState->addTransition(new CharTransition(), endState);
     } else {    // 1次
         beginState = state1;
         endState = state2;
     }
 
-    vector<State> rtn;
+    vector<State*> rtn;
     rtn.emplace_back(beginState);
     rtn.emplace_back(endState);
 
@@ -123,7 +126,7 @@ vector<State> Regex::addRepitition(State state1, State state2, GrammarNode *node
  * @param str
  * @return
  */
-bool Regex::matchWithNFA(State state, string str)
+bool Regex::matchWithNFA(State *state, string str)
 {
     cout << "NFA matching: '" << str << "'" << endl;
     int index = matchWithNFA(state, str, 0);
@@ -142,14 +145,14 @@ bool Regex::matchWithNFA(State state, string str)
  * @param indexi1 当前匹配的字符开始的位置
  * @return 匹配后，新的index的位置。指向匹配成功的字符的下一个字符
  */
-int Regex::matchWithNFA(State state, string str, int index1)
+int Regex::matchWithNFA(State *state, string str, int index1)
 {
-    cout << "trying state : " << state.getName() << ", index = " << index1 << endl;
+    cout << "trying state : " << state->getName() << ", index = " << index1 << endl;
 
     int index2 = index1;
 
-    for (Transition *transition: state.getTransitions()) {
-        State nextState = state.getState(transition);
+    for (Transition *transition: state->getTransitions()) {
+        State *nextState = state->getState(transition);
         // epsilon转换
         if (transition->isEpsilon()) {
             index2 = matchWithNFA(nextState, str, index1);
@@ -189,18 +192,18 @@ int Regex::matchWithNFA(State state, string str, int index1)
 /**
  * 查找单曲状态是不是一个接受状态，或者可以通过epsilon迁移到一个接受状态
  */
-bool Regex::acceptable(State state)
+bool Regex::acceptable(State *state)
 {
-    if (state.isAcceptable()) {
+    if (state->isAcceptable()) {
         return true;
     }
 
     bool rtn = false;
 
-    for (Transition *transition : state.getTransitions()) {
+    for (Transition *transition : state->getTransitions()) {
         if (transition->isEpsilon()) {
-            State nextState = state.getState(transition);
-            if (nextState.isAcceptable()) {
+            State *nextState = state->getState(transition);
+            if (nextState->isAcceptable()) {
                 rtn = true;
                 break;
             } else {

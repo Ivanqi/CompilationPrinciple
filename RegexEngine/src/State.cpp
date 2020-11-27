@@ -4,8 +4,10 @@
 #include "CharTransition.h"
 
 int State::count = 0;
+map<State*, string> State::checkState;
 
-void State::addTransition(Transition *transition, State toState)
+
+void State::addTransition(Transition *transition, State *toState)
 {
     transitions.emplace_back(transition);
     transition2State[transition] = toState;
@@ -15,13 +17,13 @@ void State::addTransition(Transition *transition, State toState)
  * 把另一个状态的连线全部拷贝成自己的
  * 这相当于把State这个节点替换成自己
  */
-void State::copyTransitions(State state)
+void State::copyTransitions(State *state)
 {
-    transitions = state.transitions;
-    transition2State = state.transition2State;
+    transitions = state->transitions;
+    transition2State = state->transition2State;
 }
 
-State State::getState(Transition *transition)
+State* State::getState(Transition *transition)
 {
     return transition2State[transition];
 }
@@ -29,11 +31,11 @@ State State::getState(Transition *transition)
 /**
  * 获取某个状态的Transition // TODO 这里假设每两个状态之间只可能有一个Transition
  */
-Transition* State::getTransitionTo(State toState)
+Transition* State::getTransitionTo(State *toState)
 {
     for (Transition *transition: transitions) {
-        State tmp = transition2State[transition];
-        if (&tmp == &toState) {
+        State *tmp = transition2State[transition];
+        if (tmp == toState) {
             return transition;
         }
     }
@@ -52,8 +54,8 @@ string State::toString()
 
     if (transitions.size() > 0) {
         for (Transition *transition : transitions) {
-            State state = transition2State[transition];
-            sb.append("\t").append( transition->toString()).append(" -> ").append(state.name).append("\n");
+            State *state = transition2State[transition];
+            sb.append("\t").append(transition->toString()).append(" -> ").append(state->name).append("\n");
         }
     } else {
         sb.append("\t(end)").append("\n");
@@ -66,19 +68,57 @@ string State::toString()
     return sb;
 }
 
+void State::showState(State *state)
+{
+    if (State::checkState.find(state) != State::checkState.end()) {
+        return;
+    }
+
+    State::checkState[state] = state->name;
+
+    string sb;
+    sb.append(state->name);
+
+    vector<Transition*> transitions = state->getTransitions();
+    map<Transition*, State*> transition2State = state->transition2State;
+    vector<State*> nextState;
+
+    if (transitions.size() > 0) {
+        for (Transition *transition : transitions) {
+            State *state = transition2State[transition];
+            sb.append("\t").append(transition->toString()).append(" -> ").append(state->name).append("\n");
+            nextState.emplace_back(state);
+        }
+        cout << sb;
+        for (State *s : nextState) {
+            showState(s);
+        }
+        return;
+    } else {
+        sb.append("\t(end)").append("\n");
+    }
+
+    if (state->isAcceptable()) {
+        sb.append("\t acceptable \n");
+    }
+
+    cout << sb << endl;
+    return;
+}
+
 /**
  * 打印FSA中的所有状态
  */
-void State::dump(State state, map<State*, string>& dumpedStates)
+void State::dump(State *state, map<State*, string>& dumpedStates)
 {
-    string name = state.getName();
+    string name = state->getName();
     cout << name << endl;
-    dumpedStates[&state] = name;
+    dumpedStates[state] = name;
 
     // O(n)
-    for (Transition *transition: state.getTransitions()) {
-        State state2 = state.getState(transition);
-        auto it = dumpedStates.find(&state2);
+    for (Transition *transition: state->getTransitions()) {
+        State *state2 = state->getState(transition);
+        auto it = dumpedStates.find(state2);
         if (it == dumpedStates.end()) {
             dump(state2, dumpedStates);
         }

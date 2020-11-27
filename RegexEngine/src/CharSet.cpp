@@ -76,11 +76,13 @@ string CharSet::toString()
         string toCharS;
         fromCharS.push_back(fromChar_);
         toCharS.push_back(toChar_);
+        string sb;
         if (exclude) {
-            return "[^" + fromCharS + " - " + toCharS + "]";
+            sb.append("[^").append(fromCharS).append(" - ").append(toCharS).append("]");
         } else {
-            return "[" + fromCharS + " - " + toCharS + "]";
+            sb.append("[").append(fromCharS).append(" - ").append(toCharS).append("]");
         }
+        return sb;
     }
 }
 
