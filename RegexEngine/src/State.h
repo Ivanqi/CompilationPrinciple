@@ -7,6 +7,7 @@
 #include <set>
 #include <iostream>
 #include <algorithm>
+#include <memory>
 
 class Transition;
 class GrammarNode;
@@ -17,6 +18,7 @@ using std::map;
 using std::set;
 using std::cout;
 using std::endl;
+using std::shared_ptr;
 
 // 代表有限自动机的一个状态
 class State

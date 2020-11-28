@@ -20,13 +20,13 @@ class Regex
         /**
          * 把正则表达式翻译成NFA
          */
-        static vector<State*> regexToNFA(GrammarNode *node);
+        static vector<shared_ptr<State>> regexToNFA(GrammarNode *node);
 
         /**
          * 支持 * ? +
          * 在两边增加额外的状态，并增加额外的连线
          */
-        static vector<State*> addRepitition(State *state1, State *state2, GrammarNode *node);
+        static vector<shared_ptr<State>> addRepitition(State *state1, State *state2, GrammarNode *node);
         
         /**
          * 看看str是否符合NFA
