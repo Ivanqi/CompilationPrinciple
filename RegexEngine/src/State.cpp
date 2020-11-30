@@ -9,7 +9,7 @@ map<State*, string> State::checkState;
 
 void State::addTransition(Transition *transition, State *toState)
 {
-    transitions.emplace_back(transition);
+    transitions.emplace_back(shared_ptr<Transition>(transition));
     transition2State[transition] = toState;
 }
 
@@ -33,7 +33,8 @@ State* State::getState(Transition *transition)
  */
 Transition* State::getTransitionTo(State *toState)
 {
-    for (Transition *transition: transitions) {
+    for (size_t i = 0; i < transitions.size(); i++) {
+        Transition *transition = transitions[i].get();
         State *tmp = transition2State[transition];
         if (tmp == toState) {
             return transition;
@@ -53,7 +54,8 @@ string State::toString()
     sb.append(name);
 
     if (transitions.size() > 0) {
-        for (Transition *transition : transitions) {
+        for (size_t i = 0; i < transitions.size(); i++) {
+            Transition *transition = transitions[i].get();
             State *state = transition2State[transition];
             sb.append("\t").append(transition->toString()).append(" -> ").append(state->name).append("\n");
         }
@@ -79,16 +81,18 @@ void State::showState(State *state)
     string sb;
     sb.append(state->name);
 
-    vector<Transition*> transitions = state->getTransitions();
+    vector<shared_ptr<Transition>> transitions = state->getTransitions();
     map<Transition*, State*> transition2State = state->transition2State;
     vector<State*> nextState;
 
     if (transitions.size() > 0) {
-        for (Transition *transition : transitions) {
+        for (size_t i = 0; i < transitions.size(); i++) {
+            Transition *transition = transitions[i].get();
             State *state = transition2State[transition];
             sb.append("\t").append(transition->toString()).append(" -> ").append(state->name).append("\n");
             nextState.emplace_back(state);
         }
+
         cout << sb;
         for (State *s : nextState) {
             showState(s);
@@ -117,7 +121,9 @@ void State::dump(State *state, map<State*, string>& dumpedStates)
     dumpedStates[state] = name;
 
     // O(n)
-    for (Transition *transition: state->getTransitions()) {
+    vector<shared_ptr<Transition>> transitions = state->getTransitions();
+    for (size_t i = 0; i < transitions.size(); i++) {
+        Transition *transition = transitions[i].get();
         State *state2 = state->getState(transition);
         auto it = dumpedStates.find(state2);
         if (it == dumpedStates.end()) {
@@ -134,11 +140,12 @@ void State::deleteState(State *state)
 
     State::checkState[state] = state->name;
 
-    vector<Transition*> transitions = state->getTransitions();
+    vector<shared_ptr<Transition>> transitions = state->getTransitions();
     map<Transition*, State*> transition2State = state->transition2State;
 
     if (transitions.size() > 0) {
-        for (Transition *transition : transitions) {
+        for (size_t i = 0; i < transitions.size(); i++) {
+            Transition *transition = transitions[i].get();
             State *state = transition2State[transition];
             deleteState(state);
         }

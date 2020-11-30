@@ -38,6 +38,8 @@ class DFAState: public State
          * 只要它所包含的NFA有一个是接受状态，该DFAState就是接受状态
          */
         bool isAcceptable();
+
+        static void showDFAState(vector<shared_ptr<DFAState>> dfaStates);
 };
 
 #endif

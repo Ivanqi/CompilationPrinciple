@@ -15,7 +15,8 @@ std::vector<State*> DFAState::getStates()
  */
 DFAState* DFAState::getNextState(Any obj)
 {
-    for (Transition *transition : getTransitions()) {
+    for (size_t i = 0; i < transitions.size(); i++) {
+        Transition *transition = transitions[i].get();
         if (transition->match(obj)) {
             return (DFAState*) getState(transition);
         }
@@ -55,4 +56,15 @@ bool DFAState::isAcceptable()
         }
     }
     return false;
+}
+
+void DFAState::showDFAState(vector<shared_ptr<DFAState>> dfaStates)
+{
+    for (size_t i = 0; i < dfaStates.size(); i++) {
+        DFAState *dstate = dfaStates[i].get();
+        cout << dstate->getName() << endl;
+        for (State *state: dstate->getStates()) {
+            cout << "\t" << state->toString() << endl;
+        }
+    }
 }

@@ -55,7 +55,7 @@ class Regex
         /**
          * 基于DFA做字符串匹配
          */
-        static bool matchWithDFA(DFAState *state, char *chars, int index);
+        static bool matchWithDFA(DFAState *state, string str, int index);
 
         /**
          * 查找单曲状态是不是一个接受状态，或者可以通过epsilon迁移到一个接受状态
@@ -65,12 +65,12 @@ class Regex
         /**
          * 把NFA转换成
          */
-        static vector<DFAState*> NFA2DFA(State *startState, std::vector<char> alphabet);
+        static vector<shared_ptr<DFAState>> NFA2DFA(State *startState, std::vector<char> alphabet);
 
         /**
          * 根据NFA State集合，查找是否已经存在一个DFAState，包含同样的NFA状态
          */
-        static DFAState* findDFAState(vector<DFAState*> dfaStates, vector<State*> states);
+        static DFAState* findDFAState(vector<shared_ptr<DFAState>> dfaStates, vector<State*> states);
 
         /**
          * 比较两个NFA state的集合是否相等

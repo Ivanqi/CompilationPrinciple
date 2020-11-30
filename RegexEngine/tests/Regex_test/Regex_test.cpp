@@ -32,8 +32,16 @@ void test_case_1() {
 
     // 转换成DFA
     cout << "\nNFA to DFA:" << endl;
-    vector<DFAState*> dfaStates2 = Regex::NFA2DFA(states[0], CharSet::letterAndDigits);
-    State::dump(dfaStates2[0]);
+    vector<shared_ptr<DFAState>> dfaStates = Regex::NFA2DFA(states[0], CharSet::letterAndDigits);
+    DFAState::showDFAState(dfaStates);
+
+    cout << endl;
+
+    //用DFA来匹配
+    Regex::matchWithDFA(dfaStates[0].get(), "int");
+    Regex::matchWithDFA(dfaStates[0].get(), "intA");
+    Regex::matchWithDFA(dfaStates[0].get(), "23");
+    Regex::matchWithDFA(dfaStates[0].get(), "0A");
 
     // 销毁内存
     for (int i = 0; i < states.size(); i++) {

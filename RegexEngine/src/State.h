@@ -7,6 +7,7 @@
 #include <set>
 #include <iostream>
 #include <algorithm>
+#include <memory>
 
 class Transition;
 class GrammarNode;
@@ -17,7 +18,7 @@ using std::map;
 using std::set;
 using std::cout;
 using std::endl;
-
+using std::shared_ptr;
 // 代表有限自动机的一个状态
 class State
 {
@@ -35,7 +36,7 @@ class State
         bool acceptable;
 
         // 状态间的连线
-        vector<Transition*> transitions;
+        vector<shared_ptr<Transition>> transitions;
 
         // 连线与下一个状态的对照表
         map<Transition*, State*> transition2State;
@@ -70,7 +71,7 @@ class State
          */
         Transition* getTransitionTo(State *toState);
 
-        vector<Transition*> getTransitions()
+        vector<shared_ptr<Transition>> getTransitions()
         {
             return transitions;
         }
