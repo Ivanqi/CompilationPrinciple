@@ -19,7 +19,6 @@ void test_case_1() {
     vector<State*> states = Regex::regexToNFA(rootNode);
 
     State::showState(states[0]);
-
     cout << endl;
 
     // 用NFA来匹配
@@ -27,6 +26,12 @@ void test_case_1() {
     Regex::matchWithNFA(states[0], "intA");
     Regex::matchWithNFA(states[0], "23");
     Regex::matchWithNFA(states[0], "0A");
+
+
+    // 销毁内存
+    for (int i = 0; i < states.size(); i++) {
+        State::deleteState(states[i]);
+    }
 
     delete rootNode;
 }

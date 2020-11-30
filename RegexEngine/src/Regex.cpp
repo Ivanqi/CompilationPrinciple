@@ -45,7 +45,7 @@ vector<State*> Regex::regexToNFA(GrammarNode *node)
                     lastChildState[1]->copyTransitions(childState[0]);
                     lastChildState[1]->setAcceptable(false);
                 }
-
+                // 形成链表
                 lastChildState = childState;
 
                 if (i == 0) {

@@ -96,6 +96,7 @@ void State::showState(State *state)
         return;
     } else {
         sb.append("\t(end)").append("\n");
+        State::checkState.clear();
     }
 
     if (state->isAcceptable()) {
@@ -122,5 +123,27 @@ void State::dump(State *state, map<State*, string>& dumpedStates)
         if (it == dumpedStates.end()) {
             dump(state2, dumpedStates);
         }
+    }
+}
+
+void State::deleteState(State *state)
+{
+    if (State::checkState.find(state) != State::checkState.end()) {
+        return;
+    }
+
+    State::checkState[state] = state->name;
+
+    vector<Transition*> transitions = state->getTransitions();
+    map<Transition*, State*> transition2State = state->transition2State;
+
+    if (transitions.size() > 0) {
+        for (Transition *transition : transitions) {
+            State *state = transition2State[transition];
+            deleteState(state);
+        }
+        delete state;
+    } else {
+        delete state;
     }
 }

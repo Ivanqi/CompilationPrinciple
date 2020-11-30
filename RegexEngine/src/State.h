@@ -111,6 +111,8 @@ class State
         {
             grammarNode = grammarNode;
         }
+
+        void static deleteState(State *state);
 };
 
 #endif
