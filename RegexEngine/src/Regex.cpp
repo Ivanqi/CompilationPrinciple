@@ -480,7 +480,16 @@ GrammarNode* Regex::sampleGrammar1()
 /**
  * 正则表达式: a[a-zA-Z0-9]*bc
  */
-// GrammarNode* Regex::sampleGrammar2()
-// {
+GrammarNode* Regex::sampleGrammar2()
+{
+    GrammarNode *node = new GrammarNode("regex2", GrammarNodeType::And);
 
-// }
+    node->createChild(new CharSet('a'));
+    GrammarNode *letterOrDigit = node->createChild(CharSet::letterOrDigit.get());
+    letterOrDigit->setRepeatTimes(0, -1);
+
+    node->createChild(new CharSet('b'));
+    node->createChild(new CharSet('c'));
+
+    return node;
+}

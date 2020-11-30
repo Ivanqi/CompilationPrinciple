@@ -34,7 +34,6 @@ void test_case_1() {
     cout << "\nNFA to DFA:" << endl;
     vector<shared_ptr<DFAState>> dfaStates = Regex::NFA2DFA(states[0], CharSet::letterAndDigits);
     DFAState::showDFAState(dfaStates);
-
     cout << endl;
 
     //用DFA来匹配
@@ -50,8 +49,46 @@ void test_case_1() {
     delete rootNode;
 }
 
+/**
+ * 第二个例子
+ * 正则表达式: a[a-zA-Z0-9]*bc, 也就是以a开头，bc结尾，中间可以是任何字母或数字
+ */
+void test_case_2()
+{
+    GrammarNode *rootNode2 = Regex::sampleGrammar2();
+    rootNode2->dump();
+
+    cout << "\nNFA states:" << endl;
+    vector<State*> states = Regex::regexToNFA(rootNode2);
+
+    State::showState(states[0]);
+    cout << endl;
+
+    // 用NFA来匹配
+    Regex::matchWithNFA(states[0], "abc");
+    Regex::matchWithNFA(states[0], "abcbbbcbc");
+    Regex::matchWithNFA(states[0], "abde");
+
+    // 转换成DFA
+    cout << "\nNFA to DFA:" << endl;
+    vector<shared_ptr<DFAState>> dfaStates2 = Regex::NFA2DFA(states[0], CharSet::letterAndDigits);
+    DFAState::showDFAState(dfaStates2);
+    cout << endl;
+
+     //用DFA来匹配
+    Regex::matchWithDFA(dfaStates2[0].get(), "abc");
+    Regex::matchWithDFA(dfaStates2[0].get(), "abcbbbcbc");
+    Regex::matchWithDFA(dfaStates2[0].get(), "abcb");
+
+    // 销毁内存
+    for (int i = 0; i < states.size(); i++) {
+        State::deleteState(states[i]);
+    }
+    delete rootNode2;
+}
+
 int main() {
 
-    test_case_1();
+    test_case_2();
     return 0;
 }
