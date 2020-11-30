@@ -1,6 +1,9 @@
 #include "Regex.h"
 #include "GrammarNode.h"
 #include "State.h"
+#include "CharSet.h"
+#include "DFAState.h"
+
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -29,7 +32,8 @@ void test_case_1() {
 
     // 转换成DFA
     cout << "\nNFA to DFA:" << endl;
-    
+    vector<DFAState*> dfaStates2 = Regex::NFA2DFA(states[0], CharSet::letterAndDigits);
+    State::dump(dfaStates2[0]);
 
     // 销毁内存
     for (int i = 0; i < states.size(); i++) {

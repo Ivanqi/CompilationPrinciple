@@ -5,11 +5,13 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <set>
 
 #include "State.h"
 
 using std::vector;
 using std::map;
+using std::set;
 
 class State;
 class GrammarNode;
@@ -73,17 +75,17 @@ class Regex
         /**
          * 比较两个NFA state的集合是否相等
          */
-        static bool smaeStateSet(vector<State*>stateSet1, vector<State*>stateSet2);
+        static bool sameStateSet(vector<State*>stateSet1, vector<State*>stateSet2);
 
         /**
          * 计算某个state通过epsilon能到达的所有State
          */
-        static vector<State*> calcClosure(State *state, std::map<State*, vector<State*>> calculatedClosures);
+        static vector<State*> calcClosure(State *state, std::map<State*, vector<State*>>& calculatedClosures);
 
         /**
          * 计算一个集合的闭包，包活这些状态以及可以通过epsilon到达的状态
          */
-        static void calcClosure(vector<State*>states, map<State*, vector<State*>> calculatedClosures);
+        static void calcClosure(vector<State*>& states, map<State*, vector<State*>>& calculatedClosures);
 
         /**
          * 计算从某个集合状态，在接受某个字符以后，会迁移到哪些新的集合
