@@ -4,10 +4,12 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #include "State.h"
 
 using std::vector;
+using std::map;
 
 class State;
 class GrammarNode;
@@ -61,32 +63,32 @@ class Regex
         /**
          * 把NFA转换成
          */
-        static std::vector<DFAState*> NFA2DFA(State *startState, std::vector<char> alphabet);
+        static vector<DFAState*> NFA2DFA(State *startState, std::vector<char> alphabet);
 
         /**
          * 根据NFA State集合，查找是否已经存在一个DFAState，包含同样的NFA状态
          */
-        static DFAState findDFAState(std::vector<DFAState*> dfaStates, std::set<State*> states);
+        static DFAState* findDFAState(vector<DFAState*> dfaStates, vector<State*> states);
 
         /**
          * 比较两个NFA state的集合是否相等
          */
-        static bool smaeStateSet(std::set<State*>stateSet1, std::set<State*>stateSet2);
+        static bool smaeStateSet(vector<State*>stateSet1, vector<State*>stateSet2);
 
         /**
          * 计算某个state通过epsilon能到达的所有State
          */
-        static std::set<State*> calcClosure(State *state, std::map<State*, std::set<State*>> calculatedClosures);
+        static vector<State*> calcClosure(State *state, std::map<State*, vector<State*>> calculatedClosures);
 
         /**
          * 计算一个集合的闭包，包活这些状态以及可以通过epsilon到达的状态
          */
-        static void calcClosure(std::set<State*>states, std::map<State*, std::set<State*>> calculatedClosures);
+        static void calcClosure(vector<State*>states, map<State*, vector<State*>> calculatedClosures);
 
         /**
          * 计算从某个集合状态，在接受某个字符以后，会迁移到哪些新的集合
          */
-        static std::set<State*> move(std::set<State*> states, char ch);
+        static vector<State*> move(vector<State*> states, char ch);
 
         /**
          * 创建一个示例用的正则表达式

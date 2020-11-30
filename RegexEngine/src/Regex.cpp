@@ -220,12 +220,100 @@ bool Regex::acceptable(State *state)
 /**
  * 把NFA转换成
  */
-// std::vecotr<DFAState*> Regex::NFA2DFA(State *startState, std::vecotr<char> alphabet);
+vector<DFAState*> Regex::NFA2DFA(State *startState, vector<char> alphabet)
+{
+    vector<DFAState*> dfaStates;
+    vector<DFAState*> newStates;
+
+    map<State*, vector<State*>> calculatedClosures;
+
+    vector<State*> stateSet = calcClosure(startState, calculatedClosures);
+
+    DFAState *dfaState = new DFAState(stateSet);
+    dfaStates.emplace_back(dfaState);
+    newStates.emplace_back(dfaState);
+
+    /**
+     * 每次循环，都会计算出一些新的StateSet来
+     * 如果没有新的了，计算结束
+     */
+    while (newStates.size() > 0) {
+        vector<DFAState*> calculating = newStates;
+        newStates.clear();
+
+        for (DFAState *dfaState2 : calculating) {
+            // 为字母表中的每个字母循环
+            for (char ch: alphabet) {
+                vector<State*> nextStateSet = move(dfaState2->getStates(), ch);
+                if (nextStateSet.size() == 0) {
+                    continue;
+                }
+
+                calcClosure(nextStateSet, calculatedClosures);
+
+                // 看看是不是一个新的状态
+                dfaState = findDFAState(dfaStates, nextStateSet);
+                Transition *transition = nullptr;
+
+                if (dfaState == nullptr) {
+                    dfaState = new DFAState(nextStateSet);
+                    dfaStates.emplace_back(dfaState);
+                    newStates.emplace_back(dfaState);
+                    transition = new CharTransition();
+                    dfaState2->addTransition(transition, dfaState);
+                }
+
+                // 复用已有的迁移
+                if (transition == nullptr) {
+                    transition = dfaState2->getTransitionTo(dfaState);
+                    if (transition == nullptr) {
+                        transition = new CharTransition();
+                        dfaState2->addTransition(transition, dfaState);
+                    }
+                }
+
+                // 往transition上添加字母
+                // ((CharTransition*)transition)->condition->addSubSet(new CharSet(ch));
+            }
+        }
+    }
+
+    return dfaStates;
+}
 
 /**
  * 根据NFA State集合，查找是否已经存在一个DFAState，包含同样的NFA状态
  */
-// DFAState Regex::findDFAState(std::vector<DFAState*> dfaStates, std::set<State*> states);
+DFAState* Regex::findDFAState(vector<DFAState*> dfaStates, vector<State*> states)
+{
+    DFAState *dfaState = nullptr;
+
+    for (DFAState *dfaState1 : dfaStates) {
+        if (smaeStateSet(dfaState1->getStates(), states)) {
+            dfaState = dfaState1;
+            break;
+        }
+    }
+    return dfaState;
+}
+
+/**
+ * 比较两个NFA state的集合是否相等
+ */
+bool smaeStateSet(vector<State*>stateSet1, vector<State*>stateSet2)
+{
+    if (stateSet1.size() != stateSet2.size()) {
+        return false;
+    } else {
+        // O(n^2)， 待优化
+        for (State *state2 : stateSet2) {
+            if (std::find(stateSet1.begin(), stateSet1.end(), state2) == stateSet1.end()) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
 
 /**
  * 比较两个NFA state的集合是否相等
@@ -235,23 +323,58 @@ bool Regex::acceptable(State *state)
 /**
  * 计算某个state通过epsilon能到达的所有State
  */
-// std::set<State*> Regex::calcClosure(State *state, std::map<State*, std::set<State*>> calculatedClosures);
+vector<State*> Regex::calcClosure(State *state, map<State*, vector<State*>> calculatedClosures)
+{
+    if (calculatedClosures.find(state) != calculatedClosures.end()) {
+        return calculatedClosures[state];
+    }
+
+    vector<State*> closure;
+    closure.emplace_back(state);    // 加上自身
+
+    for (Transition *transition: state->getTransitions()) {
+        if(transition->isEpsilon()) {
+            State *nextState = state->getState(transition);
+            closure.emplace_back(nextState);
+            vector<State*> tmp = calcClosure(nextState, calculatedClosures);
+            closure.insert(closure.end(), tmp.begin(), tmp.end());
+        }
+    }
+
+    calculatedClosures[state] = closure;
+    return closure;
+}
 
 /**
  * 计算一个集合的闭包，包活这些状态以及可以通过epsilon到达的状态
  */
-// void Regex::calcClosure(std::set<State*>states, std::map<State*, std::set<State*>> calculatedClosures)
-// {
+void Regex::calcClosure(vector<State*> states, map<State*, vector<State*>> calculatedClosures)
+{
+    vector<State*> newStates;
+    for (State *state : states) {
+        vector<State*> closure = calcClosure(state, calculatedClosures);
+        newStates.emplace_back(closure);
+    }
 
-// }
+    states.emplace_back(newStates);
+}
 
 /**
  * 计算从某个集合状态，在接受某个字符以后，会迁移到哪些新的集合
  */
-// std::set<State*> Regex::move(std::set<State*> states, char ch)
-// {
-
-// }
+vector<State*> Regex::move(vector<State*> states, char ch)
+{
+    vector<State*> rtn;
+    for (State *state : states) {
+        for (Transition *transition : state->getTransitions()) {
+            if (transition->match(ch)) {
+                State *nextState = state->getState(transition);
+                rtn.emplace_back(nextState);
+            }
+        }
+    }
+    return rtn;
+}
 
 /**
  * 创建一个示例用的正则表达式

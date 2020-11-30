@@ -27,12 +27,14 @@ void test_case_1() {
     Regex::matchWithNFA(states[0], "23");
     Regex::matchWithNFA(states[0], "0A");
 
+    // 转换成DFA
+    cout << "\nNFA to DFA:" << endl;
+    
 
     // 销毁内存
     for (int i = 0; i < states.size(); i++) {
         State::deleteState(states[i]);
     }
-
     delete rootNode;
 }
 
