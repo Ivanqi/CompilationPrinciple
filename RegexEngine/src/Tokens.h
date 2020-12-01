@@ -19,13 +19,13 @@ class Tokens
         string text;
 
         // token在整个字符流中的起止位置
-        int startPos = 0;
-        int endPos = 0;
+        int startPos{0};
+        int endPos{0};
 
         // token所在的行列位置
-        int lineNumber = 0;
-        int startColumn = 0;
-        int endColumn = 0;
+        int lineNumber{0};
+        int startColumn{0};
+        int endColumn{0};
 
         // 程序结束符号
         static Tokens* eof;
