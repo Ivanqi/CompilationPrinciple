@@ -164,7 +164,7 @@ int Regex::matchWithNFA(State *state, string str, int index1)
         } else if (transition->match(str[index1])) {  // 消化一个字符，指针前移
             index2++;   // 消耗掉一个字符
 
-            if (index2 < str.length()) {
+            if (index2 < str.length() - 1) {
                 index2 = matchWithNFA(nextState, str, index1 + 1);
             } else {
                 /**
