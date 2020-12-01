@@ -1,7 +1,7 @@
 #include "TokenReader.h"
 #include "Tokens.h"
 
-TokenReader::TokenReader(std::vector<Tokens> tokens):tokens_(tokens)
+TokenReader::TokenReader(std::vector<Tokens*> tokens):tokens_(tokens)
 {
 }
 

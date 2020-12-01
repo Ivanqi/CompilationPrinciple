@@ -46,7 +46,7 @@ class LLParser
          * @param firstSets
          * @return 如果这次计算，First集合的成员都没有变动，则返回true
          */
-        static bool calcFirstSets(GrammarNode *grammar, map<GrammarNode*, set<string>> firstSets, set<GrammarNode*> calculated);
+        static bool caclFirstSets(GrammarNode* grammar, map<GrammarNode*, set<string>> firstSets, set<GrammarNode*> calculated);
 
         /**
          * 计算Follow集合

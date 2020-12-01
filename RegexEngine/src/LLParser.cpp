@@ -13,9 +13,11 @@ ASTNode* LLParser::parse(string script, GrammarNode* grammar)
     grammar->dump();
 
     // 计算First集合
-    map<GrammarNode*, set<string>> firstSets = calcFirstSets(grammar);
+    map<GrammarNode*, set<string>> firstSets = caclFirstSets(grammar);
     std::cout << "\nnFIRST:" << endl;
     dumpFirstFollowSets(firstSets);
+
+    return nullptr;
 }
 
 /**
@@ -27,7 +29,7 @@ map<GrammarNode*, set<string>> LLParser::caclFirstSets(GrammarNode* grammar)
     map<GrammarNode*, set<string>> firstSets;
 
     set<GrammarNode*> calculated;
-    bool stable = calcFirstSets(grammar, firstSets, calculated);
+    bool stable = caclFirstSets(grammar, firstSets, calculated);
 
     int i = 1;
 
@@ -36,7 +38,7 @@ map<GrammarNode*, set<string>> LLParser::caclFirstSets(GrammarNode* grammar)
     while (!stable) {
         std::cout << "caclFirstSets round: " << i++ << std::endl;
         set<GrammarNode*> calculated1;
-        stable = calcFirstSets(grammar, firstSets, calculated1);
+        stable = caclFirstSets(grammar, firstSets, calculated1);
     }
     return firstSets;
 }
@@ -47,7 +49,7 @@ map<GrammarNode*, set<string>> LLParser::caclFirstSets(GrammarNode* grammar)
  * @param firstSets
  * @return 如果这次计算，First集合的成员都没有变动，则返回true
  */
-bool LLParser::calcFirstSets(GrammarNode *grammar, map<GrammarNode*, set<string>> firstSets, set<GrammarNode*> calculated)
+bool LLParser::caclFirstSets(GrammarNode* grammar, map<GrammarNode*, set<string>> firstSets, set<GrammarNode*> calculated)
 {
     // 标记正在计算该节点，避免重复调用
     calculated.insert(grammar);
@@ -64,9 +66,10 @@ bool LLParser::calcFirstSets(GrammarNode *grammar, map<GrammarNode*, set<string>
 
     if (!grammar->isLeaf()) {
         // 先把所有的子节点都计算一遍
-        for (GrammarNode *child: grammar->getChildren()) {
+        for (size_t i = 0; i < grammar->getChildren().size(); i++) {
+            GrammarNode *child = grammar->getChildren()[i].get();
             if (!child->isLeaf() && calculated.find(child) == calculated.end()) {
-                calcFirstSets(child, firstSets, calculated);
+                caclFirstSets(child, firstSets, calculated);    // todo 是否需要记录Stable
             }
         }
 
@@ -76,27 +79,28 @@ bool LLParser::calcFirstSets(GrammarNode *grammar, map<GrammarNode*, set<string>
             childToAdd.emplace_back(grammar->getChild(0));
 
             // 要一直找到一个不产生Epsilong的符号
-            for (GrammarNode *child: grammar->getChildren()) {
+            for (size_t i = 0; i < grammar->getChildren().size(); i++) {
+                GrammarNode *child = grammar->getChildren()[i].get();
                 childToAdd.emplace_back(child);
                 if (!child->isNullable()) {
                     break;
                 }
             }
         } else if (grammar->getType() == GrammarNodeType::Or) {
-            for (GrammarNode *child : grammar->getChildren()) {
+            for (size_t i = 0; i < grammar->getChildren().size(); i++) {
+                GrammarNode *child = grammar->getChildren()[i].get();
                 childToAdd.emplace_back(child);
+
             }
         }
 
-        std::sort(firstSet.begin(), firstSet.end());
-        set<GrammarNode*> v_intersection;
+        set<string> v_intersection;
         for (GrammarNode *child : childToAdd) {
             if (!child->isLeaf()) {
                 set<string> childSet = firstSets[child];
                 v_intersection.clear();   
-                std::sort(childSet.begin(), childSet.end());
                 // 求交集
-                std::set_intersection(firstSet.begin(), firstSet.end(), childSet.begin(), childSet.end(), std::back_inserter(v_intersection));
+                std::set_intersection(std::begin(firstSet), std::end(firstSet), std::begin(childSet), std::end(childSet), std::inserter(v_intersection, std::begin(v_intersection)));
                 if (v_intersection.size() != childSet.size()) {
                     firstSet.insert(childSet.begin(), childSet.end());
                     stable = false;

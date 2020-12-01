@@ -5,7 +5,7 @@ using std::cout;
 using std::endl;
 
 // 常量，Epsilon 节点。某些语法会返回空节点
-static ASTNode* ASTNode::EpsilonNode = new ASTNode("Epsilon");
+ASTNode* ASTNode::EpsilonNode = new ASTNode("Epsilon");
 
 ASTNode::ASTNode(string type): type_(type)
 {
@@ -18,15 +18,15 @@ ASTNode::ASTNode(string type, string text): type_(type), text_(text)
 
 string ASTNode::getType()
 {
-    return type;
+    return type_;
 }
 
 string ASTNode::getText()
 {
-    return text;
+    return text_;
 }
 
-vector<ASTNode> ASTNode::children()
+vector<ASTNode*> ASTNode::children()
 {
     return children_;
 }
@@ -38,7 +38,7 @@ int ASTNode::getChildCount()
 
 ASTNode* ASTNode::getChild(int index)
 {
-    return children_[index]
+    return children_[index];
 }
 
 ASTNode* ASTNode::parent()
@@ -107,7 +107,7 @@ void ASTNode::dump(ASTNode *node, string indent)
     }
     cout << str << endl;
 
-    for (ASTNode *node : node->children()) {
+    for (ASTNode *child : node->children()) {
         dump(child, indent + "\t");
     }
 }

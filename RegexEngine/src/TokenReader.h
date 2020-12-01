@@ -16,7 +16,7 @@ class TokenReader
         int pos{0}; // 当前指针位置
 
     public:
-        TokenReader(std::vector<Tokens> tokens);
+        TokenReader(std::vector<Tokens*> tokens);
 
         /**
          * 读取一个Token，并移动指针

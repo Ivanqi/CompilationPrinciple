@@ -34,7 +34,7 @@ class ASTNode
 
         string getText();
 
-        vector<ASTNode> children();
+        vector<ASTNode*> children();
 
         int getChildCount();
 
