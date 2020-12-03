@@ -298,14 +298,14 @@ void GrammarNode::dumpTree(GrammarNode *node, string indent)
 void GrammarNode::dumpGraph(GrammarNode *node, set<GrammarNode*> &dumpedNodes)
 {
     if (node->isNamedNode()) {
-        cout << node->getText();
+        cout << node->getText() << endl;
     }
 
     dumpedNodes.insert(node);
 
     for (size_t i = 0; i < node->children.size(); i++) {
         GrammarNode *child = node->children[i].get();
-        if (dumpedNodes.find(child) != dumpedNodes.end()) {
+        if (dumpedNodes.find(child) == dumpedNodes.end()) {
             dumpGraph(child, dumpedNodes);
         }
     }

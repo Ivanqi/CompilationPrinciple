@@ -5,9 +5,8 @@
 GrammarNode* SampleGrammar::statementGrammar()
 {
     GrammarNode *exp = expressionGrammar();
-
-    shared_ptr<GrammarNode> blockStatementsPtr = shared_ptr<GrammarNode>(new GrammarNode("blockStatements", GrammarNodeType::Or));
-    GrammarNode *blockStatements = blockStatementsPtr.get();
+    
+    GrammarNode *blockStatements = new GrammarNode("blockStatements", GrammarNodeType::Or);
 
    blockStatements->createChild(GrammarNodeType::Epsilon);
 
@@ -71,8 +70,7 @@ GrammarNode* SampleGrammar::statementGrammar()
 GrammarNode* SampleGrammar::expressionGrammar()
 {
     // expression
-    shared_ptr<GrammarNode> expPtr = shared_ptr<GrammarNode>(new GrammarNode("expression", GrammarNodeType::Or));
-    GrammarNode *exp = expPtr.get();
+    GrammarNode *exp = new GrammarNode("expression", GrammarNodeType::Or);
 
     // assign
     GrammarNode *assign = exp->createChild("assign", GrammarNodeType::And);
