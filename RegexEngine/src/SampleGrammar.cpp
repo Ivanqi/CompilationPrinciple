@@ -8,48 +8,48 @@ GrammarNode* SampleGrammar::statementGrammar()
     
     GrammarNode *blockStatements = new GrammarNode("blockStatements", GrammarNodeType::Or);
 
-   blockStatements->createChild(GrammarNodeType::Epsilon);
+    blockStatements->createChild(GrammarNodeType::Epsilon);
 
-   GrammarNode *blockStatements1 = blockStatements->createChild(GrammarNodeType::And);
-   GrammarNode *blockStatement = blockStatements1->createChild("blockStatement", GrammarNodeType::Or);
-   blockStatements1->addChild(blockStatements);
+    GrammarNode *blockStatements1 = blockStatements->createChild(GrammarNodeType::And);
+    GrammarNode *blockStatement = blockStatements1->createChild("blockStatement", GrammarNodeType::Or);
+    blockStatements1->addChild(blockStatements);
 
-   GrammarNode *variableDeclarator = blockStatement->createChild("variableDeclarator", GrammarNodeType::And);
-   variableDeclarator->createChild(new Tokens("INT", "int"));
-   variableDeclarator->createChild(new Tokens("ID"));
-   GrammarNode *variableInitiator = variableDeclarator->createChild(GrammarNodeType::Or);
+    GrammarNode *variableDeclarator = blockStatement->createChild("variableDeclarator", GrammarNodeType::And);
+    variableDeclarator->createChild(new Tokens("INT", "int"));
+    variableDeclarator->createChild(new Tokens("ID"));
+    GrammarNode *variableInitiator = variableDeclarator->createChild(GrammarNodeType::Or);
 
-   GrammarNode *variableInitiator_1 = variableDeclarator->createChild(GrammarNodeType::And);
+    GrammarNode *variableInitiator_1 = variableInitiator->createChild(GrammarNodeType::And);
 
-   variableInitiator_1->createChild(new Tokens("ASSIGN", "="));
-   variableInitiator_1->addChild(exp);
-   variableInitiator_1->createChild(new Tokens("SEMI", ";"));
+    variableInitiator_1->createChild(new Tokens("ASSIGN", "="));
+    variableInitiator_1->addChild(exp);
+    variableInitiator_1->createChild(new Tokens("SEMI", ";"));
 
-   variableInitiator->createChild(GrammarNodeType::Epsilon);
+    variableInitiator->createChild(GrammarNodeType::Epsilon);
 
-   GrammarNode *stmt = blockStatement->createChild("statement", GrammarNodeType::Or);
+    GrammarNode *stmt = blockStatement->createChild("statement", GrammarNodeType::Or);
 
-   // expression statement
-   GrammarNode *expStmt = stmt->createChild("expressionStatement", GrammarNodeType::And);
-   expStmt->addChild(exp);
-   expStmt->createChild(new Tokens("SEMI", ";"));
+    // expression statement
+    GrammarNode *expStmt = stmt->createChild("expressionStatement", GrammarNodeType::And);
+    expStmt->addChild(exp);
+    expStmt->createChild(new Tokens("SEMI", ";"));
 
-   // if
-   GrammarNode *ifStmt = stmt->createChild("ifStatement", GrammarNodeType::And);
-   ifStmt->createChild(new Tokens("IF", "if"));
-   ifStmt->createChild(new Tokens("LPAREN", "("));
-   ifStmt->addChild(exp);
-   ifStmt->createChild(new Tokens("RPAREN", ")"));
-   ifStmt->addChild(stmt);
-   ifStmt->createChild(new Tokens("SEMI", ";"));
+    // if
+    GrammarNode *ifStmt = stmt->createChild("ifStatement", GrammarNodeType::And);
+    ifStmt->createChild(new Tokens("IF", "if"));
+    ifStmt->createChild(new Tokens("LPAREN", "("));
+    ifStmt->addChild(exp);
+    ifStmt->createChild(new Tokens("RPAREN", ")"));
+    ifStmt->addChild(stmt);
+    ifStmt->createChild(new Tokens("SEMI", ";"));
 
-   // block
-   GrammarNode *block = stmt->createChild("block", GrammarNodeType::And);
-   block->createChild(new Tokens("LBRACE", "{"));
-   block->addChild(blockStatements);
-   block->createChild(new Tokens("RBRACE", "}"));
+    // block
+    GrammarNode *block = stmt->createChild("block", GrammarNodeType::And);
+    block->createChild(new Tokens("LBRACE", "{"));
+    block->addChild(blockStatements);
+    block->createChild(new Tokens("RBRACE", "}"));
 
-   return blockStatements;
+    return blockStatements;
 }
 
 /**
@@ -74,8 +74,8 @@ GrammarNode* SampleGrammar::expressionGrammar()
 
     // assign
     GrammarNode *assign = exp->createChild("assign", GrammarNodeType::And);
-    GrammarNode *equal = exp->createChild("equal", GrammarNodeType::And);
-    GrammarNode *assign1 = exp->createChild("assign1", GrammarNodeType::Or);
+    GrammarNode *equal = assign->createChild("equal", GrammarNodeType::And);
+    GrammarNode *assign1 = assign->createChild("assign1", GrammarNodeType::Or);
 
     // assign1
     GrammarNode *assign1_1 = assign1->createChild(GrammarNodeType::And);
@@ -91,12 +91,12 @@ GrammarNode* SampleGrammar::expressionGrammar()
 
     // equal1
     GrammarNode *equal1_1 = equal1->createChild(GrammarNodeType::And);
-    GrammarNode *equal1Op = equal1_1->createChild(GrammarNodeType::Or);
-    equal1Op->createChild(new Tokens("EQUAL", "=="));
-    equal1Op->createChild(new Tokens("NOTEQUAL", "!="));
+    GrammarNode *equalOp = equal1_1->createChild(GrammarNodeType::Or);
+    equalOp->createChild(new Tokens("EQUAL", "=="));
+    equalOp->createChild(new Tokens("NOTEQUAL", "!="));
 
-    equal1->addChild(rel);
-    equal1->addChild(equal1);
+    equal1_1->addChild(rel);
+    equal1_1->addChild(equal1);
     equal1->createChild(GrammarNodeType::Epsilon);
 
     // rel
@@ -130,7 +130,7 @@ GrammarNode* SampleGrammar::expressionGrammar()
     add1->createChild(GrammarNodeType::Epsilon);
 
     // mul
-    GrammarNode *pri = mul->createChild("pri", GrammarNodeType::And);
+    GrammarNode *pri = mul->createChild("pri", GrammarNodeType::Or);
     GrammarNode *mul1 = mul->createChild("mul1", GrammarNodeType::Or);
 
     // mul1
@@ -138,8 +138,8 @@ GrammarNode* SampleGrammar::expressionGrammar()
     GrammarNode *mulOp = mul1_1->createChild(GrammarNodeType::Or);
     mulOp->createChild(new Tokens("MUL", "*"));
     mulOp->createChild(new Tokens("DIV", "/"));
-    mul1->addChild(pri);
-    mul1->addChild(mul1);
+    mul1_1->addChild(pri);
+    mul1_1->addChild(mul1);
     mul1->createChild(GrammarNodeType::Epsilon);
 
     // pri

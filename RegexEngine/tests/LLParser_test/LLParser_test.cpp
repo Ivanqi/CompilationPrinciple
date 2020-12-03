@@ -6,7 +6,7 @@ void test_case_1() {
     string script1 = "2+3*(4+5)";
     GrammarNode* grammar = SampleGrammar::statementGrammar();
 
-    // LLParser::parse(script1, grammar);
+    LLParser::parse(script1, grammar);
 }
 
 void test_case_2() {
