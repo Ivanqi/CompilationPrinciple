@@ -353,6 +353,7 @@ bool GrammarNode::isNullable()
         bool allNullable = true;
         for (size_t i = 0; i < children.size(); i++) {
             GrammarNode *child = children[i].get();
+            // And 一个不为空，全部不为空
             if (!child->isNullable()) {
                 allNullable = false;
                 break;
@@ -363,7 +364,8 @@ bool GrammarNode::isNullable()
         bool anyNullable = false;
         for (size_t i = 0; i < children.size(); i++) {
             GrammarNode *child = children[i].get();
-            if (!child->isNullable()) {
+            // Or 一个为空，全部为空
+            if (child->isNullable()) {
                 anyNullable = true;
                 break;
             }

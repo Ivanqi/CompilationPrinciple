@@ -16,7 +16,7 @@ class FirstFollowSet
          * 计算First集合
          * 采用了不动点法
          */
-        static map<GrammarNode*, set<string>> caclFirstSets(GrammarNode* grammar);
+        static map<GrammarNode*, set<string>*> caclFirstSets(GrammarNode* grammar);
 
         /**
          * 对First集合做一次计算
@@ -24,7 +24,7 @@ class FirstFollowSet
          * @param firstSets
          * @return 如果这次计算，First集合的成员都没有变动，则返回true
          */
-        static bool caclFirstSets(GrammarNode* grammar, map<GrammarNode*, set<string>>& firstSets, set<GrammarNode*>& calculated);
+        static bool caclFirstSets(GrammarNode* grammar, map<GrammarNode*, set<string>*>& firstSets, set<GrammarNode*>& calculated);
 
         /**
          * 计算Follow集合
@@ -43,7 +43,7 @@ class FirstFollowSet
                                     set<GrammarNode> calculated);
         
         // 打印输出First或Follow集合
-        static void dumpFirstFollowSets(map<GrammarNode*, set<string>> sets);
+        static void dumpFirstFollowSets(map<GrammarNode*, set<string>*> sets);
 };
 
 #endif
