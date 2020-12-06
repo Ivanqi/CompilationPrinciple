@@ -14,11 +14,13 @@ ASTNode* LLParser::parse(string script, GrammarNode* grammar)
 
     // 计算First集合
     map<GrammarNode*, set<string>*> firstSets = FirstFollowSet::caclFirstSets(grammar);
-    std::cout << "\nnFIRST:" << endl;
+    std::cout << "\nFIRST:" << endl;
     FirstFollowSet::dumpFirstFollowSets(firstSets);
 
     // 计算Follow集合
-    
+    map<GrammarNode*, set<string>*> followSets = FirstFollowSet::caclFollowSets(grammar, firstSets);
+    std::cout << "\nFOLLOW:" << std::endl;
+
 
     return nullptr;
 }

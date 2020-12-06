@@ -32,18 +32,27 @@ class FirstFollowSet
          * @param grammar 入口语法节点
          * @return
          */
-        static map<GrammarNode*, set<string>> caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<string>> firstSets);
+        static map<GrammarNode*, set<string>*> caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<string>*> firstSets);
 
         /**
          * 计算一遍Follow节点
          */
-        static bool caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<string>> followSets, 
-                                    map<GrammarNode*, set<string>> rightChildrenSets,
-                                    map<GrammarNode*, set<string>> firstSets,
-                                    set<GrammarNode> calculated);
+        static bool caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<string>*>& followSets, 
+                                    map<GrammarNode*, set<GrammarNode*>>& rightChildrenSets, 
+                                    map<GrammarNode*, set<string>*>& firstSets, 
+                                    set<GrammarNode*>& calculated);
         
         // 打印输出First或Follow集合
         static void dumpFirstFollowSets(map<GrammarNode*, set<string>*> sets);
+    
+    private:
+        /**
+         * 把某个节点的Follow集合，也给它所有右边分支的后代节点
+         */
+        static bool addToRightChild(GrammarNode *grammar, set<string>* followSet, 
+                                    map<GrammarNode*, set<string>*>& followSets, 
+                                    map<GrammarNode*, set<GrammarNode*>> rightChildrenSets,
+                                    set<GrammarNode*>& added);
 };
 
 #endif

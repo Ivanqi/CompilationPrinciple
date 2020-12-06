@@ -36,12 +36,6 @@ class LLParser
         static ASTNode* parse(string script, GrammarNode* grammar);
 
     private:
-        /**
-         * 把某个节点的Follow集合，也给它所有右边分支的后代节点
-         */
-        static bool addToRightChild(GrammarNode *grammar, set<string> followSet, 
-                                    map<GrammarNode*, set<string>> followSets, map<GrammarNode*, set<GrammarNode*>> rightChildrenSets,
-                                    set<GrammarNode*> added);
 
         /**
          * 语法分析
