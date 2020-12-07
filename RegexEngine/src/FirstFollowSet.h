@@ -51,7 +51,7 @@ class FirstFollowSet
          */
         static bool addToRightChild(GrammarNode *grammar, set<string>* followSet, 
                                     map<GrammarNode*, set<string>*>& followSets, 
-                                    map<GrammarNode*, set<GrammarNode*>> rightChildrenSets,
+                                    map<GrammarNode*, set<GrammarNode*>>& rightChildrenSets,
                                     set<GrammarNode*>& added);
 };
 

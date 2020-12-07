@@ -20,7 +20,7 @@ ASTNode* LLParser::parse(string script, GrammarNode* grammar)
     // 计算Follow集合
     map<GrammarNode*, set<string>*> followSets = FirstFollowSet::caclFollowSets(grammar, firstSets);
     std::cout << "\nFOLLOW:" << std::endl;
-
+    FirstFollowSet::dumpFirstFollowSets(followSets);
 
     return nullptr;
 }

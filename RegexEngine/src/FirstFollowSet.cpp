@@ -146,12 +146,32 @@ map<GrammarNode*, set<string>*> FirstFollowSet::caclFollowSets(GrammarNode *gram
     map<GrammarNode*, set<string>*> followSets;
     map<GrammarNode*, set<GrammarNode*>> rightChildrenSets;
 
-    // // 不动点法计算Follow集合
-    // int i = 1;
-    // std::cout << "follow set round: " << i++ << endl;
+    // 不动点法计算Follow集合
+    int i = 1;
+    std::cout << "follow set round: " << i++ << endl;
 
     set<GrammarNode*> calculated;
     bool stable = caclFollowSets(grammar, followSets, rightChildrenSets, firstSets, calculated);
+
+    set<GrammarNode*> calculated1;
+    while (!stable) {
+        std::cout << "follow set round:" << i++ << std::endl;
+        stable = caclFollowSets(grammar, followSets, rightChildrenSets, firstSets, calculated1);
+    }
+
+    //  为根节点最右边的边，也就是所有可能出现在程序末尾的非终结符，加上$,也就是整个Token串结束符号
+    set<string> *tempFollowSet = new set<string>();
+    tempFollowSet->insert("$");
+    set<GrammarNode*> add1;
+    addToRightChild(grammar, tempFollowSet, followSets, rightChildrenSets, add1);
+
+    // 给根节点加上$。根节点如果没有递归引用，不会出现在followSets中
+    set<string> *rootFollowSet = followSets[grammar];
+    if (rootFollowSet == nullptr) {
+        rootFollowSet = new set<string>();
+        followSets[grammar] = rootFollowSet;
+    }
+    rootFollowSet->insert("$");
 
     return followSets;
 }
@@ -179,6 +199,7 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
 
             for (int i = 0; i < grammar->getChildCount(); i++) {
                 GrammarNode *left = grammar->getChild(i);
+                // 重复的节点或叶子节点，不递归
                 if (!left->isLeaf() && calculated.find(left) == calculated.end()) {
                     bool state = caclFollowSets(left, followSets, rightChildrenSets, firstSets, calculated);
                     if (!state) {
@@ -192,19 +213,23 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
                     followSets[left] = followSet;
                 }
 
-                if (i == grammar->getChildCount()) {
+                if (i == grammar->getChildCount()) {    // 当 i 等于 grammar 子节点的数量
                     rightChildren.insert(left);
                 } else {
                     bool foundNotNull = false;
+                    // grammar 的子节点
                     for (int j = i + 1; j < grammar->getChildCount(); j++) {
                         GrammarNode *right = grammar->getChild(i);
                         set<string> *tempFollowSet = new set<string>();
+                        // 不是叶子节点
                         if (!right->isLeaf()) {
                             if (firstSets[right] == nullptr) {
                                 cout << "" << endl;
                             }
+                            // 如果后面是非终结符，就把它的First集合加到自己的Follow集合中去
                             tempFollowSet->insert(firstSets[right]->begin(), firstSets[right]->end());
                         } else if (right->isToken()) {
+                            // 后面跟着的终结符，都加到Follow(x)集合中去
                             tempFollowSet->insert(right->getToken()->getType());
                         }
 
@@ -220,6 +245,9 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
                             stable = false;
                         }
 
+                        /**
+                         * 把left的子节点的follow集合和 tempFollowSet 关联起来
+                         */
                         if (!addToRightChild(left, tempFollowSet, followSets, rightChildrenSets, added)) {
                             stable = false;
                         }
@@ -259,41 +287,43 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
  * 把某个节点的Follow集合，也给它所有右边分支的后代节点
  */
 bool FirstFollowSet::addToRightChild(GrammarNode *grammar, set<string>* followSet, 
-                                    map<GrammarNode*, set<string>*>& followSets, map<GrammarNode*, set<GrammarNode*>> rightChildrenSets,
+                                    map<GrammarNode*, set<string>*>& followSets, 
+                                    map<GrammarNode*, set<GrammarNode*>>& rightChildrenSets,
                                     set<GrammarNode*>& added)
 {
     added.insert(grammar);
 
     bool stable = true;
-    // set<GrammarNode*> rightChildren = rightChildrenSets[grammar];
+    set<GrammarNode*> rightChildren = rightChildrenSets[grammar];
 
-    // set<string> *v_intersection = new set<string>();
-    // for (GrammarNode *rightChild : rightChildren) {
-    //     if (!rightChild->isLeaf() && added.find(rightChild) != added.end()) {
-    //         set<string> *childFollowSet = followSets[rightChild];
-    //         if (childFollowSet == nullptr) {
-    //             childFollowSet = new set<string>();
-    //             followSets[rightChild] = childFollowSet;
-    //         }
+    set<string> *v_intersection = new set<string>();
+    for (GrammarNode *rightChild : rightChildren) {
+        // 重复的节点或叶子节点，不进行操作
+        if (!rightChild->isLeaf() && added.find(rightChild) != added.end()) {
+            set<string> *childFollowSet = followSets[rightChild];
+            if (childFollowSet == nullptr) {
+                childFollowSet = new set<string>();
+                followSets[rightChild] = childFollowSet;
+            }
 
-    //         v_intersection->clear();
+            v_intersection->clear();
 
-    //         // 求交集
-    //         std::set_intersection(followSet->begin(), followSet->end(),
-    //                         childFollowSet->begin(), childFollowSet->end(),
-    //                         std::inserter((*v_intersection), std::begin((*v_intersection))));
-    //         // 检查两个集合是否包含相同的元素
-    //         if (v_intersection->size() != childFollowSet->size()) {
-    //             childFollowSet->insert(followSet->begin(), followSet->end());
-    //             stable = false;
-    //         }
+            // 求交集
+            std::set_intersection(followSet->begin(), followSet->end(),
+                            childFollowSet->begin(), childFollowSet->end(),
+                            std::inserter((*v_intersection), std::begin((*v_intersection))));
+            // 检查两个集合是否包含相同的元素
+            if (v_intersection->size() != childFollowSet->size()) {
+                childFollowSet->insert(followSet->begin(), followSet->end());
+                stable = false;
+            }
 
-    //         // 递归向下
-    //         if (!addToRightChild(rightChild, followSet, followSets, rightChildrenSets, added)) {
-    //             stable = false;
-    //         }
-    //     }
-    // }
+            // 递归向下
+            if (!addToRightChild(rightChild, followSet, followSets, rightChildrenSets, added)) {
+                stable = false;
+            }
+        }
+    }
 
     return stable;
 }
