@@ -27,9 +27,6 @@ class Tokens
         int startColumn{0};
         int endColumn{0};
 
-        // 程序结束符号
-        static Tokens* eof;
-
     public:
         Tokens(string type)
             :type(type)
@@ -42,6 +39,9 @@ class Tokens
         {
 
         }
+
+        // 程序结束符号
+        static Tokens* eof;
 
         // Token类型
         string getType();
