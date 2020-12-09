@@ -5,6 +5,7 @@
 #include "CharTransition.h"
 
 #include <string.h>
+#include <iostream>
 
 /**
  * 把正则表达式翻译成NFA
@@ -77,7 +78,11 @@ vector<State*> Regex::regexToNFA(GrammarNode *node)
     }
 
     // 为命了名的语法节点做标记，后面将用来设置Token类型
-    if (node->getName().length() > 0) {
+    string nodeName = node->getName();
+    if (nodeName.length() > 0) {
+        if (nodeName == "_INT_23") {
+            std::cout << "nodeName: " << nodeName << " / " << node << " | endState: " << endState->getName() << std::endl; 
+        }
         rtn[1]->setGrammarNode(node);
     }
     return rtn;
@@ -457,20 +462,20 @@ GrammarNode* Regex::sampleGrammar1()
 {
     GrammarNode *node = new GrammarNode("regex1", GrammarNodeType::Or);
 
-    // // int 关键字
+    // int 关键字
     GrammarNode *intNode = node->createChild(GrammarNodeType::And);
     intNode->createChild(new CharSet('i'));
     intNode->createChild(new CharSet('n'));
     intNode->createChild(new CharSet('t'));
 
-    // // 标识符
+    // 标识符
     GrammarNode *idNode = node->createChild(GrammarNodeType::And);
     GrammarNode *firstLetter = idNode->createChild(CharSet::letter.get());
 
     GrammarNode *letterOrDigit = idNode->createChild(CharSet::letterOrDigit.get());
     letterOrDigit->setRepeatTimes(0, -1);
 
-    // // 数字字面量
+    // 数字字面量
     GrammarNode *literalNode = node->createChild(CharSet::digit.get());
     literalNode->setRepeatTimes(1, -1);
 

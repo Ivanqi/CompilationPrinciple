@@ -40,12 +40,13 @@ vector<Tokens*> Lexer::tokenize(string str, DFAState *startState, GrammarNode *r
     int strLen = str.length();
 
     string ch;
+    char xx;
 
     for (int i = 0; i < strLen; i++) {
         ch = str[i];
+        xx = ch.c_str()[0];
         bool consumed = false;
         while (!consumed) {
-            char xx = ch.c_str()[0];
             nextState = currentState->getNextState(xx);
             if (nextState == nullptr) {
                 if (currentState == startState) {
@@ -91,6 +92,7 @@ GrammarNode* Lexer::getGrammar(DFAState *state, GrammarNode *root)
     // 找出state符合的所有词法
     set<GrammarNode*> validGrammars;
     for (State *child : state->getStates()) {
+        std::cout << "child: " << child->getName() << " / " << child->getGrammarNode() << std::endl;
         if (child->getGrammarNode() != nullptr) {
             validGrammars.insert(child->getGrammarNode());
         }
