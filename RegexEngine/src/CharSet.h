@@ -58,7 +58,7 @@ class CharSet
 
 
         CharSet(char fromChar)
-            :fromChar_{fromChar}, toChar_{fromChar_}
+            :fromChar_{fromChar}, toChar_{fromChar}
         {
         }
 

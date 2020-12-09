@@ -45,7 +45,7 @@ class State
          * 跟这个节点关联的语法
          * 用于语法分析时，分辨哪个词法的结束状态
          */
-        GrammarNode *grammarNode{nullptr};
+        GrammarNode *grammarNode_{nullptr};
 
     public:
         State(): name(std::to_string(count++))
@@ -105,12 +105,12 @@ class State
 
         GrammarNode* getGrammarNode()
         {
-            return grammarNode;
+            return grammarNode_;
         }
 
         void setGrammarNode(GrammarNode* grammarNode)
         {
-            grammarNode = grammarNode;
+            grammarNode_ = grammarNode;
         }
 
         void static deleteState(State *state);

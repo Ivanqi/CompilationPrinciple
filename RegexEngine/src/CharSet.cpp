@@ -34,7 +34,9 @@ bool CharSet::match(char ch)
             }
         }
     } else {
-        rtn = (fromChar_ <= ch && ch <= toChar_);
+        if (fromChar_ != ' ' && toChar_ != ' ') {
+            rtn = (fromChar_ <= ch && ch <= toChar_);
+        } 
     }
 
     if (exclude) {

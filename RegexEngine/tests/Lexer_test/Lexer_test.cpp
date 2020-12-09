@@ -4,6 +4,7 @@
 #include "Regex.h"
 #include "CharSet.h"
 #include "DFAState.h"
+#include "Tokens.h"
 
 #include <iostream>
 #include <string>
@@ -15,15 +16,20 @@ void test_case_1() {
     vector<State*> nfaStates = Regex::regexToNFA(lexerGrammar);
     vector<shared_ptr<DFAState>> dfaStates = Regex::NFA2DFA(nfaStates[0], CharSet::ascii);
 
-    cout << "\ndump NFA:" << endl;
-    State::showState(nfaStates[0]);
+    cout << "dump NFA:" << endl;
+    // State::showState(nfaStates[0]);
 
-    cout << "\ndump DFA:" << endl;
-    DFAState::showDFAState(dfaStates);
+    cout << "dump DFA:" << endl;
+    // DFAState::showDFAState(dfaStates);
     cout << endl;
 
     string code = "int i = 0; i + 100; if (a == 10) println(a); a <= b;";
     vector<Tokens*> tokens = Lexer::tokenize(code, dfaStates[0].get(), lexerGrammar);
+
+    cout << "dump Tokens:" << endl;
+    for (Tokens *token : tokens){
+        cout << token->toString() << endl;
+    }
 
     // 销毁内存
     for (int i = 0; i < nfaStates.size(); i++) {

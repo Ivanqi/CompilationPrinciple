@@ -54,6 +54,7 @@ vector<Tokens*> Lexer::tokenize(string str, DFAState *startState, GrammarNode *r
                     consumed = true;
                 } else if (currentState->isAcceptable()) {
                     // 查找对应的词法规则
+                    std::cout << "tokenText: " << tokenText << " | tokenText len:" << tokenText.length() << std::endl;
                     GrammarNode *grammar = getGrammar(currentState, root);
                     assert(grammar != nullptr);
 

@@ -80,9 +80,6 @@ vector<State*> Regex::regexToNFA(GrammarNode *node)
     // 为命了名的语法节点做标记，后面将用来设置Token类型
     string nodeName = node->getName();
     if (nodeName.length() > 0) {
-        if (nodeName == "_INT_23") {
-            std::cout << "nodeName: " << nodeName << " / " << node << " | endState: " << endState->getName() << std::endl; 
-        }
         rtn[1]->setGrammarNode(node);
     }
     return rtn;
