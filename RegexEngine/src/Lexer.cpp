@@ -54,7 +54,7 @@ vector<Tokens*> Lexer::tokenize(string str, DFAState *startState, GrammarNode *r
                     consumed = true;
                 } else if (currentState->isAcceptable()) {
                     // 查找对应的词法规则
-                    std::cout << "tokenText: " << tokenText << " | tokenText len:" << tokenText.length() << std::endl;
+                    std::cout << "tokenText: " << tokenText << " | tokenText len:" << tokenText.length() << " | ch : " << xx << std::endl;
                     GrammarNode *grammar = getGrammar(currentState, root);
                     assert(grammar != nullptr);
 
@@ -65,7 +65,7 @@ vector<Tokens*> Lexer::tokenize(string str, DFAState *startState, GrammarNode *r
                     }
                     tokenText.clear();
 
-                    // 会到初始状态，重新匹配
+                    // 回到初始状态，重新匹配
                     currentState = startState;
                 } else {
                     // 遇到不认识的字符，没有到达结束态，但也无法迁移
@@ -93,10 +93,12 @@ GrammarNode* Lexer::getGrammar(DFAState *state, GrammarNode *root)
     // 找出state符合的所有词法
     set<GrammarNode*> validGrammars;
     for (State *child : state->getStates()) {
-        std::cout << "child: " << child->getName() << " / " << child->getGrammarNode() << std::endl;
+        std::cout << "child: " << child->getName() << " / " << child->getGrammarNode();
         if (child->getGrammarNode() != nullptr) {
+            std::cout << " | name: " << child->getGrammarNode()->getName();
             validGrammars.insert(child->getGrammarNode());
         }
+        std::cout << std::endl;
     }
 
     // 按顺序遍历词法规则，声明在前的优先级更高
@@ -104,6 +106,7 @@ GrammarNode* Lexer::getGrammar(DFAState *state, GrammarNode *root)
     for (int i = 0; i < root->getChildCount(); i++) {
         GrammarNode *grammar = root->getChild(i);
         if (grammar->getName().length() > 0) {
+            std::cout << "grammar->getName(): " << grammar->getName() << " / " << grammar << std::endl;
             if (validGrammars.find(grammar) != validGrammars.end()) {
                 rtn = grammar;
                 break;

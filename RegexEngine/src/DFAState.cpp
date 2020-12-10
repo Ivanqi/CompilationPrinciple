@@ -3,6 +3,8 @@
 #include "Transition.h"
 #include "GrammarNode.h"
 
+#include <iostream>
+
 std::vector<State*> DFAState::getStates()
 {
     return states;
@@ -52,6 +54,7 @@ bool DFAState::isAcceptable()
 {
     for (State *state: states) {
         if (state->isAcceptable()) {
+            std::cout << "DFAState::isAcceptable: " << state->getName() << std::endl;
             return true;
         }
     }

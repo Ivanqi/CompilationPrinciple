@@ -36,7 +36,7 @@ bool CharSet::match(char ch)
     } else {
         if (fromChar_ != ' ' && toChar_ != ' ') {
             rtn = (fromChar_ <= ch && ch <= toChar_);
-        } 
+        }
     }
 
     if (exclude) {
