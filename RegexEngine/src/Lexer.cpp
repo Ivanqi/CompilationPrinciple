@@ -54,7 +54,6 @@ vector<Tokens*> Lexer::tokenize(string str, DFAState *startState, GrammarNode *r
                     consumed = true;
                 } else if (currentState->isAcceptable()) {
                     // 查找对应的词法规则
-                    std::cout << "tokenText: " << tokenText << " | tokenText len:" << tokenText.length() << " | ch : " << xx << std::endl;
                     GrammarNode *grammar = getGrammar(currentState, root);
                     assert(grammar != nullptr);
 
@@ -93,9 +92,7 @@ GrammarNode* Lexer::getGrammar(DFAState *state, GrammarNode *root)
     // 找出state符合的所有词法
     set<GrammarNode*> validGrammars;
     for (State *child : state->getStates()) {
-        std::cout << "child: " << child->getName() << " / " << child->getGrammarNode();
         if (child->getGrammarNode() != nullptr) {
-            std::cout << " | name: " << child->getGrammarNode()->getName();
             validGrammars.insert(child->getGrammarNode());
         }
         std::cout << std::endl;
@@ -106,7 +103,6 @@ GrammarNode* Lexer::getGrammar(DFAState *state, GrammarNode *root)
     for (int i = 0; i < root->getChildCount(); i++) {
         GrammarNode *grammar = root->getChild(i);
         if (grammar->getName().length() > 0) {
-            std::cout << "grammar->getName(): " << grammar->getName() << " / " << grammar << std::endl;
             if (validGrammars.find(grammar) != validGrammars.end()) {
                 rtn = grammar;
                 break;
