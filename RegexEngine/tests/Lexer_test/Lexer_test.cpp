@@ -28,7 +28,7 @@ void test_case_1() {
 
     cout << "dump Tokens:" << endl;
     for (Tokens token : tokens){
-        cout << token.toString() << endl;
+        cout << '\t' << token.toString() << endl;
     }
 
     // 销毁内存

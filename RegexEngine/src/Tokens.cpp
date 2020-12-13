@@ -5,22 +5,22 @@ Tokens Tokens::eof("$");
 // Token类型
 string Tokens::getType()
 {
-    return type;
+    return type_;
 }
 
 void Tokens::setType(string type)
 {
-    type = type;
+    type_ = type;
 }
 
 string Tokens::getText()
 {
-    return text;
+    return text_;
 }
 
 void Tokens::setText(string text)
 {
-    text = text;
+    text_ = text;
 }
 
 int Tokens::getStartPos()
@@ -79,16 +79,16 @@ bool Tokens::equals(Any obj)
 
     Tokens *token = obj.as<Tokens*>();
 
-    if (!token->equals(token->type)) {
+    if (!token->equals(token->getType())) {
         return false;
     }
 
-    if (text.size() == 0) {
-        if (token->text.size() > 0) {
+    if (text_.size() == 0) {
+        if (token->getText().size() > 0) {
             return false;
         }
     } else {
-        if (text.compare(token->text) != 0) {
+        if (text_.compare(token->getText()) != 0) {
             return false;
         }
     }
@@ -98,12 +98,12 @@ bool Tokens::equals(Any obj)
 
 string Tokens::toString()
 {
-    string rtn = type;
+    string rtn = type_;
 
     rtn + ":";
 
-    if (text.size() > 0) {
-        rtn += " " + text;
+    if (text_.size() > 0) {
+        rtn += " " + text_;
     }
 
     return rtn;

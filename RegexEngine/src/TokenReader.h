@@ -11,24 +11,24 @@ class Tokens;
 class TokenReader
 {
     private:
-        std::vector<Tokens*> tokens_;
+        std::vector<Tokens> tokens_;
 
         int pos{0}; // 当前指针位置
 
     public:
-        TokenReader(std::vector<Tokens*> tokens);
+        TokenReader(std::vector<Tokens> tokens);
 
         /**
          * 读取一个Token，并移动指针
          * @return 如果已经读完，则返回null
          */
-        Tokens* read();
+        Tokens read();
 
         /**
          * 预读一个Token
          * @return 如果已经读完，则返回null
          */
-        Tokens* peek();
+        Tokens peek();
 
         /**
          * 回溯一个Token

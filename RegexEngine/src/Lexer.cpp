@@ -50,7 +50,7 @@ vector<Tokens> Lexer::tokenize(string str, DFAState *startState, GrammarNode *ro
     string nodeName;
     char xx;
 
-    for (int i = 0; i < strLen; i++) {
+    for (int i = 0; i <= strLen; i++) {
         ch = str[i];
         xx = ch.c_str()[0];
         bool consumed = false;
@@ -65,7 +65,7 @@ vector<Tokens> Lexer::tokenize(string str, DFAState *startState, GrammarNode *ro
                     GrammarNode *grammar = getGrammar(currentState, root);
                     // assert(grammar != nullptr);
                     if (grammar == nullptr) {
-                        tokenText.clear();
+                        // tokenText.clear();
                         currentState = startState;
                         continue;
                     }

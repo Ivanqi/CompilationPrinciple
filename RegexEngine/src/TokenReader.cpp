@@ -1,7 +1,7 @@
 #include "TokenReader.h"
 #include "Tokens.h"
 
-TokenReader::TokenReader(std::vector<Tokens*> tokens):tokens_(tokens)
+TokenReader::TokenReader(std::vector<Tokens> tokens):tokens_(tokens)
 {
 }
 
@@ -9,24 +9,24 @@ TokenReader::TokenReader(std::vector<Tokens*> tokens):tokens_(tokens)
  * 读取一个Token，并移动指针
  * @return 如果已经读完，则返回null
  */
-Tokens* TokenReader::read()
+Tokens TokenReader::read()
 {
     if (pos < tokens_.size()) {
         return tokens_[pos++];
     }
-    return nullptr;
+    return Tokens("nullptr");
 }
 
 /**
  * 预读一个Token
  * @return 如果已经读完，则返回null
  */
-Tokens* TokenReader::peek()
+Tokens TokenReader::peek()
 {
     if (pos < tokens_.size()) {
         return tokens_[pos];
     }
-    return nullptr;
+    return Tokens("nullptr");
 }
 
 /**

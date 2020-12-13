@@ -13,10 +13,10 @@ class Tokens
 {
     private:
         // token 类型
-        string type;
+        string type_{""};
 
         // token的文本值
-        string text;
+        string text_{""};
 
         // token在整个字符流中的起止位置
         int startPos{0};
@@ -29,13 +29,13 @@ class Tokens
 
     public:
         Tokens(string type)
-            :type(type)
+            :type_(type)
         {
             
         }
 
         Tokens(string type, string text)
-            :type(type), text(text)
+            :type_(type), text_(text)
         {
 
         }

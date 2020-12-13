@@ -41,8 +41,10 @@ class LLParser
          * 语法分析
          * 匹配一个语法规则，生成一个AST节点
          */
-        static ASTNode* match(GrammarNode* grammar, TokenReader *tokenReader, map<GrammarNode*, set<string>> firstSets,
-                             map<GrammarNode*, set<string>> followSets);
+        static ASTNode* match(GrammarNode* grammar, 
+                              TokenReader *tokenReader, 
+                              map<GrammarNode*, set<string>*> firstSets,
+                              map<GrammarNode*, set<string>*> followSets);
 
 };
 
