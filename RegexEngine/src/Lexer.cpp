@@ -11,12 +11,19 @@
 /**
  * 把字符串解析成Token列表
  */
-vector<Tokens*> Lexer::tokenize(string str)
+vector<Tokens> Lexer::tokenize(string str)
 {
     GrammarNode *lexerGrammar = SampleGrammar::commonLexerGrammar();
     vector<State*> nfaStates = Regex::regexToNFA(lexerGrammar);
     vector<shared_ptr<DFAState>> dfaStates = Regex::NFA2DFA(nfaStates[0], CharSet::ascii);
-    vector<Tokens*> tokens = tokenize(str, dfaStates[0].get(), lexerGrammar);
+    vector<Tokens> tokens = tokenize(str, dfaStates[0].get(), lexerGrammar);
+
+    // 销毁内存
+    for (int i = 0; i < nfaStates.size(); i++) {
+        State::deleteState(nfaStates[i]);
+    }
+
+    delete lexerGrammar;
 
     // 加上结束符号
     tokens.push_back(Tokens::eof);
@@ -29,9 +36,9 @@ vector<Tokens*> Lexer::tokenize(string str)
  *  2. 针对这个DFA一直给它发字符，直到不能接受
  *  3. 查看是否处于结束状态
  */
-vector<Tokens*> Lexer::tokenize(string str, DFAState *startState, GrammarNode *root)
+vector<Tokens> Lexer::tokenize(string str, DFAState *startState, GrammarNode *root)
 {
-    vector<Tokens*> tokens;
+    vector<Tokens> tokens;
     DFAState *currentState = startState;
     DFAState *nextState = nullptr;
 
@@ -40,6 +47,7 @@ vector<Tokens*> Lexer::tokenize(string str, DFAState *startState, GrammarNode *r
     int strLen = str.length();
 
     string ch;
+    string nodeName;
     char xx;
 
     for (int i = 0; i < strLen; i++) {
@@ -55,11 +63,17 @@ vector<Tokens*> Lexer::tokenize(string str, DFAState *startState, GrammarNode *r
                 } else if (currentState->isAcceptable()) {
                     // 查找对应的词法规则
                     GrammarNode *grammar = getGrammar(currentState, root);
-                    assert(grammar != nullptr);
+                    // assert(grammar != nullptr);
+                    if (grammar == nullptr) {
+                        tokenText.clear();
+                        currentState = startState;
+                        continue;
+                    }
 
                     // 创建Token
                     if (!grammar->isNeglect() && tokenText.length() > 0) {    // 空白字符会被忽略
-                        Tokens *token = new Tokens(grammar->getName(), tokenText);
+                        nodeName = grammar->getName();
+                        Tokens token(nodeName, tokenText);
                         tokens.push_back(token);
                     }
                     tokenText.clear();
@@ -95,7 +109,6 @@ GrammarNode* Lexer::getGrammar(DFAState *state, GrammarNode *root)
         if (child->getGrammarNode() != nullptr) {
             validGrammars.insert(child->getGrammarNode());
         }
-        std::cout << std::endl;
     }
 
     // 按顺序遍历词法规则，声明在前的优先级更高

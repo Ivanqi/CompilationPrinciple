@@ -54,7 +54,6 @@ bool DFAState::isAcceptable()
 {
     for (State *state: states) {
         if (state->isAcceptable()) {
-            std::cout << "DFAState::isAcceptable: " << state->getName() << std::endl;
             return true;
         }
     }

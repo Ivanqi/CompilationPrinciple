@@ -22,7 +22,7 @@ class Lexer
         /**
          * 把字符串解析成Token列表
          */
-        static vector<Tokens*> tokenize(string str);
+        static vector<Tokens> tokenize(string str);
 
         /**
          * 逻辑
@@ -30,7 +30,7 @@ class Lexer
          *  2. 针对这个DFA一直给它发字符，直到不能接受
          *  3. 查看是否处于结束状态
          */
-        static vector<Tokens*> tokenize(string str, DFAState *startState, GrammarNode *root);
+        static vector<Tokens> tokenize(string str, DFAState *startState, GrammarNode *root);
 
         /**
          * 检查DFAState中的各个NFAstate，看是否是某个词法规则的结束节点

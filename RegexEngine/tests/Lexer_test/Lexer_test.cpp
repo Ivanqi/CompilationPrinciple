@@ -17,18 +17,18 @@ void test_case_1() {
     vector<shared_ptr<DFAState>> dfaStates = Regex::NFA2DFA(nfaStates[0], CharSet::ascii);
 
     cout << "dump NFA:" << endl;
-    State::showState(nfaStates[0]);
+    // State::showState(nfaStates[0]);
 
     cout << "dump DFA:" << endl;
-    DFAState::showDFAState(dfaStates);
+    // DFAState::showDFAState(dfaStates);
     cout << endl;
 
     string code = "int i = 0; i + 100; if (a == 10) println(a); a <= b;";
-    vector<Tokens*> tokens = Lexer::tokenize(code, dfaStates[0].get(), lexerGrammar);
+    vector<Tokens> tokens = Lexer::tokenize(code, dfaStates[0].get(), lexerGrammar);
 
     cout << "dump Tokens:" << endl;
-    for (Tokens *token : tokens){
-        cout << token->toString() << endl;
+    for (Tokens token : tokens){
+        cout << token.toString() << endl;
     }
 
     // 销毁内存

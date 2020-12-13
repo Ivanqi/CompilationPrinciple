@@ -1,6 +1,6 @@
 #include "Tokens.h"
 
-Tokens* Tokens::eof = new Tokens("$");
+Tokens Tokens::eof("$");
 
 // Token类型
 string Tokens::getType()
@@ -103,7 +103,7 @@ string Tokens::toString()
     rtn + ":";
 
     if (text.size() > 0) {
-        rtn += text;
+        rtn += " " + text;
     }
 
     return rtn;

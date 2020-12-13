@@ -41,7 +41,7 @@ class Tokens
         }
 
         // 程序结束符号
-        static Tokens* eof;
+        static Tokens eof;
 
         // Token类型
         string getType();
