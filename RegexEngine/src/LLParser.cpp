@@ -28,17 +28,17 @@ ASTNode* LLParser::parse(string script, GrammarNode* grammar)
     std::cout << "\nFOLLOW:" << std::endl;
     FirstFollowSet::dumpFirstFollowSets(followSets);
 
-    // 词法分析
-    vector<Tokens> tokens = Lexer::tokenize(script);
-    TokenReader *tokenReader = new TokenReader(tokens);
+    // // 词法分析
+    // vector<Tokens> tokens = Lexer::tokenize(script);
+    // TokenReader *tokenReader = new TokenReader(tokens);
 
-    // 语法分析
-    ASTNode *rootNode = match(grammar, tokenReader, firstSets, followSets);
+    // // 语法分析
+    // ASTNode *rootNode = match(grammar, tokenReader, firstSets, followSets);
 
-    if (rootNode != nullptr && rootNode != ASTNode::EpsilonNode) {
-        rootNode->dump();
-        return rootNode;
-    }
+    // if (rootNode != nullptr && rootNode != ASTNode::EpsilonNode) {
+    //     rootNode->dump();
+    //     return rootNode;
+    // }
 
     return nullptr;
 }

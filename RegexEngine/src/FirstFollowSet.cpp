@@ -5,6 +5,8 @@
 #include <iostream>
 #include <cassert>
 /**
+ * First, 顾名思义就是关于该符号的所有产生式右部第一个遇到的终结符
+ * 
  * 计算First集合
  * 采用了不动点法
  * 
@@ -136,6 +138,9 @@ bool FirstFollowSet::caclFirstSets(GrammarNode* grammar, map<GrammarNode*, set<s
 }
 
 /**
+ * Follow，顾名思义，就是该符号后面跟着的第一个终结符
+ * 求 follow 集合，都是从开始符号S开始推导
+ * 
  * 计算Follow集合
  * 对所有节点计算
  * @param grammar 入口语法节点
@@ -197,6 +202,7 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
             set<string> *v_intersection = new set<string>();
             set<GrammarNode*> added;
 
+            // 对子节点遍历
             for (int i = 0; i < grammar->getChildCount(); i++) {
                 GrammarNode *left = grammar->getChild(i);
                 // 重复的节点或叶子节点，不递归
@@ -217,9 +223,9 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
                     rightChildren.insert(left);
                 } else {
                     bool foundNotNull = false;
-                    // grammar 的子节点
+                    // 遍历grammar i + 1 的后子节点
                     for (int j = i + 1; j < grammar->getChildCount(); j++) {
-                        GrammarNode *right = grammar->getChild(i);
+                        GrammarNode *right = grammar->getChild(j);
                         set<string> *tempFollowSet = new set<string>();
                         // 不是叶子节点
                         if (!right->isLeaf()) {
@@ -272,7 +278,7 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
                     if (calculated.find(child) == calculated.end()) {
                         bool state = caclFollowSets(child, followSets, rightChildrenSets, firstSets, calculated);
                         if (state) {
-                            stable = false; 
+                            stable = false;
                         }
                     }
                 }
@@ -284,7 +290,12 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
 }
 
 /**
- * 把某个节点的Follow集合，也给它所有右边分支的后代节点
+ * 把某个节点的Follow集合，也给它所有右边分支的后代节点?
+ * 
+ * 因为这些孩子节点是父节点最右边的。那么父节点后面会跟什么终结符，这些子节点也会跟这些终结符
+ * 
+ * 如果一个非终结符位于上一级产生式的最右边，比如: A -> abcdB中的B, (我们用大小写区分终结符和非终结符)，那么找到可能出现在它右边的终结符，实际上也不好找
+ * 要看看A后面都可能跟啥，比如: C -> abcAb, 那么A的Follow集合中有b，B的Follow集合中也要b
  */
 bool FirstFollowSet::addToRightChild(GrammarNode *grammar, set<string>* followSet, 
                                     map<GrammarNode*, set<string>*>& followSets, 
