@@ -28,17 +28,17 @@ ASTNode* LLParser::parse(string script, GrammarNode* grammar)
     std::cout << "\nFOLLOW:" << std::endl;
     FirstFollowSet::dumpFirstFollowSets(followSets);
 
-    // // 词法分析
-    // vector<Tokens> tokens = Lexer::tokenize(script);
-    // TokenReader *tokenReader = new TokenReader(tokens);
+    // 词法分析
+    vector<Tokens> tokens = Lexer::tokenize(script);
+    TokenReader *tokenReader = new TokenReader(tokens);
 
-    // // 语法分析
-    // ASTNode *rootNode = match(grammar, tokenReader, firstSets, followSets);
+    // 语法分析
+    ASTNode *rootNode = match(grammar, tokenReader, firstSets, followSets);
 
-    // if (rootNode != nullptr && rootNode != ASTNode::EpsilonNode) {
-    //     rootNode->dump();
-    //     return rootNode;
-    // }
+    if (rootNode != nullptr && rootNode != ASTNode::EpsilonNode) {
+        rootNode->dump();
+        return rootNode;
+    }
 
     return nullptr;
 }
@@ -88,6 +88,7 @@ ASTNode* LLParser::match(GrammarNode* grammar,
                     }
                 }
 
+                // 符合token 的node，进行判断child节点
                 if (matched) {
                     ASTNode *childNode = match(child, tokenReader, firstSets, followSets);
                     if (childNode != nullptr) {
@@ -95,7 +96,7 @@ ASTNode* LLParser::match(GrammarNode* grammar,
                             node->addChild(childNode);
                         }
                     } else {
-                        std::cout << "failed to match: " << child << std::endl;
+                        std::cout << "failed to match: " << child->getName() << std::endl;
                     }
                     break;
                 }
@@ -106,7 +107,7 @@ ASTNode* LLParser::match(GrammarNode* grammar,
                 bool epsilon = false;
                 if (grammar->isNullable()) {
                     set<string>* followSet = followSets[grammar];
-                    assert(followSet->size() > 0);
+                    // assert(followSet->size() > 0);
 
                     if (followSet->find(t.getType()) != followSet->end()) {
                         node = ASTNode::EpsilonNode;
