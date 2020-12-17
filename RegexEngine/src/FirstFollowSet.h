@@ -38,7 +38,7 @@ class FirstFollowSet
          * 计算一遍Follow节点
          */
         static bool caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<string>*>& followSets, 
-                                    map<GrammarNode*, set<GrammarNode*>>& rightChildrenSets, 
+                                    map<GrammarNode*, set<GrammarNode*>*>& rightChildrenSets, 
                                     map<GrammarNode*, set<string>*>& firstSets, 
                                     set<GrammarNode*>& calculated);
         
@@ -51,7 +51,7 @@ class FirstFollowSet
          */
         static bool addToRightChild(GrammarNode *grammar, set<string>* followSet, 
                                     map<GrammarNode*, set<string>*>& followSets, 
-                                    map<GrammarNode*, set<GrammarNode*>>& rightChildrenSets,
+                                    map<GrammarNode*, set<GrammarNode*>*>& rightChildrenSets,
                                     set<GrammarNode*>& added);
 };
 

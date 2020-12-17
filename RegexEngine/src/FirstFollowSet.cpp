@@ -149,7 +149,7 @@ bool FirstFollowSet::caclFirstSets(GrammarNode* grammar, map<GrammarNode*, set<s
 map<GrammarNode*, set<string>*> FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<string>*> firstSets)
 {
     map<GrammarNode*, set<string>*> followSets;
-    map<GrammarNode*, set<GrammarNode*>> rightChildrenSets;
+    map<GrammarNode*, set<GrammarNode*>*> rightChildrenSets;
 
     // 不动点法计算Follow集合
     int i = 1;
@@ -185,7 +185,7 @@ map<GrammarNode*, set<string>*> FirstFollowSet::caclFollowSets(GrammarNode *gram
  * 计算一遍Follow节点
  */
 bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<string>*> &followSets,
-                                    map<GrammarNode*, set<GrammarNode*>>& rightChildrenSets, 
+                                    map<GrammarNode*, set<GrammarNode*>*>& rightChildrenSets, 
                                     map<GrammarNode*, set<string>*>& firstSets, 
                                     set<GrammarNode*>& calculated)
 {
@@ -193,8 +193,9 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
     bool stable = true;
 
     if (!grammar->isLeaf()) {
-        set<GrammarNode*> rightChildren = rightChildrenSets[grammar];
-        if (rightChildren.size() == 0) {
+        set<GrammarNode*> *rightChildren = rightChildrenSets[grammar];
+        if (rightChildren == nullptr) {
+            rightChildren = new set<GrammarNode*>();
             rightChildrenSets[grammar] = rightChildren;
         }
         
@@ -220,7 +221,7 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
                 }
 
                 if (i == grammar->getChildCount()) {    // 当 i 等于 grammar 子节点的数量
-                    rightChildren.insert(left);
+                    rightChildren->insert(left);
                 } else {
                     bool foundNotNull = false;
                     // 遍历grammar i + 1 的后子节点
@@ -266,7 +267,7 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
 
                     // 本节点也是最右节点
                     if (!foundNotNull) {
-                        rightChildren.insert(left);
+                        rightChildren->insert(left);
                     }
                 }
             }
@@ -274,7 +275,7 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
             for (int i = 0; i < grammar->getChildCount(); i++) {
                 GrammarNode *child = grammar->getChild(i);
                 if (!child->isLeaf())  {
-                    rightChildren.insert(child);
+                    rightChildren->insert(child);
                     if (calculated.find(child) == calculated.end()) {
                         bool state = caclFollowSets(child, followSets, rightChildrenSets, firstSets, calculated);
                         if (state) {
@@ -299,16 +300,21 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
  */
 bool FirstFollowSet::addToRightChild(GrammarNode *grammar, set<string>* followSet, 
                                     map<GrammarNode*, set<string>*>& followSets, 
-                                    map<GrammarNode*, set<GrammarNode*>>& rightChildrenSets,
+                                    map<GrammarNode*, set<GrammarNode*>*>& rightChildrenSets,
                                     set<GrammarNode*>& added)
 {
     added.insert(grammar);
 
     bool stable = true;
-    set<GrammarNode*> rightChildren = rightChildrenSets[grammar];
+    set<GrammarNode*> *rightChildren = rightChildrenSets[grammar];
+    if (rightChildren == nullptr) {
+        return stable;
+    }
 
     set<string> *v_intersection = new set<string>();
-    for (GrammarNode *rightChild : rightChildren) {
+    for (auto setIt = rightChildren->begin(); setIt != rightChildren->end(); setIt++) {
+        GrammarNode *rightChild = *setIt;
+        
         // 重复的节点或叶子节点，不进行操作
         if (!rightChild->isLeaf() && added.find(rightChild) != added.end()) {
             set<string> *childFollowSet = followSets[rightChild];
