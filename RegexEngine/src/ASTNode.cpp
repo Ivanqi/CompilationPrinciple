@@ -60,12 +60,8 @@ void ASTNode::addChild(ASTNode *child)
         children_.emplace_back(child);
         child->setParent(this); 
     } else {
-        if (child->getChildCount() > 1) {
-            children_.insert(children_.end(), child->children().begin(), child->children().end());
-        } else if (child->getChildCount() == 1) {
-            children_.insert(children_.end(), child->children()[0]);
-        }
         for (ASTNode *node : child->children()) {
+            children_.emplace_back(node);
             node->setParent(this);
         }
     }

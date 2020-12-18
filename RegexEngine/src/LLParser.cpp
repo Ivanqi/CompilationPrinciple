@@ -116,9 +116,8 @@ ASTNode* LLParser::match(GrammarNode* grammar,
                 }
 
                 if (!epsilon) {
-                    std::cout << "unable to find a selection for: " << grammar << std::endl;
+                    std::cout << "unable to find a selection for: " << grammar << " | " << grammar->getName() << std::endl;
                 }
-
             }
         }
     } else if (grammar->getType() == GrammarNodeType::Epsilon) {
