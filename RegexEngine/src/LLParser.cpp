@@ -32,6 +32,11 @@ ASTNode* LLParser::parse(string script, GrammarNode* grammar)
     vector<Tokens> tokens = Lexer::tokenize(script);
     TokenReader *tokenReader = new TokenReader(tokens);
 
+    cout << "\ndump Tokens:" << endl;
+    for (Tokens token : tokens){
+        cout << '\t' << token.toString() << endl;
+    }
+
     // 语法分析
     ASTNode *rootNode = match(grammar, tokenReader, firstSets, followSets);
 
@@ -105,8 +110,9 @@ ASTNode* LLParser::match(GrammarNode* grammar,
             if (!matched) {
                 // 看看是否要产生Epsilon。这个时候要查看Follow集合
                 bool epsilon = false;
+                set<string>* followSet;
                 if (grammar->isNullable()) {
-                    set<string>* followSet = followSets[grammar];
+                    followSet = followSets[grammar];
                     // assert(followSet->size() > 0);
 
                     if (followSet->find(t.getType()) != followSet->end()) {
@@ -116,7 +122,7 @@ ASTNode* LLParser::match(GrammarNode* grammar,
                 }
 
                 if (!epsilon) {
-                    std::cout << "unable to find a selection for: " << grammar << " | " << grammar->getName() << std::endl;
+                    std::cout << "unable to find a selection for: " << grammar << " | " << grammar->getName() << " | followSet size: "<< followSet->size() << std::endl;
                 }
             }
         }
