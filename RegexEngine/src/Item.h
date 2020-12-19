@@ -20,7 +20,10 @@ class Item
         // 点符号的位置.取值从0到grammar.getChildCount
         int position{0};
 
-        Item(Production *production, int position);
+        Item(Production *produ, int pos):production(produ), position(pos)
+        {
+            
+        }
 
         // 返回点符号后面的语法名称
         std::string getNextGrammarName();

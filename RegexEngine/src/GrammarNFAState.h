@@ -8,7 +8,10 @@ class GrammarNFAState: public State
     public:
         Item *item{nullptr};
 
-        GrammarNFAState(Item *item);
+        GrammarNFAState(Item *it): item(it)
+        {
+            State();
+        }
 
         string toString();
 };
