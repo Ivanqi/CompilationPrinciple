@@ -262,3 +262,37 @@ GrammarNode* SampleGrammar::commonLexerGrammar()
 
     return rootNode;
 }
+
+ /**
+ * 带有左递归的简化版的语法规则：
+ *  add	: mul | add '+' mul ;
+ *  mul	: pri | mul '*' pri ;
+ *  pri	: INT_LITERAL | LPAREN add RPAREN ;
+ */
+GrammarNode* SampleGrammar::simpleLeftRecursiveExpressionGrammar()
+{
+    // add
+    GrammarNode *add = new GrammarNode("add", GrammarNodeType::Or);
+    GrammarNode *mul = add->createChild("mul", GrammarNodeType::Or);
+    GrammarNode *add_2 = add->createChild(GrammarNodeType::And);
+
+    add_2->addChild(add);   // 左递归
+    add_2->createChild(new Tokens("ADD", "+"));
+    add_2->addChild(mul);
+
+    // mul
+    GrammarNode *pri = mul->createChild("pri", GrammarNodeType::Or);
+    GrammarNode *mul_2 = mul->createChild(GrammarNodeType::And);
+    mul_2->addChild(mul);
+    mul_2->createChild(new Tokens("MUL", "*"));
+    mul_2->addChild(pri);
+
+    // pri
+    pri->createChild(new Tokens("INT_LITERAL"));
+    GrammarNode *pri_3 = pri->createChild(GrammarNodeType::And);
+    pri_3->createChild(new Tokens("LPAREN"));
+    pri_3->addChild(add);
+    pri_3->createChild(new Tokens("RPAREN"));
+
+    return add;
+}
