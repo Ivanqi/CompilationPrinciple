@@ -12,7 +12,7 @@ class Production
         std::string lhs{""};
 
         // 产生式右侧
-        std::vector<string> rhs;
+        std::vector<std::string> rhs;
 
         Production()
         {

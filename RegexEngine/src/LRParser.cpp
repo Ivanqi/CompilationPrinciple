@@ -58,8 +58,8 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
     // ASTNode *rootNode = shiftReduce(s1, tokenReader, dfaStates[0]);
     // std::cout << "\nAST:" << std::endl;
     // rootNode->dump();
-
-    // return rootNode;
+    ASTNode *rootNode = nullptr;
+    return rootNode;
 }
 
 /**
@@ -201,7 +201,7 @@ GrammarNFAState* LRParser::grammarToNFA(GrammarNode *grammar, vector<GrammarNode
     // 2. 把GrammarNode转换成用产生式表达的方式，这样处理起来逻辑更简单
 
     // 2.1 获得所有的终结符和非终结符
-    allNodes.emplace_back(start):
+    allNodes.emplace_back(start);
 
     // 2.2 从名称查找GrammarNode的一个表
     map<string, GrammarNode*> nodes;
@@ -243,14 +243,14 @@ GrammarNFAState* LRParser::grammarToNFA(GrammarNode *grammar, vector<GrammarNode
     // linkSubGraphs(subGraphs, states);
 
     // // 4. 找到起始结点对应的State
-    // GrammarNFAState *rootState = nullptr;
+    GrammarNFAState *rootState = nullptr;
     // for (Production *production : productions) {
     //     if (production->lhs == "start") {
     //         rootState = subGraphs[production];
     //     }
     // }
 
-    // return rootState;
+    return rootState;
 }
 
 /**
@@ -265,17 +265,21 @@ void LRParser::generateProduction(map<string, GrammarNode*> nodes, set<Productio
         GrammarNode *node = it->second;
         if (node->isNamedNode()) {
             if (node->getType() == GrammarNodeType::Or) {
-                for (GrammarNode *child : node->getChildren()) {
+                for (int i = 0; i < node->getChildCount(); i++) {
+                    GrammarNode *child = node->getChild(i);
                     Production *produ = new Production();
                     produ->lhs = node->getName();
                     produ->rhs.emplace_back(child->getName());
                     productions.insert(produ);
+
                 }
             } else if (node->getType() == GrammarNodeType::And) {
                 Production *produ = new Production();
                 produ->lhs = node->getName();
-                for (GrammarNode *child: node->getChildren()) {
+                for (int i = 0; i < node->getChildCount(); i++) {
+                    GrammarNode *child = node->getChild(i);
                     produ->rhs.emplace_back(child->getName());
+
                 }
                 productions.insert(produ);
             }

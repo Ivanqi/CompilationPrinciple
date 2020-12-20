@@ -28,7 +28,7 @@ class GrammarTransition: public Transition
 
         GrammarTransition(int maxTimes)
         {
-            this.maxTimes = maxTimes;
+            this->maxTimes = maxTimes;
         }
 
         /**

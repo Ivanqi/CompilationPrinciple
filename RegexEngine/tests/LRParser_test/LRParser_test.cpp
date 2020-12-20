@@ -15,7 +15,7 @@ void test_case_1() {
         pri		: INT_LITERAL | LPAREN add RPAREN ;
      */
     string script1 = "2 + 3 * (4 + 5)";
-    LRParser::parse(SampleGrammar::simpleLeftRecursiveExpressionGrammar());
+    LRParser::parse(script1, SampleGrammar::simpleLeftRecursiveExpressionGrammar());
 }
 
 int main() {
