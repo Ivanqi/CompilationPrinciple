@@ -195,7 +195,7 @@ class GrammarNode
          */
         vector<GrammarNode*>  getAllNodes();
 
-        static void getAllNodes(GrammarNode *node, vector<GrammarNode*> allNodes);
+        static void getAllNodes(GrammarNode *node, vector<GrammarNode*>& allNodes);
 
         /**
          * 是否是叶子节点

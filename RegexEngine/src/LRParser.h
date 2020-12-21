@@ -46,7 +46,7 @@ class LRParser
         /**
          * 把语法翻译成NFA
          */
-        static GrammarNFAState* grammarToNFA(GrammarNode *grammar, vector<GrammarNode*> allNodes);
+        static GrammarNFAState* grammarToNFA(GrammarNode *grammar, vector<GrammarNode*>& allNodes);
 
         /**
          * 为每个GrammarNode中的命名节点生成一个或多个产生式
@@ -54,7 +54,7 @@ class LRParser
          * 
          * 但右边存在未被充分拆解，比如: add -> add (+ | -) mul。其中的（+|-）还需要进一步拆解
          */
-        static void generateProduction(map<string, GrammarNode*> nodes, set<Production*> productions);
+        static void generateProduction(map<string, GrammarNode*> nodes, set<Production*>& productions);
 
         /**
          * 把产生式右边的Or节点都展开，变成最简单的产生式
@@ -62,7 +62,7 @@ class LRParser
          *  add -> add + mul
          *  以及 add -> add - mul
          */
-        static void simplifyProductions(map<string, GrammarNode*> nodes, set<Production*> productions);
+        static void simplifyProductions(map<string, GrammarNode*> nodes, set<Production*>& productions);
 
         /**
          * 为每个production产生一个子图

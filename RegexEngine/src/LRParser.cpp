@@ -192,7 +192,7 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
 /**
  * 把语法翻译成NFA
  */
-GrammarNFAState* LRParser::grammarToNFA(GrammarNode *grammar, vector<GrammarNode*> allNodes)
+GrammarNFAState* LRParser::grammarToNFA(GrammarNode *grammar, vector<GrammarNode*>& allNodes)
 {
     // 1. 做一个起始节点，这样会有一个唯一的入口
     GrammarNode *start = new GrammarNode("start", GrammarNodeType::And);
@@ -201,7 +201,8 @@ GrammarNFAState* LRParser::grammarToNFA(GrammarNode *grammar, vector<GrammarNode
     // 2. 把GrammarNode转换成用产生式表达的方式，这样处理起来逻辑更简单
 
     // 2.1 获得所有的终结符和非终结符
-    allNodes.emplace_back(start);
+    vector<GrammarNode*> tmpStart = start->getAllNodes();
+    allNodes.insert(allNodes.end(), tmpStart.begin(), tmpStart.end());
 
     // 2.2 从名称查找GrammarNode的一个表
     map<string, GrammarNode*> nodes;
@@ -217,12 +218,12 @@ GrammarNFAState* LRParser::grammarToNFA(GrammarNode *grammar, vector<GrammarNode
     set<Production*> productions;
     generateProduction(nodes, productions); 
 
-    // /**
-    //  * 2.4 把产生式右边的Or节点都展开，变成最简单的产生式
-    //  * 比如 add -> add (+ | -) mul。 其中的(+ | -) 还需要进一步拆解，变成两条
-    //  * add -> add + mul，以及 add -> add - mul
-    //  */
-    // simplifyProductions(nodes, productions);
+    /**
+     * 2.4 把产生式右边的Or节点都展开，变成最简单的产生式
+     * 比如 add -> add (+ | -) mul。 其中的(+ | -) 还需要进一步拆解，变成两条
+     * add -> add + mul，以及 add -> add - mul
+     */
+    simplifyProductions(nodes, productions);
 
     // // 打印所有产生式看看
     // std::cout << "\nProductions" << std::endl;
@@ -259,7 +260,7 @@ GrammarNFAState* LRParser::grammarToNFA(GrammarNode *grammar, vector<GrammarNode
  * 
  * 但右边存在未被充分拆解，比如: add -> add (+ | -) mul。其中的（+|-）还需要进一步拆解
  */
-void LRParser::generateProduction(map<string, GrammarNode*> nodes, set<Production*> productions)
+void LRParser::generateProduction(map<string, GrammarNode*> nodes, set<Production*>& productions)
 {
     for (auto it = nodes.begin(); it != nodes.end(); it++) {
         GrammarNode *node = it->second;
@@ -271,7 +272,6 @@ void LRParser::generateProduction(map<string, GrammarNode*> nodes, set<Productio
                     produ->lhs = node->getName();
                     produ->rhs.emplace_back(child->getName());
                     productions.insert(produ);
-
                 }
             } else if (node->getType() == GrammarNodeType::And) {
                 Production *produ = new Production();
@@ -279,7 +279,6 @@ void LRParser::generateProduction(map<string, GrammarNode*> nodes, set<Productio
                 for (int i = 0; i < node->getChildCount(); i++) {
                     GrammarNode *child = node->getChild(i);
                     produ->rhs.emplace_back(child->getName());
-
                 }
                 productions.insert(produ);
             }
@@ -287,131 +286,131 @@ void LRParser::generateProduction(map<string, GrammarNode*> nodes, set<Productio
     }
 }
 
-// /**
-//  * 把产生式右边的Or节点都展开，变成最简单的产生式
-//  * 比如 add -> add (+ | -) mul. 其中的 (+ | -) 还需要进一步拆解，变成两条
-//  *  add -> add + mul
-//  *  以及 add -> add - mul
-//  */
-// void LRParser::simplifyProductions(map<string, GrammarNode*> nodes, set<Production*> productions)
-// {
-//     bool modified = true;
+/**
+ * 把产生式右边的Or节点都展开，变成最简单的产生式
+ * 比如 add -> add (+ | -) mul. 其中的 (+ | -) 还需要进一步拆解，变成两条
+ *  add -> add + mul
+ *  以及 add -> add - mul
+ */
+void LRParser::simplifyProductions(map<string, GrammarNode*> nodes, set<Production*>& productions)
+{
+    bool modified = true;
 
-//     int round = 1;
-//     set<Production*> toRemove;
-//     set<Production*> newProductions;
-//     while (modified) {
-//         std::cout << "round: " << round++ << std::endl;
-//         toRemove.clear();
-//         newProductions.clear();
+    int round = 1;
+    set<Production*> toRemove;
+    set<Production*> newProductions;
+    while (modified) {
+        std::cout << "round: " << round++ << std::endl;
+        toRemove.clear();
+        newProductions.clear();
 
-//         for (auto it = productions.begin(); it != productions.end(); it++) {
-//             Production *produ = *it;
-//             for (int i = 0; i < produ->rhs.size(); i++) {
-//                 strint name = produ->rhs[i];
-//                 GrammarNode *node = nodes[name];
-//                 if (node != nullptr && !node->isNamedNode()) {
-//                     if (node->getType() == GrammarNodeType::Or) {
-//                         toRemove.insert(produ);
-//                         for (int j = 0; j < node->getChildCount(); j++) {
-//                             // 创建一个新的产生式
-//                             Production *newProdu = new Production();
-//                             newProdu->lhs = produ->lhs;
+        for (auto it = productions.begin(); it != productions.end(); it++) {
+            Production *produ = *it;
+            for (int i = 0; i < produ->rhs.size(); i++) {
+                string name = produ->rhs[i];
+                GrammarNode *node = nodes[name];
+                if (node != nullptr && !node->isNamedNode()) {
+                    if (node->getType() == GrammarNodeType::Or) {
+                        toRemove.insert(produ);
+                        for (int j = 0; j < node->getChildCount(); j++) {
+                            // 创建一个新的产生式
+                            Production *newProdu = new Production();
+                            newProdu->lhs = produ->lhs;
 
-//                             // 拷贝or左边部分
-//                             for (int k = 0; k < i; k++) {
-//                                 newProdu->rhs.emplace_back(produ->rhs[k]);
-//                             }
+                            // 拷贝or左边部分
+                            for (int k = 0; k < i; k++) {
+                                newProdu->rhs.emplace_back(produ->rhs[k]);
+                            }
 
-//                             // 把 or 的子节点替换上来
-//                             if (node->getChild(i)->isToken()) {
-//                                 newProdu->rhs.emplace_back(node->getChild(j)->getToken()->getType());
-//                             } else {
-//                                 newProdu->rhs.emplace_back(node->getChild(j)->getName());
-//                             }
+                            // 把 or 的子节点替换上来
+                            if (node->getChild(i)->isToken()) {
+                                newProdu->rhs.emplace_back(node->getChild(j)->getToken()->getType());
+                            } else {
+                                newProdu->rhs.emplace_back(node->getChild(j)->getName());
+                            }
 
-//                             // 拷贝or右边的部分
-//                             for (int k = i + 1; k < produ->rhs.size(); k++) {
-//                                 newProdu->rhs.emplace_back(produ->rhs[k]);
-//                             }
+                            // 拷贝or右边的部分
+                            for (int k = i + 1; k < produ->rhs.size(); k++) {
+                                newProdu->rhs.emplace_back(produ->rhs[k]);
+                            }
 
-//                             newProductions.insert(newProdu);
-//                         }
+                            newProductions.insert(newProdu);
+                        }
 
-//                         break;  // 每次只替换右边的一个节点就行
-//                     } else if (node->getType() == GrammarNodeType::And) {
-//                         toRemove.insert(produ);
-//                         Production *newProdu = new Production();
-//                         newProdu->lhs = produ->lhs;
+                        break;  // 每次只替换右边的一个节点就行
+                    } else if (node->getType() == GrammarNodeType::And) {
+                        toRemove.insert(produ);
+                        Production *newProdu = new Production();
+                        newProdu->lhs = produ->lhs;
 
-//                         // 拷贝add左边的部分
-//                         for (int k = 0; k < i; k++) {
-//                             newProdu->rhs.emplace_back(produ->rhs[k]);
-//                         }
+                        // 拷贝add左边的部分
+                        for (int k = 0; k < i; k++) {
+                            newProdu->rhs.emplace_back(produ->rhs[k]);
+                        }
 
-//                         // 把add的子节点替换上来
-//                         for (int j = 0; j < node->getChildCount(); j++) {
-//                             if (node->getChild(j)->isToken()) {
-//                                 newProdu->rhs.emplace_back(node->getChild(j)->getToken()->getType());
-//                             } else {
-//                                 newProdu->rhs.emplace_back(node->getChild(j)->getName());
-//                             }
-//                         }
+                        // 把add的子节点替换上来
+                        for (int j = 0; j < node->getChildCount(); j++) {
+                            if (node->getChild(j)->isToken()) {
+                                newProdu->rhs.emplace_back(node->getChild(j)->getToken()->getType());
+                            } else {
+                                newProdu->rhs.emplace_back(node->getChild(j)->getName());
+                            }
+                        }
 
-//                         // 拷贝add右边的部分
-//                         for (int k = i + 1; k < produ->rhs.size(); k++) {
-//                             newProdu->rhs.emplace_back(produ->rhs[k]);
-//                         }
-//                         newProductions.insert(newProdu);
-//                         break;  // 每次只替换右边的一个节点就行
-//                     } else if (node->getType() == GrammarNodeType::Token) {
-//                         toRemove.insert(produ);
-//                         Production *newProdu = new Production();
-//                         newProdu->lhs = produ->lhs;
+                        // 拷贝add右边的部分
+                        for (int k = i + 1; k < produ->rhs.size(); k++) {
+                            newProdu->rhs.emplace_back(produ->rhs[k]);
+                        }
+                        newProductions.insert(newProdu);
+                        break;  // 每次只替换右边的一个节点就行
+                    } else if (node->getType() == GrammarNodeType::Token) {
+                        toRemove.insert(produ);
+                        Production *newProdu = new Production();
+                        newProdu->lhs = produ->lhs;
 
-//                         // 拷贝Token左边的部分
-//                         for (int k = 0; k < i; k++) {
-//                             newProdu->rhs.emplace_back(produ->rhs[k]);
-//                         }
-//                         // 把Token的子节点替换上来
-//                         newProdu->rhs.emplace_back(node->getToken()->getType());
+                        // 拷贝Token左边的部分
+                        for (int k = 0; k < i; k++) {
+                            newProdu->rhs.emplace_back(produ->rhs[k]);
+                        }
+                        // 把Token的子节点替换上来
+                        newProdu->rhs.emplace_back(node->getToken()->getType());
 
-//                         // 拷贝add右边的部分
-//                         for (int k = i + 1; k < produ->rhs.size(); k++) {
-//                             newProdu->rhs.emplace_back(produ->rhs[k]);
-//                         }
-//                         newProductions.insert(newProdu);
-//                     } else if (node->getType() == GrammarNodeType::Epsilon) {
-//                         toRemove.insert(produ);
-//                         Production *newProdu = new Production();
-//                         newProdu->lhs = produ->lhs;
+                        // 拷贝add右边的部分
+                        for (int k = i + 1; k < produ->rhs.size(); k++) {
+                            newProdu->rhs.emplace_back(produ->rhs[k]);
+                        }
+                        newProductions.insert(newProdu);
+                    } else if (node->getType() == GrammarNodeType::Epsilon) {
+                        toRemove.insert(produ);
+                        Production *newProdu = new Production();
+                        newProdu->lhs = produ->lhs;
 
-//                         // 拷贝Token左边的部分
-//                         for (int k = 0; k < i; k++) {
-//                             newProdu->rhs.emplace_back(produ->rhs[k]);
-//                         }
-//                         // 拷贝Token的子节点替换上来
-//                         newProdu->rhs.emplace_back(to_string(node->getType()));
+                        // 拷贝Token左边的部分
+                        for (int k = 0; k < i; k++) {
+                            newProdu->rhs.emplace_back(produ->rhs[k]);
+                        }
+                        // 拷贝Token的子节点替换上来
+                        newProdu->rhs.emplace_back(to_string(node->getType()));
 
-//                         // 拷贝add右边的部分
-//                         for (int k = i + 1; k < produ->rhs.size(); k++) {
-//                             newProdu->rhs.emplace_back(produ->rhs[k]);
-//                         }
-//                         newProductions.insert(newProdu);
-//                     }
-//                 }
-//             }
-//         }
+                        // 拷贝add右边的部分
+                        for (int k = i + 1; k < produ->rhs.size(); k++) {
+                            newProdu->rhs.emplace_back(produ->rhs[k]);
+                        }
+                        newProductions.insert(newProdu);
+                    }
+                }
+            }
+        }
 
-//         // 去掉旧的，替换成新的
-//         modified = toRemove.size() > 0;
-//         for (auto it = toRemove.begin(); it != toRemove.end(); it++) {
-//             productions.erase(it);
-//         }
+        // 去掉旧的，替换成新的
+        modified = toRemove.size() > 0;
+        for (auto it = toRemove.begin(); it != toRemove.end(); it++) {
+            productions.erase(it);
+        }
 
-//         productions.insert(newProductions.begin(); newProductions.end());
-//     }
-// }
+        productions.insert(newProductions.begin(), newProductions.end());
+    }
+}
 
 // /**
 //  * 为每个production产生一个子图

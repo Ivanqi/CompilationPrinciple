@@ -386,7 +386,7 @@ vector<GrammarNode*>  GrammarNode::getAllNodes()
     return allNodes;
 }
 
-void GrammarNode::getAllNodes(GrammarNode *node, vector<GrammarNode*> allNodes)
+void GrammarNode::getAllNodes(GrammarNode *node, vector<GrammarNode*>& allNodes)
 {
     allNodes.push_back(node);
     for (size_t i = 0; i < node->children.size(); i++) {

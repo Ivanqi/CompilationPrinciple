@@ -24,5 +24,8 @@ class Production
         bool equals(Any obj);
 
         std::string toString();
+
+    private:
+        int hashCode(std::string value);
 };
 #endif 
