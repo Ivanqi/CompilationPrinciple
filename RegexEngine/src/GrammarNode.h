@@ -193,9 +193,9 @@ class GrammarNode
         /**
          * 获得以本节点为起始节点，能到达的所有语法节点
          */
-        vector<GrammarNode*>  getAllNodes();
+        shared_ptr<vector<GrammarNode*>> getAllNodes();
 
-        static void getAllNodes(GrammarNode *node, vector<GrammarNode*>& allNodes);
+        static void getAllNodes(GrammarNode *node, vector<GrammarNode*>* allNodes);
 
         /**
          * 是否是叶子节点

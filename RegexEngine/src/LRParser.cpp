@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <assert.h>
+#include <memory>
 
 /**
  * 解析代码，生成AST
@@ -201,8 +202,10 @@ GrammarNFAState* LRParser::grammarToNFA(GrammarNode *grammar, vector<GrammarNode
     // 2. 把GrammarNode转换成用产生式表达的方式，这样处理起来逻辑更简单
 
     // 2.1 获得所有的终结符和非终结符
-    vector<GrammarNode*> tmpStart = start->getAllNodes();
-    allNodes.insert(allNodes.end(), tmpStart.begin(), tmpStart.end());
+    shared_ptr<vector<GrammarNode*>> tmpStartPtr = start->getAllNodes();
+    vector<GrammarNode*> *tmpStart = tmpStartPtr.get();
+
+    allNodes.insert(allNodes.end(), tmpStart->begin(), tmpStart->end());
 
     // 2.2 从名称查找GrammarNode的一个表
     map<string, GrammarNode*> nodes;
@@ -225,11 +228,11 @@ GrammarNFAState* LRParser::grammarToNFA(GrammarNode *grammar, vector<GrammarNode
      */
     simplifyProductions(nodes, productions);
 
-    // // 打印所有产生式看看
-    // std::cout << "\nProductions" << std::endl;
-    // for (Production *production: productions) {
-    //     std::cout << production->toString() std::endl;
-    // }
+    // 打印所有产生式看看
+    std::cout << "\nProductions" << std::endl;
+    for (Production *production: productions) {
+        std::cout << production->toString() << std::endl;
+    }
 
     // /**
     //  * 3. 基于产生式生成NFA

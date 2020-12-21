@@ -3,6 +3,8 @@
 #include "Tokens.h"
 #include "CharSet.h"
 
+#include <iostream>
+
 GrammarNode* SampleGrammar::statementGrammar()
 {
     GrammarNode *exp = expressionGrammar();
