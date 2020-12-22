@@ -415,65 +415,65 @@ void LRParser::simplifyProductions(map<string, GrammarNode*> nodes, set<Producti
     }
 }
 
-// /**
-//  * 为每个production产生一个子图
-//  * 子图中每个状态的Item的"."的位置依次后移
-//  * 比如:
-//  *  add -> .add + mul
-//  *  add -> add. + mul
-//  *  add -> add + .mul
-//  *  add -> add + mul.
-//  */
-// void LRParser::calcSubGraphs(set<Production*> productions, map<Production*, GrammarNFAState*> subGraphs, vector<GrammarNFAState*> states)
-// {
-//     for (auto it = productions.begin(); it != productions.end(); it++) {
-//         Production *produ = *it;
-//         Item item = new Item(produ, 0);
-//         GrammarNFAState *state = new GrammarNFAState(item);
-//         subGraphs[produ] = state;
-//         states.emplace_back(state);
+/**
+ * 为每个production产生一个子图
+ * 子图中每个状态的Item的"."的位置依次后移
+ * 比如:
+ *  add -> .add + mul
+ *  add -> add. + mul
+ *  add -> add + .mul
+ *  add -> add + mul.
+ */
+void LRParser::calcSubGraphs(set<Production*> productions, map<Production*, GrammarNFAState*> subGraphs, vector<GrammarNFAState*> states)
+{
+    for (auto it = productions.begin(); it != productions.end(); it++) {
+        Production *produ = *it;
+        Item item = new Item(produ, 0);
+        GrammarNFAState *state = new GrammarNFAState(item);
+        subGraphs[produ] = state;
+        states.emplace_back(state);
 
-//         GrammarNFAState *lastState = state;
+        GrammarNFAState *lastState = state;
 
-//         for (int i = 0; i < produ->rhs.size(); i++) {
-//             item = new Item(produ, i + 1);
-//             state = new GrammarNFAState(item);
-//             states.emplace_back(state);
+        for (int i = 0; i < produ->rhs.size(); i++) {
+            item = new Item(produ, i + 1);
+            state = new GrammarNFAState(item);
+            states.emplace_back(state);
 
-//             if (produ->rhs[i] == "Epsilon") {
-//                 lastState->addTransition(new GrammarTransition(), state);
-//             } else {
-//                 lastState->addTransition(new GrammarTransition(produ->rhs[i]), state);
-//             }
-//             lastState = state;
-//         }
-//     }
-// }
+            if (produ->rhs[i] == "Epsilon") {
+                lastState->addTransition(new GrammarTransition(), state);
+            } else {
+                lastState->addTransition(new GrammarTransition(produ->rhs[i]), state);
+            }
+            lastState = state;
+        }
+    }
+}
 
-// /**
-//  * 把各个子图通过Epsilon转换连接在一起
-//  * 比如:
-//  *  add -> add + .mul 可以建立两条连接，分别是
-//  *      mul -> .mul * pri
-//  *      以及 mul -> .pri
-//  *  
-//  */
-// void LRParser::linkSubGraphs(map<Production*, GrammarNFAState*> subGraphs, vector<GrammarNFAState*> states)
-// {
-//     for (GrammarNFAState *state : states) {
-//         if (state->item->position < state->item->production->rhs.size()) {
-//             string grammarName = state->item->production->rhs[state->item->position];
+/**
+ * 把各个子图通过Epsilon转换连接在一起
+ * 比如:
+ *  add -> add + .mul 可以建立两条连接，分别是
+ *      mul -> .mul * pri
+ *      以及 mul -> .pri
+ *  
+ */
+void LRParser::linkSubGraphs(map<Production*, GrammarNFAState*> subGraphs, vector<GrammarNFAState*> states)
+{
+    for (GrammarNFAState *state : states) {
+        if (state->item->position < state->item->production->rhs.size()) {
+            string grammarName = state->item->production->rhs[state->item->position];
 
-//             for (auto it = subGraphs.begin(); it != subGraphs.end(); it++) {
-//                 Production *produ = it->first;
-//                 if (produ->lhs == grammarName) {
-//                     GrammarNFAState state1 = subGraphs[produ];
-//                     state->addTransition(new GrammarTransition(), state1);
-//                 }
-//             }
-//         }
-//     }
-// }
+            for (auto it = subGraphs.begin(); it != subGraphs.end(); it++) {
+                Production *produ = it->first;
+                if (produ->lhs == grammarName) {
+                    GrammarNFAState state1 = subGraphs[produ];
+                    state->addTransition(new GrammarTransition(), state1);
+                }
+            }
+        }
+    }
+}
 
 // /**
 //  * 把NFA转换成DFA
