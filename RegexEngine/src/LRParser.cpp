@@ -202,10 +202,11 @@ GrammarNFAState* LRParser::grammarToNFA(GrammarNode *grammar, vector<GrammarNode
     // 2. 把GrammarNode转换成用产生式表达的方式，这样处理起来逻辑更简单
 
     // 2.1 获得所有的终结符和非终结符
-    shared_ptr<vector<GrammarNode*>> tmpStartPtr = start->getAllNodes();
-    vector<GrammarNode*> *tmpStart = tmpStartPtr.get();
+    vector<GrammarNode*> tmpStart = start->getAllNodes();
 
-    allNodes.insert(allNodes.end(), tmpStart->begin(), tmpStart->end());
+    std::cout << "tmpStart size: " << tmpStart.size() << std::endl;
+
+    allNodes.insert(allNodes.end(), tmpStart.begin(), tmpStart.end());
 
     // 2.2 从名称查找GrammarNode的一个表
     map<string, GrammarNode*> nodes;
@@ -303,7 +304,6 @@ void LRParser::simplifyProductions(map<string, GrammarNode*> nodes, set<Producti
     set<Production*> toRemove;
     set<Production*> newProductions;
     while (modified) {
-        std::cout << "round: " << round++ << std::endl;
         toRemove.clear();
         newProductions.clear();
 
@@ -407,10 +407,11 @@ void LRParser::simplifyProductions(map<string, GrammarNode*> nodes, set<Producti
 
         // 去掉旧的，替换成新的
         modified = toRemove.size() > 0;
-        for (auto it = toRemove.begin(); it != toRemove.end(); it++) {
-            productions.erase(it);
+        if (modified) {
+            set<Production*> diff;
+            set_difference(productions.begin(), productions.end(), toRemove.begin(), toRemove.end(), inserter(diff, diff.begin()));
+            productions.swap(diff);
         }
-
         productions.insert(newProductions.begin(), newProductions.end());
     }
 }
@@ -424,31 +425,31 @@ void LRParser::simplifyProductions(map<string, GrammarNode*> nodes, set<Producti
  *  add -> add + .mul
  *  add -> add + mul.
  */
-void LRParser::calcSubGraphs(set<Production*> productions, map<Production*, GrammarNFAState*> subGraphs, vector<GrammarNFAState*> states)
-{
-    for (auto it = productions.begin(); it != productions.end(); it++) {
-        Production *produ = *it;
-        Item item = new Item(produ, 0);
-        GrammarNFAState *state = new GrammarNFAState(item);
-        subGraphs[produ] = state;
-        states.emplace_back(state);
+// void LRParser::calcSubGraphs(set<Production*> productions, map<Production*, GrammarNFAState*> subGraphs, vector<GrammarNFAState*> states)
+// {
+//     for (auto it = productions.begin(); it != productions.end(); it++) {
+//         Production *produ = *it;
+//         Item item = new Item(produ, 0);
+//         GrammarNFAState *state = new GrammarNFAState(item);
+//         subGraphs[produ] = state;
+//         states.emplace_back(state);
 
-        GrammarNFAState *lastState = state;
+//         GrammarNFAState *lastState = state;
 
-        for (int i = 0; i < produ->rhs.size(); i++) {
-            item = new Item(produ, i + 1);
-            state = new GrammarNFAState(item);
-            states.emplace_back(state);
+//         for (int i = 0; i < produ->rhs.size(); i++) {
+//             item = new Item(produ, i + 1);
+//             state = new GrammarNFAState(item);
+//             states.emplace_back(state);
 
-            if (produ->rhs[i] == "Epsilon") {
-                lastState->addTransition(new GrammarTransition(), state);
-            } else {
-                lastState->addTransition(new GrammarTransition(produ->rhs[i]), state);
-            }
-            lastState = state;
-        }
-    }
-}
+//             if (produ->rhs[i] == "Epsilon") {
+//                 lastState->addTransition(new GrammarTransition(), state);
+//             } else {
+//                 lastState->addTransition(new GrammarTransition(produ->rhs[i]), state);
+//             }
+//             lastState = state;
+//         }
+//     }
+// }
 
 /**
  * 把各个子图通过Epsilon转换连接在一起
@@ -458,22 +459,22 @@ void LRParser::calcSubGraphs(set<Production*> productions, map<Production*, Gram
  *      以及 mul -> .pri
  *  
  */
-void LRParser::linkSubGraphs(map<Production*, GrammarNFAState*> subGraphs, vector<GrammarNFAState*> states)
-{
-    for (GrammarNFAState *state : states) {
-        if (state->item->position < state->item->production->rhs.size()) {
-            string grammarName = state->item->production->rhs[state->item->position];
+// void LRParser::linkSubGraphs(map<Production*, GrammarNFAState*> subGraphs, vector<GrammarNFAState*> states)
+// {
+//     for (GrammarNFAState *state : states) {
+//         if (state->item->position < state->item->production->rhs.size()) {
+//             string grammarName = state->item->production->rhs[state->item->position];
 
-            for (auto it = subGraphs.begin(); it != subGraphs.end(); it++) {
-                Production *produ = it->first;
-                if (produ->lhs == grammarName) {
-                    GrammarNFAState state1 = subGraphs[produ];
-                    state->addTransition(new GrammarTransition(), state1);
-                }
-            }
-        }
-    }
-}
+//             for (auto it = subGraphs.begin(); it != subGraphs.end(); it++) {
+//                 Production *produ = it->first;
+//                 if (produ->lhs == grammarName) {
+//                     GrammarNFAState state1 = subGraphs[produ];
+//                     state->addTransition(new GrammarTransition(), state1);
+//                 }
+//             }
+//         }
+//     }
+// }
 
 // /**
 //  * 把NFA转换成DFA

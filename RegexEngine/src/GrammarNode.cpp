@@ -378,20 +378,20 @@ bool GrammarNode::isNullable()
 /**
  * 获得以本节点为起始节点，能到达的所有语法节点
  */
-shared_ptr<vector<GrammarNode*>> GrammarNode::getAllNodes()
+vector<GrammarNode*> GrammarNode::getAllNodes()
 {
-    shared_ptr<vector<GrammarNode*>> allNodesPtr = make_shared<vector<GrammarNode*>>();
-    getAllNodes(this, allNodesPtr.get());
+    vector<GrammarNode*> allNodes;
+    getAllNodes(this, allNodes);
 
-    return allNodesPtr;
+    return allNodes;
 }
 
-void GrammarNode::getAllNodes(GrammarNode *node, vector<GrammarNode*>* allNodes)
+void GrammarNode::getAllNodes(GrammarNode *node, vector<GrammarNode*>& allNodes)
 {
-    allNodes->push_back(node);
+    allNodes.push_back(node);
     for (size_t i = 0; i < node->children.size(); i++) {
         GrammarNode *child = node->children[i].get();
-        if (find(allNodes->begin(), allNodes->end(), child) == allNodes->end()) {
+        if (find(allNodes.begin(), allNodes.end(), child) == allNodes.end()) {
             getAllNodes(child, allNodes);
         }
     }
