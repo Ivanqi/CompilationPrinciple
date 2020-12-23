@@ -108,7 +108,7 @@ class LRParser
          */
         static map<State*, set<State*>> calcClosure(State *state);
 
-        static bool calcClosure(State *state, map<State*, set<State*>> closures, set<State*> calculated);
+        static bool calcClosure(State *state, map<State*, set<State*>>& closures, set<State*>& calculated);
 
         /**
          * 计算一个状态集合的闭包，包括这些状态以及可以通过epsilon到达的状态

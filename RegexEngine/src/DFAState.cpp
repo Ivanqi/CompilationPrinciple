@@ -10,6 +10,11 @@ std::vector<State*> DFAState::getStates()
     return states;
 }
 
+std::set<State*> DFAState::getStatesSet()
+{
+    return statesSet_;
+}
+
 /**
  * 提供一个对象作为迁移条件，看能否迁移到下一个状态
  * @param obj， 做词法分析

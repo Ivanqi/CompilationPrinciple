@@ -3,6 +3,7 @@
 #include "State.h"
 #include <vector>
 #include <string>
+#include <set>
 
 class Any;
 
@@ -16,6 +17,8 @@ class DFAState: public State
         // 组成这个DFAState的NFAState的集合
         std::vector<State*> states;
 
+        std::set<State*> statesSet_;
+
     public:
         DFAState(std::vector<State*> states)
             :states(states)
@@ -23,7 +26,15 @@ class DFAState: public State
 
         }
 
+        DFAState(std::set<State*> states)
+            :statesSet_(states)
+        {
+
+        }
+
         std::vector<State*> getStates();
+
+        std::set<State*> getStatesSet();
 
         /**
          * 提供一个对象作为迁移条件，看能否迁移到下一个状态
