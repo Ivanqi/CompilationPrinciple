@@ -73,7 +73,7 @@ class LRParser
          *  add -> add + .mul
          *  add -> add + mul.
          */
-        static void calcSubGraphs(set<Production*> productions, map<Production*, GrammarNFAState*> subGraphs, vector<GrammarNFAState*> states);
+        static void calcSubGraphs(set<Production*> productions, map<Production*, GrammarNFAState*>& subGraphs, vector<GrammarNFAState*>& states);
 
         /**
          * 把各个子图通过Epsilon转换连接在一起
@@ -83,7 +83,7 @@ class LRParser
          *      以及 mul -> .pri
          *  
          */
-        static void linkSubGraphs(map<Production*, GrammarNFAState*> subGraphs, vector<GrammarNFAState*> states);
+        static void linkSubGraphs(map<Production*, GrammarNFAState*>& subGraphs, vector<GrammarNFAState*>& states);
 
         /**
          * 把NFA转换成DFA
