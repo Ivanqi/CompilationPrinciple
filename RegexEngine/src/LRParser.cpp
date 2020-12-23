@@ -23,8 +23,8 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
     // 转换成NFA
     vector<GrammarNode*> allNodes;
     GrammarNFAState *startNFAState = grammarToNFA(grammar, allNodes);
-    // std::cout << "\nNFA:" << std::endl;
-    // startNFAState->dump();
+    std::cout << "\nNFA:" << std::endl;
+    State::showState(startNFAState, false);
 
     // // 取下所有的命名元素的名称，包括非终结符名称和终结符名称
     // vector<string> grammarNames;
@@ -407,6 +407,7 @@ void LRParser::simplifyProductions(map<string, GrammarNode*> nodes, set<Producti
         // 去掉旧的，替换成新的
         modified = toRemove.size() > 0;
         if (modified) {
+            // 求差集
             set<Production*> diff;
             set_difference(productions.begin(), productions.end(), toRemove.begin(), toRemove.end(), inserter(diff, diff.begin()));
             productions.swap(diff);

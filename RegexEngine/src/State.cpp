@@ -70,12 +70,11 @@ string State::toString()
     return sb;
 }
 
-void State::showState(State *state)
+void State::showState(State *state, bool repeat)
 {
     if (State::checkState.find(state) != State::checkState.end()) {
         return;
     }
-
     State::checkState[state] = state->name;
 
     string sb;
@@ -95,12 +94,14 @@ void State::showState(State *state)
 
         cout << sb;
         for (State *s : nextState) {
-            showState(s);
+            showState(s, repeat);
         }
         return;
     } else {
         sb.append("\t(end)").append("\n");
-        State::checkState.clear();
+        if (repeat) {
+            State::checkState.clear();
+        }
     }
 
     if (state->isAcceptable()) {

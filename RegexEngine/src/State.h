@@ -78,7 +78,7 @@ class State
 
         string toString();
 
-        void static showState(State *state);
+        void static showState(State *state, bool repeat = true);
 
         bool isAcceptable()
         {
