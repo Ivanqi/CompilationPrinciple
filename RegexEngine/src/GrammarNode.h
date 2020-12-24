@@ -218,6 +218,11 @@ class GrammarNode
         bool isNeglect();
 
         void setNeglect(bool neglect);
+
+        static GrammarNode* getEpsilon()
+        {
+            return EPSILON_.get();
+        }
 };
 
 #endif

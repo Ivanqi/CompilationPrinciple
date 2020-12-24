@@ -298,3 +298,163 @@ GrammarNode* SampleGrammar::simpleLeftRecursiveExpressionGrammar()
 
     return add;
 }
+
+/**
+ * 带有左递归的语法规则：
+ * expression	: assign ;
+ * assign	: equal | assign '=' equal ;
+ * equal	: rel | equal ('==' | '!=') rel ;
+ * rel		: add | rel ('>=' | '>' | '<=' | '<') add ;
+ * add		: mul | add ('+' | '-') mul ;
+ * mul		: pri | mul ('*' | '/') pri ;
+ * pri		: ID | INT_LITERAL | LPAREN expression RPAREN ;
+ *
+ * @return
+ */
+GrammarNode* SampleGrammar::fullLeftRecursiveExpressionGrammar()
+{
+    // expression
+    GrammarNode *exp = new GrammarNode("expression", GrammarNodeType::And);
+
+    // assign
+    GrammarNode *assign = exp->createChild("assign", GrammarNodeType::Or);
+    GrammarNode *equal = assign->createChild("equal", GrammarNodeType::Or);
+    GrammarNode *assign_2 = assign->createChild(GrammarNodeType::Or);
+    assign_2->addChild(assign); // 左递归
+    GrammarNode *assignOp = assign_2->createChild(new Tokens("ASSIGN", "="));
+    assign_2->addChild(equal);  // TODO 这里是否可以改为expression
+
+    // equal
+    GrammarNode *rel = equal->createChild("rel", GrammarNodeType::Or);
+    GrammarNode *equal_2 = equal->createChild(GrammarNodeType::And);
+    equal_2->addChild(equal);   // 左递归
+    GrammarNode *equalOp = equal_2->createChild(GrammarNodeType::Or);
+    equalOp->createChild(new Tokens("EQUAL", "=="));
+    equalOp->createChild(new Tokens("NOTEQUAL", "!="));
+    equal_2->addChild(rel);
+
+    // rel
+    GrammarNode *add = rel->createChild("add", GrammarNodeType::Or);
+    GrammarNode *rel_2 = rel->createChild(GrammarNodeType::And);
+    rel_2->addChild(rel);   // 左递归
+    GrammarNode *relOp = rel_2->createChild(GrammarNodeType::Or);
+    relOp->createChild(new Tokens("GE", ">="));
+    relOp->createChild(new Tokens("GT", ">"));
+    relOp->createChild(new Tokens("LE", "<="));
+    relOp->createChild(new Tokens("LT", "<"));
+    rel_2->addChild(add);
+
+    // add
+    GrammarNode *mul = add->createChild("mul", GrammarNodeType::Or);
+    GrammarNode *add_2 = add->createChild(GrammarNodeType::And);
+    add_2->addChild(add);   // 左递归
+    GrammarNode *addOp = add_2->createChild(GrammarNodeType::Or);
+    addOp->createChild(new Tokens("ADD", "+"));
+    addOp->createChild(new Tokens("SUB", "-"));
+    add_2->addChild(mul);
+
+    // mul
+    GrammarNode *pri = mul->createChild("pri", GrammarNodeType::Or);
+    GrammarNode *mul_2 = mul->createChild(GrammarNodeType::And);
+    mul_2->addChild(mul);
+    GrammarNode *mulOp = mul_2->createChild(GrammarNodeType::Or);
+    mulOp->createChild(new Tokens("MUL", "*"));
+    mulOp->createChild(new Tokens("DIV", "/"));
+    mul_2->addChild(pri);
+
+    // pri
+    pri->createChild(new Tokens("ID"));
+    pri->createChild(new Tokens("INT_LITERAL"));
+    GrammarNode *pri_3 = pri->createChild(GrammarNodeType::And);
+    pri_3->createChild(new Tokens("LPAREN"));
+    pri_3->addChild(exp);
+    pri_3->createChild(new Tokens("RPAREN"));
+
+    return exp;
+}
+
+
+/**
+ * Ebnf -> statements
+ * statements -> statement | epsilon | statements
+ * statement -> id ‘:’ exp ‘;’
+ * Exp -> exp ‘|' and
+ * and -> and pri (‘*’ | ‘?’ | ‘+’ | epsilon)
+ * Pri ->  id | StringLiteral | brackLiteral | (exp)
+ * brackLiteral-> ‘[’(^|epsion)brackElements’]’
+ * brackElements -> char | charRange| escapedChar | brackElements | epsilon
+ * charRange -> char ‘-‘ char
+ * escapedChar -> ‘\n’ | ‘\\’
+ * @return
+ */
+GrammarNode* SampleGrammar::EBNFGrammar()
+{
+    GrammarNode *grammar = new GrammarNode("grammar", GrammarNodeType::And);
+    GrammarNode *id = new GrammarNode(new Tokens("ID"));
+    GrammarNode *semi = new GrammarNode(new Tokens("SEMI"));
+    GrammarNode *colon = new GrammarNode(new Tokens("COLON"));
+    GrammarNode *star = new GrammarNode(new Tokens("MUL"));
+    GrammarNode *question = new GrammarNode(new Tokens("QUESTION"));
+    GrammarNode *plus = new GrammarNode(new Tokens("ADD"));
+    GrammarNode *bar = new GrammarNode(new Tokens("BITOR"));
+    GrammarNode *stringLiteral = new GrammarNode(new Tokens("STRING_LITERAL"));
+    GrammarNode *lbrace = new GrammarNode(new Tokens("LBRACE"));
+    GrammarNode *rbrace = new GrammarNode(new Tokens("RBRACE"));
+
+    GrammarNode *statements = new GrammarNode("statements", GrammarNodeType::Or);
+    GrammarNode *statement = new GrammarNode("statement", GrammarNodeType::And);
+    GrammarNode *exp = new GrammarNode("exp", GrammarNodeType::And);
+    GrammarNode *and_ = new GrammarNode("and", GrammarNodeType::And);
+    GrammarNode *pri = new GrammarNode("pri", GrammarNodeType::Or);
+    GrammarNode *multiple = new GrammarNode(GrammarNodeType::Or);
+    GrammarNode *bracedExp = new GrammarNode(GrammarNodeType::And);
+
+    //grammar
+    grammar->addChild(statement);
+
+    //statements
+    statements->addChild(statement);
+    //statements.addChild(GrammarNode.EPSILON);
+    statements->addChild(statements);
+
+    //statement
+    statement->addChild(id);
+    statement->addChild(colon);
+    statement->addChild(exp);
+    statement->addChild(semi);
+
+    //exp
+    exp->addChild(exp);
+    exp->addChild(bar);
+    exp->addChild(and_);
+
+    //and
+    and_->addChild(and_);
+    and_->addChild(pri);
+    //and.addChild(multiple);
+    multiple->addChild(star);
+    multiple->addChild(question);
+    multiple->addChild(plus);
+    multiple->addChild(GrammarNode::getEpsilon());
+
+    //pri
+    pri->addChild(id);
+    pri->addChild(stringLiteral);
+    pri->addChild(bracedExp);
+    bracedExp->addChild(lbrace);
+    bracedExp->addChild(exp);
+    bracedExp->addChild(rbrace);
+
+    return grammar;
+}
+
+GrammarNode* SampleGrammar::simpleRepeat() 
+{
+    GrammarNode *stmts = new GrammarNode("stmts", GrammarNodeType::Or);
+    stmts->createChild(GrammarNodeType::Epsilon);
+    GrammarNode *stmts1 = stmts->createChild(GrammarNodeType::And);
+    GrammarNode *stmt = stmts1->createChild("stmt", GrammarNodeType::Or);
+    stmts1->addChild(stmts);
+    stmt->createChild(new Tokens("ID"));
+    return stmts;
+}
