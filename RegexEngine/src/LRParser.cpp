@@ -46,7 +46,7 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
 
     // // 把NFA转换成DFA
     vector<DFAState*> dfaStates = NFA2DFA(startNFAState, grammarNames, closures);
-    // std::cout << "\nDFA:" << std::endl;
+    std::cout << "\nDFA:" << std::endl;
     // dfaStates[0]->dump();
 
     // // TODO: 在这里可以检查语法是否合法，比如是否存在reduce/reduce或shift/reduce冲突
@@ -204,9 +204,6 @@ GrammarNFAState* LRParser::grammarToNFA(GrammarNode *grammar, vector<GrammarNode
 
     // 2.1 获得所有的终结符和非终结符
     vector<GrammarNode*> tmpStart = start->getAllNodes();
-
-    std::cout << "tmpStart size: " << tmpStart.size() << std::endl;
-
     allNodes.insert(allNodes.end(), tmpStart.begin(), tmpStart.end());
 
     // 2.2 从名称查找GrammarNode的一个表
