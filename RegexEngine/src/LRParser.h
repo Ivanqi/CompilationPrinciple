@@ -6,6 +6,9 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <memory>
+
+using std::shared_ptr;
 using std::string;
 using std::stack;
 using std::vector;
@@ -91,12 +94,12 @@ class LRParser
          * @param startState 起始的NFA状态
          * @param grammarNames 所有符号的集合，包括终结符和非终结符
          */
-        static vector<DFAState*> NFA2DFA(State *startState, vector<string> grammarNames, map<State*, set<State*>*> closures);
+        static vector<shared_ptr<DFAState>> NFA2DFA(State *startState, vector<string> grammarNames, map<State*, set<State*>*> closures);
 
         /**
          * 根据NFA State 集合，查找是否已经存在一个DFAState ，包含同样的NFA状态集合
          */
-        static DFAState* findDFAState(vector<DFAState*> dfaStates, set<State*> states);
+        static DFAState* findDFAState(vector<shared_ptr<DFAState>> dfaStates, set<State*> states);
 
         /**
          * 比较两个NFA state 的集合是否相等

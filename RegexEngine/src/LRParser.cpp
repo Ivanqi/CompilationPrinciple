@@ -11,7 +11,7 @@
 
 #include <iostream>
 #include <assert.h>
-#include <memory>
+
 
 /**
  * 解析代码，生成AST
@@ -45,9 +45,9 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
     map<State*, set<State*>*> closures = calcClosure(startNFAState);
 
     // // 把NFA转换成DFA
-    vector<DFAState*> dfaStates = NFA2DFA(startNFAState, grammarNames, closures);
-    // std::cout << "\nDFA:" << std::endl;
-    // dfaStates[0]->dump();
+    vector<shared_ptr<DFAState>> dfaStates = NFA2DFA(startNFAState, grammarNames, closures);
+    std::cout << "\nDFA:" << std::endl;
+    DFAState::showDFAState(dfaStates);
 
     // // TODO: 在这里可以检查语法是否合法，比如是否存在reduce/reduce或shift/reduce冲突
 
@@ -491,14 +491,14 @@ void LRParser::linkSubGraphs(map<Production*, GrammarNFAState*>& subGraphs, vect
  * @param startState 起始的NFA状态
  * @param grammarNames 所有符号的集合，包括终结符和非终结符
  */
-vector<DFAState*> LRParser::NFA2DFA(State *startState, vector<string> grammarNames, map<State*, set<State*>*> closures)
+vector<shared_ptr<DFAState>> LRParser::NFA2DFA(State *startState, vector<string> grammarNames, map<State*, set<State*>*> closures)
 {
-    vector<DFAState*> dfaStates;
+    vector<shared_ptr<DFAState>> dfaStates;
     vector<DFAState*> newStates;
 
     set<State*> *stateSet = closures[startState];
     DFAState *dfaState = new DFAState(*stateSet);
-    dfaStates.emplace_back(dfaState);
+    dfaStates.emplace_back(shared_ptr<DFAState>(dfaState));
     newStates.emplace_back(dfaState);
 
     // 每次循环，都会计算出一些新的StateSet来
@@ -510,6 +510,7 @@ vector<DFAState*> LRParser::NFA2DFA(State *startState, vector<string> grammarNam
         for (DFAState *dfaState2: calculating) {
             // 为每个grammarName循环
             for (string grammarName : grammarNames) {
+                // 下一个集合
                 set<State*> nextStateSet = move(dfaState2->getStatesSet(), grammarName);
                 if (nextStateSet.size() == 0) {
                     continue;
@@ -518,16 +519,17 @@ vector<DFAState*> LRParser::NFA2DFA(State *startState, vector<string> grammarNam
                 // 把nextStateSet中每个状态的闭包也加入进来
                 addClosure(nextStateSet, closures);
 
-                // 看看是不是一个新的状态
+                // 看看是不是一个新的状态，如果已经有这个状态集，把它找出来，否则待处理栈
                 dfaState = findDFAState(dfaStates, nextStateSet);
                 Transition *transition = nullptr;
                 if (dfaState == nullptr) {
                     dfaState = new DFAState(nextStateSet);
-                    dfaStates.emplace_back(dfaState);
+                    dfaStates.emplace_back(shared_ptr<DFAState>(dfaState));
                     newStates.emplace_back(dfaState);
                 }
 
                 transition = new GrammarTransition(grammarName);
+                // 建立 dfaState2 与 dfaState的关联
                 dfaState2->addTransition(transition, dfaState);
             }
         }
@@ -539,10 +541,11 @@ vector<DFAState*> LRParser::NFA2DFA(State *startState, vector<string> grammarNam
 /**
  * 根据NFA State 集合，查找是否已经存在一个DFAState ，包含同样的NFA状态集合
  */
-DFAState* LRParser::findDFAState(vector<DFAState*> dfaStates, set<State*> states)
+DFAState* LRParser::findDFAState(vector<shared_ptr<DFAState>> dfaStates, set<State*> states)
 {
     DFAState *dfaState = nullptr;
-    for (DFAState *dfaState1 : dfaStates) {
+    for (size_t i = 0; i < dfaStates.size(); i++) {
+        DFAState *dfaState1 = dfaStates[i].get();
         if (sameStateSet(dfaState1->getStatesSet(), states)) {
             dfaState = dfaState1;
             break;
@@ -686,6 +689,7 @@ set<State*> LRParser::move(set<State*> states, string grammarName)
         State *state = *it;
         for (size_t i = 0; i < state->getTransitions().size(); i++) {
             Transition *transition = state->getTransitions()[i].get();
+            // 如果匹配成功，形成新的迁移集合
             if (transition->match(grammarName)) {
                 State *nextState = state->getState(transition);
                 rtn.insert(nextState);
