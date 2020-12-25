@@ -7,6 +7,8 @@
 #include <map>
 #include <set>
 #include <memory>
+#include "Stack.h"
+
 
 using std::shared_ptr;
 using std::string;
@@ -23,7 +25,6 @@ class Token;
 class GrammarNFAState;
 class Production;
 class State;
-class Stack;
 
 class LRParser
 {
