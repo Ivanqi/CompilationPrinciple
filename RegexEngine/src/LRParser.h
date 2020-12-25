@@ -91,7 +91,7 @@ class LRParser
          * @param startState 起始的NFA状态
          * @param grammarNames 所有符号的集合，包括终结符和非终结符
          */
-        static vector<DFAState*> NFA2DFA(State *startState, vector<string> grammarNames, map<State*, set<State*>> closures);
+        static vector<DFAState*> NFA2DFA(State *startState, vector<string> grammarNames, map<State*, set<State*>*> closures);
 
         /**
          * 根据NFA State 集合，查找是否已经存在一个DFAState ，包含同样的NFA状态集合
@@ -106,14 +106,14 @@ class LRParser
         /**
          * 计算所有的节点的Closure
          */
-        static map<State*, set<State*>> calcClosure(State *state);
+        static map<State*, set<State*>*> calcClosure(State *state);
 
-        static bool calcClosure(State *state, map<State*, set<State*>>& closures, set<State*>& calculated);
+        static bool calcClosure(State *state, map<State*, set<State*>*>& closures, set<State*>& calculated);
 
         /**
          * 计算一个状态集合的闭包，包括这些状态以及可以通过epsilon到达的状态
          */
-        static void addClosure(set<State*> states, map<State*, set<State*>> calculatedClosures);
+        static void addClosure(set<State*>& states, map<State*, set<State*>*> calculatedClosures);
 
         /**
          * 计算从某个状态集合，在接受某个字符以后，会迁移到哪些新的集合

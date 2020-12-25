@@ -42,7 +42,7 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
     }
 
     // 计算所有NFA状态闭包
-    map<State*, set<State*>> closures = calcClosure(startNFAState);
+    map<State*, set<State*>*> closures = calcClosure(startNFAState);
 
     // // 把NFA转换成DFA
     vector<DFAState*> dfaStates = NFA2DFA(startNFAState, grammarNames, closures);
@@ -433,6 +433,18 @@ void LRParser::calcSubGraphs(set<Production*> productions, map<Production*, Gram
 
         GrammarNFAState *lastState = state;
 
+        /**
+         * 例子
+         * calcSubGraphs: add->mul  | 1
+         * calcSubGraphs: mul->pri  | 1
+         * calcSubGraphs: start->add  | 1
+         * calcSubGraphs: add->add ADD mul  | 3
+         * calcSubGraphs: mul->mul MUL pri  | 3
+         * calcSubGraphs: pri->INT_LITERAL  | 1
+         * calcSubGraphs: pri->LPAREN add RPAREN  | 3
+         * --- 
+         * 通过transitions把state连接起来，形成一个链表
+         */
         for (int i = 0; i < produ->rhs.size(); i++) {
             item = new Item(produ, i + 1);
             state = new GrammarNFAState(item);
@@ -479,13 +491,13 @@ void LRParser::linkSubGraphs(map<Production*, GrammarNFAState*>& subGraphs, vect
  * @param startState 起始的NFA状态
  * @param grammarNames 所有符号的集合，包括终结符和非终结符
  */
-vector<DFAState*> LRParser::NFA2DFA(State *startState, vector<string> grammarNames, map<State*, set<State*>> closures)
+vector<DFAState*> LRParser::NFA2DFA(State *startState, vector<string> grammarNames, map<State*, set<State*>*> closures)
 {
     vector<DFAState*> dfaStates;
     vector<DFAState*> newStates;
 
-    set<State*> stateSet = closures[startState];
-    DFAState *dfaState = new DFAState(stateSet);
+    set<State*> *stateSet = closures[startState];
+    DFAState *dfaState = new DFAState(*stateSet);
     dfaStates.emplace_back(dfaState);
     newStates.emplace_back(dfaState);
 
@@ -561,9 +573,9 @@ bool LRParser::sameStateSet(set<State*> stateSet1, set<State*> stateSet2)
 /**
  * 计算所有的节点的Closure
  */
-map<State*, set<State*>> LRParser::calcClosure(State *state)
+map<State*, set<State*>*> LRParser::calcClosure(State *state)
 {
-    map<State*, set<State*>> closures;
+    map<State*, set<State*>*> closures;
 
     int i = 1;
     std::cout << "calcClosure round: " << i++ << std::endl;
@@ -580,27 +592,29 @@ map<State*, set<State*>> LRParser::calcClosure(State *state)
     return closures;
 }
 
-bool LRParser::calcClosure(State *state, map<State*, set<State*>>& closures, set<State*>& calculated)
+bool LRParser::calcClosure(State *state, map<State*, set<State*>*>& closures, set<State*>& calculated)
 {
     calculated.insert(state);
-    set<State*> closure;
+    set<State*> *closure;
 
     if (closures.find(state) != closures.end()) {
         closure = closures[state];
     } else {
+        closure = new set<State*>();
         closures[state] = closure;
     }
 
     bool stable = true;
 
-    if (closure.find(state) != closure.end()) {
-        closure.insert(state);
+    if (closure->find(state) == closure->end()) {
+        closure->insert(state);
         stable = false;
     }
 
     vector<State*> toAdd;
+    int transLen = state->getTransitions().size();
 
-    for (size_t i = 0; i < state->getTransitions().size(); i++) {
+    for (size_t i = 0; i < transLen; i++) {
         Transition *transition = state->getTransitions()[i].get();
         State *nextState = state->getState(transition);
         // 如果是Epsilon就往toAdd里增加
@@ -617,19 +631,22 @@ bool LRParser::calcClosure(State *state, map<State*, set<State*>>& closures, set
             }
         }
     }
+    set<State*> *closure1;
 
     for (State *state1: toAdd) {
-        set<State*> closure1 = closures[state1];
+        closure1 = closures[state1];
+        if (closure1 == nullptr) continue;
         bool containsAll = true;
-        for (State *closureState2 : closure1) {
-            if (closure.find(closureState2) == closure.end()){
+        for (auto it = closure1->begin(); it != closure1->end(); it++) {
+            State *closureState2 = *it;
+            if (closure->find(closureState2) == closure->end()) {
                 containsAll = false;
                 break;
-            } 
+            }
         }
 
         if (!containsAll) {
-            closure.insert(closure1.begin(), closure1.end());
+            closure->insert(closure1->begin(), closure1->end());
             stable = false;
         }
     }
@@ -640,16 +657,20 @@ bool LRParser::calcClosure(State *state, map<State*, set<State*>>& closures, set
 /**
  * 计算一个状态集合的闭包，包括这些状态以及可以通过epsilon到达的状态
  */
-void LRParser::addClosure(set<State*> states, map<State*, set<State*>> calculatedClosures)
+void LRParser::addClosure(set<State*>& states, map<State*, set<State*>*> calculatedClosures)
 {
     set<State*> newStates;
     for (auto it = states.begin(); it != states.end(); it++) {
         State *state = *it;
-        set<State*> closure = calculatedClosures[state];
-        if (closure.size() == 0) {
-            std::cout << "error : closure is null" << std::endl;
+        set<State*> *closure = calculatedClosures[state];
+        if (closure == nullptr) {
+            std::cout << "warning : closure is null" << std::endl;
+            continue;
         }
-        newStates.insert(closure.begin(), closure.end());
+        if (closure->size() == 0) {
+            std::cout << "warning : closure is null" << std::endl;
+        }
+        newStates.insert(closure->begin(), closure->end());
     }
     
     states.insert(newStates.begin(), newStates.end());
