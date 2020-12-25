@@ -67,11 +67,24 @@ bool DFAState::isAcceptable()
 
 void DFAState::showDFAState(vector<shared_ptr<DFAState>> dfaStates)
 {
+    int stateLen = 0;
+    int statesSetLen = 0;
     for (size_t i = 0; i < dfaStates.size(); i++) {
         DFAState *dstate = dfaStates[i].get();
         cout << dstate->getName() << endl;
-        for (State *state: dstate->getStates()) {
-            cout << "\t" << state->toString() << endl;
+        stateLen = dstate->getStates().size();
+        statesSetLen = dstate->getStatesSet().size();
+        
+        if (stateLen > 0) {
+            for (State *state: dstate->getStates()) {
+                cout << "\t" << state->toString() << endl;
+            }
+        }
+        
+        if (statesSetLen > 0) {
+            for (State *stateset: dstate->getStatesSet()) {
+                cout << "\t" << stateset->toString() << endl;
+            }
         }
     }
 }

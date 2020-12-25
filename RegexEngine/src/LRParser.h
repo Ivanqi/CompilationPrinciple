@@ -23,6 +23,7 @@ class Token;
 class GrammarNFAState;
 class Production;
 class State;
+class Stack;
 
 class LRParser
 {
@@ -36,7 +37,7 @@ class LRParser
         /**
          * 通过移进，规约算法，做语法解析
          */
-        static ASTNode* shiftReduce(stack<ASTNode*> stack, TokenReader *tokenReader, DFAState *startState);
+        static ASTNode* shiftReduce(Stack<ASTNode*> stack, TokenReader *tokenReader, DFAState *startState);
 
         /**
          * 基于栈和左边第一个Token,判断正确的句柄，并做规约操作
@@ -44,7 +45,7 @@ class LRParser
          *  1. 可能做了多次reduce, 最后nextToken匹配了当前句柄
          *  2. 遇到了结尾$
          */
-        static bool reduce(stack<ASTNode*> stack, Token *nextToken, DFAState *startState);
+        static bool reduce(Stack<ASTNode*>& stack, Token nextToken, DFAState *startState);
 
         /**
          * 把语法翻译成NFA

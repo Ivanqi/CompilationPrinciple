@@ -8,6 +8,7 @@
 #include "Item.h"
 #include "GrammarTransition.h"
 #include "DFAState.h"
+#include "Stack.h"
 
 #include <iostream>
 #include <assert.h>
@@ -49,15 +50,15 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
     std::cout << "\nDFA:" << std::endl;
     DFAState::showDFAState(dfaStates);
 
-    // // TODO: 在这里可以检查语法是否合法，比如是否存在reduce/reduce或shift/reduce冲突
+    // TODO: 在这里可以检查语法是否合法，比如是否存在reduce/reduce或shift/reduce冲突
 
-    // // 词法分析
-    // vector<Tokens> tokens = Lexer::tokenize(script);
-    // TokenReader *tokenReader = new TokenReader(tokens);
+    // 词法分析
+    vector<Tokens> tokens = Lexer::tokenize(script);
+    TokenReader *tokenReader = new TokenReader(tokens);
 
-    // stack<ASTNode*> s1;
-    // // 语法分析
-    // ASTNode *rootNode = shiftReduce(s1, tokenReader, dfaStates[0]);
+    Stack<ASTNode*> s1;
+    // 语法分析
+    ASTNode *rootNode = shiftReduce(s1, tokenReader, dfaStates[0].get());
     // std::cout << "\nAST:" << std::endl;
     // rootNode->dump();
     ASTNode *rootNode = nullptr;
@@ -67,49 +68,49 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
 /**
  * 通过移进，规约算法，做语法解析
  */
-// ASTNode* LRParser::shiftReduce(stack<ASTNode*> stack, TokenReader *tokenReader, DFAState *startState)
-// {
-//     Tokens token = tokenReader->peek();
-//     while (token.getType() != "nullptr") {
-//         bool reduced = false;
+ASTNode* LRParser::shiftReduce(Stack<ASTNode*> stack, TokenReader *tokenReader, DFAState *startState)
+{
+    Tokens token = tokenReader->peek();
+    while (token.getType() != "nullptr") {
+        bool reduced = false;
 
-//         // 尝试做移进操作，可能会做多次
-//         if (stack.size() > 0) {
-//             reduce = reduce(stack, token, startState);
-//         }
+        // 尝试做移进操作，可能会做多次
+        if (stack.size() > 0) {
+            reduced = reduce(stack, token, startState);
+        }
 
-//         // 尝试做移进操作
-//         token = tokenReader->read();
-//         if (token.getType() != Tokens::eof.getType()) {
-//             stack.push(new ASTNode(token.getType(), token.getText()));
-//         }
+        // 尝试做移进操作
+        token = tokenReader->read();
+        if (token.getType() != Tokens::eof.getType()) {
+            stack.push(new ASTNode(token.getType(), token.getText()));
+        }
 
-//         if (!reduce && token.getType() == Tokens::eof.getType()) {
-//             std::cout << "expecting reduce action before EOF" << std::endl;
-//             break;
-//         }
+        if (!reduced && token.getType() == Tokens::eof.getType()) {
+            std::cout << "expecting reduce action before EOF" << std::endl;
+            break;
+        }
 
-//         // 刷新token的值
-//         token = tokenReader->peek();
-//     }
+        // 刷新token的值
+        token = tokenReader->peek();
+    }
 
-//     /**
-//      * 找到栈中剩下的元素，作为AST的根节点
-//      * 如果解析成功，栈里只会剩下一个节点，就是start节点
-//      */
-//     ASTNode *rootNode = nullptr;
-//     if (stack.size() == 1) {
-//         if (stack.top()->getType() == "start") {
-//             rootNode = stack.top();
-//         } else {
-//             std::cout << "error, expecting the start node as root node" << std::endl;
-//         }
-//     } else {
-//         std::cout << "error, expecting 1 node in stack" << std::endl;
-//     }
+    /**
+     * 找到栈中剩下的元素，作为AST的根节点
+     * 如果解析成功，栈里只会剩下一个节点，就是start节点
+     */
+    ASTNode *rootNode = nullptr;
+    if (stack.size() == 1) {
+        if (stack.top()->getType() == "start") {
+            rootNode = stack.top();
+        } else {
+            std::cout << "error, expecting the start node as root node" << std::endl;
+        }
+    } else {
+        std::cout << "error, expecting 1 node in stack" << std::endl;
+    }
 
-//     return rootNode;
-// }
+    return rootNode;
+}
 
 /**
  * 基于栈和左边第一个Token,判断正确的句柄，并做规约操作
@@ -117,79 +118,79 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
  *  1. 可能做了多次reduce, 最后nextToken匹配了当前句柄
  *  2. 遇到了结尾$
  */
-// bool LRParser::reduce(stack<ASTNode*> stack, Token *nextToken, DFAState *startState)
-// {
-//     bool reduced = false;
+bool LRParser::reduce(Stack<ASTNode*>& stack, Tokens nextToken, DFAState *startState)
+{
+    bool reduced = false;
 
-//     stack<ASTNode*> stackTmp = stack;
+    stack<ASTNode*> stackTmp = stack;
 
-//     // 在DFA中找到当前状态
-//     DFAState *currentState = startState;
-//     while (stackTmp.size() > 0) {
-//         string grammarName = stackTmp.top()->getType():
-//         currentState = currentState->getNextState(grammarName);
-//         assert(currentState != nullptr);
-//     }
+    // 在DFA中找到当前状态
+    DFAState *currentState = startState;
+    while (stackTmp.size() > 0) {
+        string grammarName = stackTmp.top()->getType():
+        currentState = currentState->getNextState(grammarName);
+        assert(currentState != nullptr);
+    }
 
-//     // 如果找不到下一个状态，那当前应该是start了
-//     if (currentState == nullptr) {
-//         return false;
-//     }
+    // 如果找不到下一个状态，那当前应该是start了
+    if (currentState == nullptr) {
+        return false;
+    }
 
-//     /**
-//      * 在当前DFA的多个Item中，找到合适的句柄
-//      * 1. 首先看，哪个能支持继续Shift，而不是reduce
-//      * 比如: add -> add. + mul
-//      */
-//     if (nextToken != Tokens::eof) {
-//         for (State *state: currentState->getStates()) {
-//             Item *item = ((GrammarNFAState*) state)->item;
-//             string grammarName = item->getNextGrammarName();
-//             if (grammarName.size() > 0) {
-//                 if (nextToken->getType() == grammarName) {
-//                     return false;
-//                 }
-//             }
-//         }
-//     }
+    /**
+     * 在当前DFA的多个Item中，找到合适的句柄
+     * 1. 首先看，哪个能支持继续Shift，而不是reduce
+     * 比如: add -> add. + mul
+     */
+    if (nextToken.getType() != Tokens::eof.getType()) {
+        for (State *state: currentState->getStates()) {
+            Item *item = ((GrammarNFAState*) state)->item;
+            string grammarName = item->getNextGrammarName();
+            if (grammarName.size() > 0) {
+                if (nextToken->getType() == grammarName) {
+                    return false;
+                }
+            }
+        }
+    }
 
-//     // 2. 接下来，要找到一个Item来做Reduce
-//     // 条件: 找到.符号是在结尾的
-//     for (State *state: currentState->getStates()) {
-//         Item *item = ((GrammarNFAState*)state)->item;
-//         if (item->atEnd()) {
-//             // Reduce到Item的左侧代表的语法节点
-//             string grammarName = item->production->lhs;
-//             ASTNode *node = new ASTNode(grammarName);
-//             reduce = true;
+    // 2. 接下来，要找到一个Item来做Reduce
+    // 条件: 找到.符号是在结尾的
+    for (State *state: currentState->getStates()) {
+        Item *item = ((GrammarNFAState*)state)->item;
+        if (item->atEnd()) {
+            // Reduce到Item的左侧代表的语法节点
+            string grammarName = item->production->lhs;
+            ASTNode *node = new ASTNode(grammarName);
+            reduced = true;
 
-//             // 添加子节点
-//             int delta = stack.size() - item->production->rhs.size();
-//             // @TODO，要更换Stack数据结构
-//             for (int i = delta; i < stack.size(); i++) {
-//                 // 产生式应该跟栈的元素一致
-//                 if (stack[i]->getType == item->production->rhs[i - delta]) {
-//                     node->addChild(stack[i]);
-//                 } else {
-//                     std::cout << "error reducing for : " << item << std::endl;
-//                 }
-//             }
+            // 添加子节点
+            int delta = stack.size() - item->production->rhs.size();
+            // @TODO，要更换Stack数据结构
+            for (int i = delta; i < stack.size(); i++) {
+                // 产生式应该跟栈的元素一致
+                if (stack[i]->getType == item->production->rhs[i - delta]) {
+                    node->addChild(stack[i]);
+                } else {
+                    std::cout << "error reducing for : " << item << std::endl;
+                }
+            }
 
-//             // 弹出这些子节点
-//             for (int i = 0; i < item->production->rhs.size(); i++) {
-//                 stack.pop();
-//             }
+            // 弹出这些子节点
+            for (int i = 0; i < item->production->rhs.size(); i++) {
+                stack.pop();
+            }
 
-//             // 添加父节点
-//             stack.push(node);
+            // 添加父节点
+            stack.push(node);
 
-//             // 基于新的栈，继续做reduce
-//             reduce(stack, nextToken, startState);
-//         }
-//     }
+            // 基于新的栈，继续做reduce
+            reduce(stack, nextToken, startState);
+        }
+    }
 
-//     return reduced;
-// }
+    return reduced;
+}
 
 /**
  * 把语法翻译成NFA
@@ -627,7 +628,7 @@ bool LRParser::calcClosure(State *state, map<State*, set<State*>*>& closures, se
 
         // 把所有下级节点都计算一下
         bool childStable = true;
-        if (calculated.find(nextState) != calculated.end()) {
+        if (calculated.find(nextState) == calculated.end()) {
             childStable = calcClosure(nextState, closures, calculated);
             if (!childStable) {
                 stable = false;
