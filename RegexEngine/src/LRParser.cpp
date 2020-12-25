@@ -46,7 +46,7 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
 
     // // 把NFA转换成DFA
     vector<DFAState*> dfaStates = NFA2DFA(startNFAState, grammarNames, closures);
-    std::cout << "\nDFA:" << std::endl;
+    // std::cout << "\nDFA:" << std::endl;
     // dfaStates[0]->dump();
 
     // // TODO: 在这里可以检查语法是否合法，比如是否存在reduce/reduce或shift/reduce冲突
@@ -266,7 +266,7 @@ void LRParser::generateProduction(map<string, GrammarNode*> nodes, set<Productio
 {
     for (auto it = nodes.begin(); it != nodes.end(); it++) {
         GrammarNode *node = it->second;
-        if (node->isNamedNode()) {
+        if (node->isNamedNode()) {  // 只遍历各个父节点
             if (node->getType() == GrammarNodeType::Or) {
                 for (int i = 0; i < node->getChildCount(); i++) {
                     GrammarNode *child = node->getChild(i);
@@ -309,7 +309,7 @@ void LRParser::simplifyProductions(map<string, GrammarNode*> nodes, set<Producti
             for (int i = 0; i < produ->rhs.size(); i++) {
                 string name = produ->rhs[i];
                 GrammarNode *node = nodes[name];
-                if (node != nullptr && !node->isNamedNode()) {
+                if (node != nullptr && !node->isNamedNode()) {  // 只遍历子节点
                     if (node->getType() == GrammarNodeType::Or) {
                         toRemove.insert(produ);
                         for (int j = 0; j < node->getChildCount(); j++) {
