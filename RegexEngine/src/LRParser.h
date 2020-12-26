@@ -21,7 +21,7 @@ class ASTNode;
 class GrammarNode;
 class TokenReader;
 class DFAState;
-class Token;
+class Tokens;
 class GrammarNFAState;
 class Production;
 class State;
@@ -46,7 +46,7 @@ class LRParser
          *  1. 可能做了多次reduce, 最后nextToken匹配了当前句柄
          *  2. 遇到了结尾$
          */
-        static bool reduce(Stack<ASTNode*>& stack, Token nextToken, DFAState *startState);
+        static bool reduce(Stack<ASTNode*>& stack, Tokens nextToken, DFAState *startState);
 
         /**
          * 把语法翻译成NFA

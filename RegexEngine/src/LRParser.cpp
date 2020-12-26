@@ -78,12 +78,13 @@ ASTNode* LRParser::shiftReduce(Stack<ASTNode*> stack, TokenReader *tokenReader, 
 
         // 尝试做移进操作，可能会做多次
         if (stack.size() > 0) {
-            // reduced = reduce(stack, token, startState);
+            reduced = reduce(stack, token, startState);
         }
 
         // 尝试做移进操作
         token = tokenReader->read();
         if (token.getType() != Tokens::eof.getType()) {
+            std::cout << "stack.push: " << token.getType() << std::endl;
             stack.push(new ASTNode(token.getType(), token.getText()));
         }
 
@@ -120,79 +121,81 @@ ASTNode* LRParser::shiftReduce(Stack<ASTNode*> stack, TokenReader *tokenReader, 
  *  1. 可能做了多次reduce, 最后nextToken匹配了当前句柄
  *  2. 遇到了结尾$
  */
-// bool LRParser::reduce(Stack<ASTNode*>& stack, Tokens nextToken, DFAState *startState)
-// {
-//     bool reduced = false;
+bool LRParser::reduce(Stack<ASTNode*>& stack, Tokens nextToken, DFAState *startState)
+{
+    bool reduced = false;
 
-//     stack<ASTNode*> stackTmp = stack;
+    // 在DFA中找到当前状态
+    DFAState *currentState = startState;
+    Stack<ASTNode*>::iterator it;
 
-//     // 在DFA中找到当前状态
-//     DFAState *currentState = startState;
-//     while (stackTmp.size() > 0) {
-//         string grammarName = stackTmp.top()->getType():
-//         currentState = currentState->getNextState(grammarName);
-//         assert(currentState != nullptr);
-//     }
+    for (it = stack.begin(); it != stack.end(); it++) {
+        ASTNode *node = *it;
+        string grammarName = node->getType();
+        std::cout << "grammarName: " << grammarName << std::endl;
+        currentState = currentState->getNextState(grammarName);
+        assert(currentState != nullptr);
+    }
 
-//     // 如果找不到下一个状态，那当前应该是start了
-//     if (currentState == nullptr) {
-//         return false;
-//     }
+    // 如果找不到下一个状态，那当前应该是start了
+    if (currentState == nullptr) {
+        return false;
+    }
 
-//     /**
-//      * 在当前DFA的多个Item中，找到合适的句柄
-//      * 1. 首先看，哪个能支持继续Shift，而不是reduce
-//      * 比如: add -> add. + mul
-//      */
-//     if (nextToken.getType() != Tokens::eof.getType()) {
-//         for (State *state: currentState->getStates()) {
-//             Item *item = ((GrammarNFAState*) state)->item;
-//             string grammarName = item->getNextGrammarName();
-//             if (grammarName.size() > 0) {
-//                 if (nextToken->getType() == grammarName) {
-//                     return false;
-//                 }
-//             }
-//         }
-//     }
+    /**
+     * 在当前DFA的多个Item中，找到合适的句柄
+     * 1. 首先看，哪个能支持继续Shift，而不是reduce
+     * 比如: add -> add. + mul
+     */
+    if (nextToken.getType() != Tokens::eof.getType()) {
+        for (State *state: currentState->getStatesSet()) {
+            Item *item = ((GrammarNFAState*) state)->item;
+            string grammarName = item->getNextGrammarName();
+            if (grammarName.size() > 0) {
+                if (nextToken.getType() == grammarName) {
+                    return false;
+                }
+            }
+        }
+    }
 
-//     // 2. 接下来，要找到一个Item来做Reduce
-//     // 条件: 找到.符号是在结尾的
-//     for (State *state: currentState->getStates()) {
-//         Item *item = ((GrammarNFAState*)state)->item;
-//         if (item->atEnd()) {
-//             // Reduce到Item的左侧代表的语法节点
-//             string grammarName = item->production->lhs;
-//             ASTNode *node = new ASTNode(grammarName);
-//             reduced = true;
+    // 2. 接下来，要找到一个Item来做Reduce
+    // 条件: 找到.符号是在结尾的
+    // for (State *state: currentState->getStates()) {
+    //     Item *item = ((GrammarNFAState*)state)->item;
+    //     if (item->atEnd()) {
+    //         // Reduce到Item的左侧代表的语法节点
+    //         string grammarName = item->production->lhs;
+    //         ASTNode *node = new ASTNode(grammarName);
+    //         reduced = true;
 
-//             // 添加子节点
-//             int delta = stack.size() - item->production->rhs.size();
-//             // @TODO，要更换Stack数据结构
-//             for (int i = delta; i < stack.size(); i++) {
-//                 // 产生式应该跟栈的元素一致
-//                 if (stack[i]->getType == item->production->rhs[i - delta]) {
-//                     node->addChild(stack[i]);
-//                 } else {
-//                     std::cout << "error reducing for : " << item << std::endl;
-//                 }
-//             }
+    //         // 添加子节点
+    //         int delta = stack.size() - item->production->rhs.size();
+    //         // @TODO，要更换Stack数据结构
+    //         for (int i = delta; i < stack.size(); i++) {
+    //             // 产生式应该跟栈的元素一致
+    //             if (stack[i]->getType == item->production->rhs[i - delta]) {
+    //                 node->addChild(stack[i]);
+    //             } else {
+    //                 std::cout << "error reducing for : " << item << std::endl;
+    //             }
+    //         }
 
-//             // 弹出这些子节点
-//             for (int i = 0; i < item->production->rhs.size(); i++) {
-//                 stack.pop();
-//             }
+    //         // 弹出这些子节点
+    //         for (int i = 0; i < item->production->rhs.size(); i++) {
+    //             stack.pop();
+    //         }
 
-//             // 添加父节点
-//             stack.push(node);
+    //         // 添加父节点
+    //         stack.push(node);
 
-//             // 基于新的栈，继续做reduce
-//             reduce(stack, nextToken, startState);
-//         }
-//     }
+    //         // 基于新的栈，继续做reduce
+    //         reduce(stack, nextToken, startState);
+    //     }
+    // }
 
-//     return reduced;
-// }
+    return reduced;
+}
 
 /**
  * 把语法翻译成NFA
