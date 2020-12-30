@@ -161,38 +161,38 @@ bool LRParser::reduce(Stack<ASTNode*>& stack, Tokens nextToken, DFAState *startS
 
     // 2. 接下来，要找到一个Item来做Reduce
     // 条件: 找到.符号是在结尾的
-    // for (State *state: currentState->getStates()) {
-    //     Item *item = ((GrammarNFAState*)state)->item;
-    //     if (item->atEnd()) {
-    //         // Reduce到Item的左侧代表的语法节点
-    //         string grammarName = item->production->lhs;
-    //         ASTNode *node = new ASTNode(grammarName);
-    //         reduced = true;
+    for (State *state: currentState->getStates()) {
+        Item *item = ((GrammarNFAState*)state)->item;
+        if (item->atEnd()) {
+            // Reduce到Item的左侧代表的语法节点
+            string grammarName = item->production->lhs;
+            ASTNode *node = new ASTNode(grammarName);
+            reduced = true;
 
-    //         // 添加子节点
-    //         int delta = stack.size() - item->production->rhs.size();
-    //         // @TODO，要更换Stack数据结构
-    //         for (int i = delta; i < stack.size(); i++) {
-    //             // 产生式应该跟栈的元素一致
-    //             if (stack[i]->getType == item->production->rhs[i - delta]) {
-    //                 node->addChild(stack[i]);
-    //             } else {
-    //                 std::cout << "error reducing for : " << item << std::endl;
-    //             }
-    //         }
+            // 添加子节点
+            int delta = stack.size() - item->production->rhs.size();
+            // @TODO，要更换Stack数据结构
+            for (int i = delta; i < stack.size(); i++) {
+                // 产生式应该跟栈的元素一致
+                if (stack[i]->getType == item->production->rhs[i - delta]) {
+                    node->addChild(stack[i]);
+                } else {
+                    std::cout << "error reducing for : " << item << std::endl;
+                }
+            }
 
-    //         // 弹出这些子节点
-    //         for (int i = 0; i < item->production->rhs.size(); i++) {
-    //             stack.pop();
-    //         }
+            // 弹出这些子节点
+            for (int i = 0; i < item->production->rhs.size(); i++) {
+                stack.pop();
+            }
 
-    //         // 添加父节点
-    //         stack.push(node);
+            // 添加父节点
+            stack.push(node);
 
-    //         // 基于新的栈，继续做reduce
-    //         reduce(stack, nextToken, startState);
-    //     }
-    // }
+            // 基于新的栈，继续做reduce
+            reduce(stack, nextToken, startState);
+        }
+    }
 
     return reduced;
 }
