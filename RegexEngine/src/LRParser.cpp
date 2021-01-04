@@ -47,16 +47,16 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
     // 把NFA转换成DFA
     vector<shared_ptr<DFAState>> dfaStates = NFA2DFA(startNFAState, grammarNames, closures);
     std::cout << "\nDFA:" << std::endl;
-    // DFAState::showDFAState(dfaStates);
+    DFAState::showDFAState(dfaStates);
 
     // TODO: 在这里可以检查语法是否合法，比如是否存在reduce/reduce或shift/reduce冲突
 
     // 词法分析
     vector<Tokens> tokens = Lexer::tokenize(script);
-    // cout << "dump Tokens:" << endl;
-    // for (Tokens token : tokens){
-    //     cout << '\t' << token.toString() << endl;
-    // }
+    cout << "dump Tokens:" << endl;
+    for (Tokens token : tokens){
+        cout << '\t' << token.toString() << endl;
+    }
     TokenReader *tokenReader = new TokenReader(tokens);
 
     Stack<ASTNode*> s1;
@@ -475,7 +475,8 @@ void LRParser::calcSubGraphs(set<Production*> productions, map<Production*, Gram
  *      以及 mul -> .pri
  */
 void LRParser::linkSubGraphs(map<Production*, GrammarNFAState*>& subGraphs, vector<GrammarNFAState*>& states)
-{
+{   
+    // O(n ^ 2)
     for (GrammarNFAState *state : states) {
         // 查看position的大小是否超出rhs.size
         if (state->item->position < state->item->production->rhs.size()) {
@@ -485,29 +486,12 @@ void LRParser::linkSubGraphs(map<Production*, GrammarNFAState*>& subGraphs, vect
                 Production *produ = it->first;
                 // 在subGraphs[produ]选择与grammarName相同的进行关联
                 if (produ->lhs == grammarName) {
-                    GrammarNFAState *state1 = subGraphs[produ];
+                    GrammarNFAState *state1 = it->second;
                     state->addTransition(new GrammarTransition(), state1);
                 }
             }
         }
     }
-
-    std::cout << " --------------- " << std::endl;
-    for (auto it = subGraphs.begin(); it != subGraphs.end(); it++) {
-        Production *produ = it->first;
-        GrammarNFAState *state = it->second;
-        std::cout << "produ: " << produ->lhs << "->";
-        vector<shared_ptr<Transition>> transitions = state->getTransitions(); 
-        if (transitions.size() > 0) {
-            for (size_t i = 0; i < transitions.size(); i++) {
-                Transition *transition = transitions[i].get();
-                std::cout << transition->toString() << " ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-    }
-    std::cout << " --------------- " << std::endl;
 }
 
 /**
