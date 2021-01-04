@@ -44,7 +44,7 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
     // 计算所有NFA状态闭包
     map<State*, set<State*>*> closures = calcClosure(startNFAState);
 
-    // // 把NFA转换成DFA
+    // 把NFA转换成DFA
     vector<shared_ptr<DFAState>> dfaStates = NFA2DFA(startNFAState, grammarNames, closures);
     std::cout << "\nDFA:" << std::endl;
     DFAState::showDFAState(dfaStates);
@@ -441,13 +441,13 @@ void LRParser::calcSubGraphs(set<Production*> productions, map<Production*, Gram
 
         /**
          * 例子
-         * calcSubGraphs: add->mul  | 1
-         * calcSubGraphs: mul->pri  | 1
-         * calcSubGraphs: start->add  | 1
-         * calcSubGraphs: add->add ADD mul  | 3
-         * calcSubGraphs: mul->mul MUL pri  | 3
-         * calcSubGraphs: pri->INT_LITERAL  | 1
-         * calcSubGraphs: pri->LPAREN add RPAREN  | 3
+         * calcSubGraphs: add->mul  | rhsNum: 1
+         * calcSubGraphs: mul->pri  | rhsNum: 1
+         * calcSubGraphs: start->add  | crhsNum:1
+         * calcSubGraphs: add->add ADD mul  | rhsNum:3
+         * calcSubGraphs: mul->mul MUL pri  | rhsNum:3
+         * calcSubGraphs: pri->INT_LITERAL  | rhsNum:1
+         * calcSubGraphs: pri->LPAREN add RPAREN  | rhsNum:3
          * --- 
          * 通过transitions把state连接起来，形成一个链表
          */
@@ -477,11 +477,13 @@ void LRParser::calcSubGraphs(set<Production*> productions, map<Production*, Gram
 void LRParser::linkSubGraphs(map<Production*, GrammarNFAState*>& subGraphs, vector<GrammarNFAState*>& states)
 {
     for (GrammarNFAState *state : states) {
+        // 查看position的大小是否超出rhs.size
         if (state->item->position < state->item->production->rhs.size()) {
             string grammarName = state->item->production->rhs[state->item->position];
 
             for (auto it = subGraphs.begin(); it != subGraphs.end(); it++) {
                 Production *produ = it->first;
+                // 在subGraphs[produ]选择与grammarName相同的进行关联
                 if (produ->lhs == grammarName) {
                     GrammarNFAState *state1 = subGraphs[produ];
                     state->addTransition(new GrammarTransition(), state1);

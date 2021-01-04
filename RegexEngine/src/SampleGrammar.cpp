@@ -157,6 +157,49 @@ GrammarNode* SampleGrammar::expressionGrammar()
 }
 
 /**
+ * 带有左递归的语法规则：
+ *  expression	: add ;
+ *  add	: mul | add (+ | -) mul ;
+ *  mul	: pri | mul (* | /) pri ;
+ *  pri	: ID | INT_LITERAL | LPAREN expression RPAREN ;
+ */
+GrammarNode* SampleGrammar::leftRecursiveExpressionGrammar()
+{
+    // expression
+    GrammarNode *exp = new GrammarNode("expression", GrammarNodeType::And);
+
+    // add
+    GrammarNode *add = exp->createChild("add", GrammarNodeType::Or);
+    GrammarNode *mul = add->createChild("mul", GrammarNodeType::Or);
+    GrammarNode *add_2 = add->createChild(GrammarNodeType::And);
+    add_2->addChild(add);   // 左递归
+    
+    GrammarNode *addOp = add_2->createChild(GrammarNodeType::Or);
+    addOp->createChild(new Tokens("ADD", "+"));
+    addOp->createChild(new Tokens("SUB", "-"));
+    add_2->addChild(mul);
+
+    // mul
+    GrammarNode *pri = mul->createChild("pri", GrammarNodeType::Or);
+    GrammarNode *mul_2 = mul->createChild(GrammarNodeType::And);
+    mul_2->addChild(mul);
+    GrammarNode *mulOp = mul_2->createChild(GrammarNodeType::Or);
+    mulOp->createChild(new Tokens("MUL", "*"));
+    mulOp->createChild(new Tokens("DIV", "/"));
+    mul_2->addChild(pri);
+
+    // pri
+    pri->createChild(new Tokens("ID"));
+    pri->createChild(new Tokens("INT_LITERAL"));
+    GrammarNode *pri_3 = pri->createChild(GrammarNodeType::And);
+    pri_3->createChild(new Tokens("LPAREN"));
+    pri_3->addChild(exp);
+    pri_3->createChild(new Tokens("RPAREN"));
+
+    return exp;
+}
+
+/**
  * 创建一个示例用词法规则，支持:
  *  关键字: int, if
  *  操作符: + - * / = == >= <= > <
