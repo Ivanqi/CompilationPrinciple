@@ -46,8 +46,8 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
 
     // 把NFA转换成DFA
     vector<shared_ptr<DFAState>> dfaStates = NFA2DFA(startNFAState, grammarNames, closures);
-    std::cout << "\nDFA:" << std::endl;
-    DFAState::showDFAState(dfaStates);
+    // std::cout << "\nDFA:" << std::endl;
+    // DFAState::showDFAState(dfaStates);
 
     // TODO: 在这里可以检查语法是否合法，比如是否存在reduce/reduce或shift/reduce冲突
 
@@ -84,7 +84,6 @@ ASTNode* LRParser::shiftReduce(Stack<ASTNode*> stack, TokenReader *tokenReader, 
         // 尝试做移进操作
         token = tokenReader->read();
         if (token.getType() != Tokens::eof.getType()) {
-            std::cout << "stack.push: " << token.getType() << std::endl;
             stack.push(new ASTNode(token.getType(), token.getText()));
         }
 
@@ -132,7 +131,6 @@ bool LRParser::reduce(Stack<ASTNode*>& stack, Tokens nextToken, DFAState *startS
     for (it = stack.begin(); it != stack.end(); it++) {
         ASTNode *node = *it;
         string grammarName = node->getType();
-        std::cout << "grammarName: " << grammarName << std::endl;
         currentState = currentState->getNextState(grammarName);
         assert(currentState != nullptr);
     }
@@ -625,12 +623,13 @@ bool LRParser::calcClosure(State *state, map<State*, set<State*>*>& closures, se
 
     vector<State*> toAdd;
     int transLen = state->getTransitions().size();
-
+    std::cout << "calcClosure / " << state->getName() << " ";
     for (size_t i = 0; i < transLen; i++) {
         Transition *transition = state->getTransitions()[i].get();
         State *nextState = state->getState(transition);
         // 如果是Epsilon就往toAdd里增加
         if (transition->isEpsilon()) {
+            std::cout << ": " << transition->toString() << " nextState: " << nextState->getName() << " ";
             toAdd.emplace_back(nextState);
         }
 
@@ -643,6 +642,7 @@ bool LRParser::calcClosure(State *state, map<State*, set<State*>*>& closures, se
             }
         }
     }
+    std::cout << std::endl;
     set<State*> *closure1;
 
     for (State *state1: toAdd) {
