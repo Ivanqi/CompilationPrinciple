@@ -1,4 +1,5 @@
 #include "GrammarTransition.h"
+#include <iostream>
 
 /**
  * 是否满足迁移条件
@@ -9,8 +10,8 @@ bool GrammarTransition::match(string grammarName)
     if (isEpsilon()) {
         return false;
     }
-
-    return condition_ == grammarName;
+    bool ret = (condition_ == grammarName);
+    return ret;
 }
 
 bool GrammarTransition::match(Any obj)

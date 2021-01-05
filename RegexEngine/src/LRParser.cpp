@@ -44,10 +44,20 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
     // 计算所有NFA状态闭包
     map<State*, set<State*>*> closures = calcClosure(startNFAState);
 
+    // for (auto it = closures.begin(); it != closures.end(); it++) {
+    //     State *s = it->first;
+    //     set<State*>* set1 = it->second;
+    //     std::cout << "s: " << &s << " | s->getName():" << s->getName() << "  / set list: ";
+    //     for (auto it1 = set1->begin(); it1 != set1->end(); it1++) {
+    //         std::cout << (*it1)->getName() << "\t";
+    //     }
+    //     std::cout << std::endl;
+    // }
+
     // 把NFA转换成DFA
     vector<shared_ptr<DFAState>> dfaStates = NFA2DFA(startNFAState, grammarNames, closures);
-    // std::cout << "\nDFA:" << std::endl;
-    // DFAState::showDFAState(dfaStates);
+    std::cout << "\nDFA:" << std::endl;
+    DFAState::showDFAState(dfaStates);
 
     // TODO: 在这里可以检查语法是否合法，比如是否存在reduce/reduce或shift/reduce冲突
 
@@ -519,23 +529,24 @@ vector<shared_ptr<DFAState>> LRParser::NFA2DFA(State *startState, vector<string>
             for (string grammarName : grammarNames) {
                 // 下一个集合
                 set<State*> nextStateSet = move(dfaState2->getStatesSet(), grammarName);
-                std::cout << "grammarName: " << grammarName << " from: ";
-
-                for (State *s : dfaState2->getStatesSet()) {
-                    std::cout << s->getName() << "\t";
-                }
-                std::cout << "to: ";
-                for (State *s : nextStateSet) {
-                    std::cout << s->getName() << "\t";
-                }
-                std::cout << std::endl;
                 if (nextStateSet.size() == 0) {
                     continue;
                 }
 
+                // std::cout << "grammarName: " << grammarName << " from: ";
+
+                // for (State *s : dfaState2->getStatesSet()) {
+                //     std::cout << s->getName() << "\t";
+                // }
+                // std::cout << "to: ";
+                // for (State *s : nextStateSet) {
+                //     std::cout << s->getName() << "\t";
+                // }
+                // std::cout << std::endl;
+
                 // 把nextStateSet中每个状态的闭包也加入进来
                 addClosure(nextStateSet, closures);
-
+               
                 // 看看是不是一个新的状态，如果已经有这个状态集，把它找出来，否则待处理栈
                 dfaState = findDFAState(dfaStates, nextStateSet);
                 Transition *transition = nullptr;
@@ -633,13 +644,11 @@ bool LRParser::calcClosure(State *state, map<State*, set<State*>*>& closures, se
 
     vector<State*> toAdd;
     int transLen = state->getTransitions().size();
-    // std::cout << "calcClosure / " << state->getName() << " ";
     for (size_t i = 0; i < transLen; i++) {
         Transition *transition = state->getTransitions()[i].get();
         State *nextState = state->getState(transition);
         // 如果是Epsilon就往toAdd里增加
         if (transition->isEpsilon()) {
-            // std::cout << ": " << transition->toString() << " nextState: " << nextState->getName() << " ";
             toAdd.emplace_back(nextState);
         }
 
@@ -652,7 +661,6 @@ bool LRParser::calcClosure(State *state, map<State*, set<State*>*>& closures, se
             }
         }
     }
-    // std::cout << std::endl;
     set<State*> *closure1;
 
     for (State *state1: toAdd) {
@@ -689,8 +697,10 @@ void LRParser::addClosure(set<State*>& states, map<State*, set<State*>*> calcula
             std::cout << "warning : closure is null" << std::endl;
             continue;
         }
+
         if (closure->size() == 0) {
             std::cout << "warning : closure is null" << std::endl;
+            continue;
         }
         newStates.insert(closure->begin(), closure->end());
     }
