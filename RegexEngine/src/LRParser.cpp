@@ -519,6 +519,16 @@ vector<shared_ptr<DFAState>> LRParser::NFA2DFA(State *startState, vector<string>
             for (string grammarName : grammarNames) {
                 // 下一个集合
                 set<State*> nextStateSet = move(dfaState2->getStatesSet(), grammarName);
+                std::cout << "grammarName: " << grammarName << " from: ";
+
+                for (State *s : dfaState2->getStatesSet()) {
+                    std::cout << s->getName() << "\t";
+                }
+                std::cout << "to: ";
+                for (State *s : nextStateSet) {
+                    std::cout << s->getName() << "\t";
+                }
+                std::cout << std::endl;
                 if (nextStateSet.size() == 0) {
                     continue;
                 }
@@ -623,13 +633,13 @@ bool LRParser::calcClosure(State *state, map<State*, set<State*>*>& closures, se
 
     vector<State*> toAdd;
     int transLen = state->getTransitions().size();
-    std::cout << "calcClosure / " << state->getName() << " ";
+    // std::cout << "calcClosure / " << state->getName() << " ";
     for (size_t i = 0; i < transLen; i++) {
         Transition *transition = state->getTransitions()[i].get();
         State *nextState = state->getState(transition);
         // 如果是Epsilon就往toAdd里增加
         if (transition->isEpsilon()) {
-            std::cout << ": " << transition->toString() << " nextState: " << nextState->getName() << " ";
+            // std::cout << ": " << transition->toString() << " nextState: " << nextState->getName() << " ";
             toAdd.emplace_back(nextState);
         }
 
@@ -642,7 +652,7 @@ bool LRParser::calcClosure(State *state, map<State*, set<State*>*>& closures, se
             }
         }
     }
-    std::cout << std::endl;
+    // std::cout << std::endl;
     set<State*> *closure1;
 
     for (State *state1: toAdd) {
