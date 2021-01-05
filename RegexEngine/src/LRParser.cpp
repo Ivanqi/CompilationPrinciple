@@ -44,16 +44,6 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
     // 计算所有NFA状态闭包
     map<State*, set<State*>*> closures = calcClosure(startNFAState);
 
-    // for (auto it = closures.begin(); it != closures.end(); it++) {
-    //     State *s = it->first;
-    //     set<State*>* set1 = it->second;
-    //     std::cout << "s: " << &s << " | s->getName():" << s->getName() << "  / set list: ";
-    //     for (auto it1 = set1->begin(); it1 != set1->end(); it1++) {
-    //         std::cout << (*it1)->getName() << "\t";
-    //     }
-    //     std::cout << std::endl;
-    // }
-
     // 把NFA转换成DFA
     vector<shared_ptr<DFAState>> dfaStates = NFA2DFA(startNFAState, grammarNames, closures);
     std::cout << "\nDFA:" << std::endl;
@@ -532,17 +522,6 @@ vector<shared_ptr<DFAState>> LRParser::NFA2DFA(State *startState, vector<string>
                 if (nextStateSet.size() == 0) {
                     continue;
                 }
-
-                // std::cout << "grammarName: " << grammarName << " from: ";
-
-                // for (State *s : dfaState2->getStatesSet()) {
-                //     std::cout << s->getName() << "\t";
-                // }
-                // std::cout << "to: ";
-                // for (State *s : nextStateSet) {
-                //     std::cout << s->getName() << "\t";
-                // }
-                // std::cout << std::endl;
 
                 // 把nextStateSet中每个状态的闭包也加入进来
                 addClosure(nextStateSet, closures);
