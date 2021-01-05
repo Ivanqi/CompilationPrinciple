@@ -132,6 +132,7 @@ bool LRParser::reduce(Stack<ASTNode*>& stack, Tokens nextToken, DFAState *startS
         ASTNode *node = *it;
         string grammarName = node->getType();
         currentState = currentState->getNextState(grammarName);
+        std::cout << grammarName << std::endl;
         assert(currentState != nullptr);
     }
 
@@ -693,6 +694,7 @@ void LRParser::addClosure(set<State*>& states, map<State*, set<State*>*> calcula
 set<State*> LRParser::move(set<State*> states, string grammarName)
 {
     set<State*> rtn;
+    // O(n ^ 2)
     for (auto it = states.begin(); it != states.end(); it++) {
         State *state = *it;
         for (size_t i = 0; i < state->getTransitions().size(); i++) {

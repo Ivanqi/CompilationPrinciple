@@ -22,9 +22,26 @@ std::set<State*> DFAState::getStatesSet()
  */
 DFAState* DFAState::getNextState(Any obj)
 {
+    Any target;
+    if (this->getName() == "40") {
+        bool ret = obj.is<string>();
+        std::cout << "DFAState::getNextState(Any obj): " << ret << " | " << obj.as<string>() << std::endl;
+    }
+
+    if (obj.is<string>()) {
+        string strTmp = obj.as<string>();
+        target = strTmp;
+    } else if (obj.is<char>()) {
+        char charTmp = obj.as<char>();
+        target = charTmp;
+    }
+
     for (size_t i = 0; i < transitions.size(); i++) {
         Transition *transition = transitions[i].get();
-        if (transition->match(obj)) {
+        if (this->getName() == "40") {
+            std::cout << "getNextState: " << transition->toString() << std::endl;
+        }
+        if (transition->match(target)) {
             return (DFAState*) getState(transition);
         }
     }

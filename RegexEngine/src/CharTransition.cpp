@@ -1,4 +1,5 @@
 #include "CharTransition.h"
+#include <iostream>
 
 /**
  * 是否满足迁移条件
