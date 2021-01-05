@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <assert.h>
+#include <iterator>
 
 
 /**
@@ -127,12 +128,24 @@ bool LRParser::reduce(Stack<ASTNode*>& stack, Tokens nextToken, DFAState *startS
     // 在DFA中找到当前状态
     DFAState *currentState = startState;
     Stack<ASTNode*>::iterator it;
+    DFAState *tmpState = nullptr;
 
+    std::cout << "stack size: " << stack.size() << std::endl;
     for (it = stack.begin(); it != stack.end(); it++) {
         ASTNode *node = *it;
         string grammarName = node->getType();
-        currentState = currentState->getNextState(grammarName);
+
+        tmpState = nullptr;
+        for (size_t i = 0; i < currentState->getTransitions().size(); i++) {
+            Transition *t = currentState->getTransitions()[i].get();
+            if (t->match(grammarName)) {
+                tmpState = (DFAState*)currentState->getState(t);
+                break;
+            }
+        }
+
         std::cout << grammarName << std::endl;
+        currentState = tmpState;
         assert(currentState != nullptr);
     }
 
@@ -160,38 +173,40 @@ bool LRParser::reduce(Stack<ASTNode*>& stack, Tokens nextToken, DFAState *startS
 
     // 2. 接下来，要找到一个Item来做Reduce
     // 条件: 找到.符号是在结尾的
-    // for (State *state: currentState->getStates()) {
-    //     Item *item = ((GrammarNFAState*)state)->item;
-    //     if (item->atEnd()) {
-    //         // Reduce到Item的左侧代表的语法节点
-    //         string grammarName = item->production->lhs;
-    //         ASTNode *node = new ASTNode(grammarName);
-    //         reduced = true;
+    for (State *state: currentState->getStatesSet()) {
+        Item *item = ((GrammarNFAState*)state)->item;
+        bool ret = item->atEnd();
+        if (item->atEnd()) {
+            // Reduce到Item的左侧代表的语法节点
+            string grammarName = item->production->lhs;
+            ASTNode *node = new ASTNode(grammarName);
+            reduced = true;
 
-    //         // 添加子节点
-    //         int delta = stack.size() - item->production->rhs.size();
-    //         // @TODO，要更换Stack数据结构
-    //         for (int i = delta; i < stack.size(); i++) {
-    //             // 产生式应该跟栈的元素一致
-    //             if (stack[i]->getType == item->production->rhs[i - delta]) {
-    //                 node->addChild(stack[i]);
-    //             } else {
-    //                 std::cout << "error reducing for : " << item << std::endl;
-    //             }
-    //         }
+            // 添加子节点
+            int delta = stack.size() - item->production->rhs.size();
+            int i = delta;
+            for (auto it = std::next(stack.begin(), delta); it != stack.end(); it++) {
+                // 产生式应该跟栈的元素一致
+                if ((*it)->getType() == item->production->rhs[i - delta]) {
+                    node->addChild((*it));
+                } else {
+                    std::cout << "error reducing for: " << item << std::endl;
+                }
+                i++;
+            }
 
-    //         // 弹出这些子节点
-    //         for (int i = 0; i < item->production->rhs.size(); i++) {
-    //             stack.pop();
-    //         }
+            // 弹出这些子节点
+            for (int i = 0; i < item->production->rhs.size(); i++) {
+                stack.pop();
+            }
 
-    //         // 添加父节点
-    //         stack.push(node);
+            // 添加父节点
+            stack.push(node);
 
-    //         // 基于新的栈，继续做reduce
-    //         reduce(stack, nextToken, startState);
-    //     }
-    // }
+            // 基于新的栈，继续做reduce
+            reduce(stack, nextToken, startState);
+        }
+    }
 
     return reduced;
 }

@@ -11,16 +11,12 @@ bool GrammarTransition::match(string grammarName)
         return false;
     }
     bool ret = (condition_ == grammarName);
-    if (ret == 1) {
-        std::cout << "GrammarTransition::match: " << condition_ << " | " << grammarName << " | ret:" << ret << std::endl;
-    }
     return ret;
 }
 
 bool GrammarTransition::match(Any obj)
 {
     bool ret = obj.is<string>();
-    std::cout << "bool GrammarTransition::match(Any obj): " << ret << std::endl;
     if (ret) {
         return match(obj.as<string>());
     } else {

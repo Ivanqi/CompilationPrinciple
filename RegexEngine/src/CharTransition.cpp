@@ -17,8 +17,13 @@ bool CharTransition::match(char ch)
 
 bool CharTransition::match(Any obj)
 {
-    char tmp = obj.as<char>();
-    return match(tmp);
+    bool ret = obj.is<char>();
+    if (ret) {
+        char tmp = obj.as<char>();
+        return match(tmp);
+    } else {
+        return false;
+    }
 }
 
 bool CharTransition::isEpsilon()
