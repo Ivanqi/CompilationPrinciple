@@ -61,10 +61,11 @@ ASTNode* LRParser::parse(string script, GrammarNode *grammar)
     TokenReader *tokenReader = new TokenReader(tokens);
 
     Stack<ASTNode*> s1;
+
     // 语法分析
     ASTNode *rootNode = shiftReduce(s1, tokenReader, dfaStates[0].get());
-    // std::cout << "\nAST:" << std::endl;
-    // rootNode->dump();
+    std::cout << "\nAST:" << std::endl;
+    rootNode->dump();
     return rootNode;
 }
 
@@ -132,6 +133,8 @@ bool LRParser::reduce(Stack<ASTNode*>& stack, Tokens nextToken, DFAState *startS
 
     std::cout << "stack size: " << stack.size() << std::endl;
     for (it = stack.begin(); it != stack.end(); it++) {
+        if (currentState == nullptr) break;
+
         ASTNode *node = *it;
         string grammarName = node->getType();
 
@@ -143,7 +146,6 @@ bool LRParser::reduce(Stack<ASTNode*>& stack, Tokens nextToken, DFAState *startS
                 break;
             }
         }
-
         std::cout << grammarName << std::endl;
         currentState = tmpState;
         assert(currentState != nullptr);
