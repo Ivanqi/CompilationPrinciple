@@ -1,5 +1,7 @@
 #include "AsmGen.h"
 #include "AnnotatedTree.h"
+#include <algorithm>
+#include <iterator>
 
 using namespace play;
 
@@ -92,18 +94,66 @@ void AsmGen::generateProcedure(string name, string sb)
     bodyAsm.clear();
 }
 
-string allocForExpression(PlayScriptParser::ExpressionContext *ctx);
+string AsmGen::allocForExpression(PlayScriptParser::ExpressionContext *ctx)
+{
+    string rtn;
+
+    // 复用前序表达式的存储位置
+    if (ctx->bop != nullptr && ctx->expression().size() >= 2) {
+        PlayScriptParser::ExpressionContext *left = ctx->expression(0);
+        string leftAddress = tempVars[left];
+        if (leftAddress.length() > 0) {
+            tempVars[ctx] = leftAddress;
+        }
+    }
+
+    int availableRegister = getAvailableRegister();
+    if (availableRegister != -1) {
+        rtn = registersl[availableRegister];
+    } else {
+        rspOffset += 4;
+        rtn = "-" + rspOffset + "%rbp";
+    }
+    tempVars[ctx] = rtn;
+    return rtn;
+}
 
 // 获取下一个可以的寄存器的索引
-int getAvailableRegister();
+int AsmGen::getAvailableRegister()
+{
+    int rtn = -1;
+    for (int i = 0; i < registersl.size(); i++) {
+        string r = registersl[i];
+        if (!tempVars.count(r)) {
+            rtn = i;
+            break;
+        }
+    }
+    return rtn;
+}
 
-string getStringLiteralAddress(string str);
+string AsmGen::getStringLiteralAddress(string str)
+{
+    auto ret = std::find(stringLiterals.begin(), stringLiterals.end(), str);
+    int index = (ret == stringLiterals.end() ? -1: std::distance(stringLiterals.end(), ret));
+    if (index == -1) {
+        stringLiterals.emplace_back(str);
+        index = stringLiterals.size() - 1;
+    }
+    return "ref:L.str." + index + "(%rip)";
+}
 
 /**
  * 保存调用者需要保护的寄存器
  * 前提，某个寄存器被用过
  */
-void saveRegisters();
+void AsmGen::saveRegisters()
+{
+
+}
 
 // 恢复被保护的寄存器
-void restoreRegisters();
+void AsmGen::restoreRegisters()
+{
+    
+}
