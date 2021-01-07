@@ -131,7 +131,6 @@ bool LRParser::reduce(Stack<ASTNode*>& stack, Tokens nextToken, DFAState *startS
     Stack<ASTNode*>::iterator it;
     DFAState *tmpState = nullptr;
 
-    std::cout << "stack size: " << stack.size() << std::endl;
     for (it = stack.begin(); it != stack.end(); it++) {
         if (currentState == nullptr) break;
 

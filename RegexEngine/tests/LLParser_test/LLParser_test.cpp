@@ -16,7 +16,7 @@ void test_case_2() {
 
 void test_case_3() {
     string script3 = "int a = 0; if(a<3) a=3;";
-    // LLParser::parse(script3, SampleGrammar::commonLexerGrammar());
+    LLParser::parse(script3, SampleGrammar::commonLexerGrammar());
 }
 
 int main() {
