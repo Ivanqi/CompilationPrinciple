@@ -21,7 +21,7 @@ int main(int argc, const char* argv[]) {
     if (argc == 2) {
         filepath = argv[1];
         at = compiler.compile(filepath);
-    } else if (argc > 3 && argc <= 4) {
+    } else if (argc > 3 && argc <= 5) {
         filepath = argv[1];
         const char* verboseStr = argv[2];
         const char* astDumpStr = argv[3];
