@@ -16,6 +16,7 @@ int main(int argc, const char* argv[]) {
     const char* filepath;
     PlayScriptCompiler compiler;
     AnnotatedTree *at;
+    bool asmFlag = false;
     
     if (argc == 2) {
         filepath = argv[1];
@@ -24,9 +25,11 @@ int main(int argc, const char* argv[]) {
         filepath = argv[1];
         const char* verboseStr = argv[2];
         const char* astDumpStr = argv[3];
+        const char* astStr = argv[4];
 
         bool verbose = strcmp(verboseStr, "true") == 0 ? true : false;
         bool astDump = strcmp(astDumpStr, "true") == 0 ? true : false;
+        asmFlag = strcmp(astStr, "true") == 0 ? true : false;
         at = compiler.compile(filepath, verbose, astDump);
     } else {
         cout << "无效参数列表" << endl; 
@@ -34,7 +37,11 @@ int main(int argc, const char* argv[]) {
     }
 
     if (!at->hasCompilationError()) {
-        antlrcpp::Any result = compiler.Execute(at);
+        if (asmFlag) {
+            antlrcpp::Any result = compiler.AsmExecute(at);
+        } else {
+            antlrcpp::Any result = compiler.Execute(at);
+        }
     }
 
     return 0;

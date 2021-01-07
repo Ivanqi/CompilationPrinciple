@@ -6,6 +6,7 @@
 #include "SematicValidator.h"
 #include "ClosureAnalyzer.h"
 #include "ASTEvaluator.h"
+#include "AsmGen.h"
 
 #include <iostream>
 
@@ -98,6 +99,13 @@ void PlayScriptCompiler::dumpAST()
 antlrcpp::Any PlayScriptCompiler::Execute(AnnotatedTree *at)
 {
     ASTEvaluator *visitor = new ASTEvaluator(at);
+    antlrcpp::Any result = visitor->visit(at->ast);
+    return result;
+}
+
+antlrcpp::Any PlayScriptCompiler::AsmExecute(AnnotatedTree *at)
+{
+    AsmGen *visitor = new AsmGen(at);
     antlrcpp::Any result = visitor->visit(at->ast);
     return result;
 }

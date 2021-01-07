@@ -33,6 +33,9 @@ namespace play
             void dumpAST();
 
             antlrcpp::Any Execute(AnnotatedTree *at);
+
+            antlrcpp::Any AsmExecute(AnnotatedTree *at);
+
     };
 };
 

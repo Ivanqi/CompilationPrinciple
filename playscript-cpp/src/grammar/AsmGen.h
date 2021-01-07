@@ -20,6 +20,8 @@
 using std::map;
 using std::string;
 using std::vector;
+using namespace antlr4;
+using namespace antlr4::tree;
 
 namespace play
 {
@@ -61,7 +63,10 @@ namespace play
             vector<string> stringLiterals;
         
         public:
-            AsmGen(AnnotatedTree *at):at_(at);
+            AsmGen(AnnotatedTree *at):at_(at)
+            {
+
+            }
 
             // 主控程序
             string generate();
@@ -129,7 +134,7 @@ namespace play
 
             // 恢复被保护的寄存器
             void restoreRegisters();
-    }
+    };
 };
 
 #endif
