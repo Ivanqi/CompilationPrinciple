@@ -49,6 +49,7 @@ set(src_dir
     src/grammar/FunctionObject.cpp
     src/grammar/ClassObject.cpp
     src/grammar/NullObject.cpp
+    src/grammar/AsmGen.cpp
 )
 
 file(GLOB antrl-cpp-src
