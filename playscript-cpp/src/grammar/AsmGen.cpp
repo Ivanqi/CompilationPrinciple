@@ -1,5 +1,6 @@
 #include "AsmGen.h"
 #include "AnnotatedTree.h"
+#include "Function.h"
 #include <algorithm>
 #include <iterator>
 
@@ -159,12 +160,12 @@ void AsmGen::restoreRegisters()
 }
 
 
-antlrcpp::Any  AsmGen::visitProg(PlayScriptParser::ProgContext *ctx)
+antlrcpp::Any AsmGen::visitProg(PlayScriptParser::ProgContext *ctx)
 {
     return visitBlockStatements(ctx->blockStatements);
 }
 
-antlrcpp::Any  AsmGen::visitBlockStatements(PlayScriptParser::BlockStatementsContext *ctx)
+antlrcpp::Any AsmGen::visitBlockStatements(PlayScriptParser::BlockStatementsContext *ctx)
 {
     string sb;
     for (PlayScriptParser::BlockStatementContext *child: ctx->blockStatement) {
@@ -173,7 +174,7 @@ antlrcpp::Any  AsmGen::visitBlockStatements(PlayScriptParser::BlockStatementsCon
     return sb;
 }
 
-antlrcpp::Any  AsmGen::visitBlockStatement(PlayScriptParser::BlockStatementContext *ctx)
+antlrcpp::Any AsmGen::visitBlockStatement(PlayScriptParser::BlockStatementContext *ctx)
 {
     string sb;
     if (ctx->variableDeclarators() != nullptr) {
@@ -184,7 +185,7 @@ antlrcpp::Any  AsmGen::visitBlockStatement(PlayScriptParser::BlockStatementConte
     return sb;
 }
 
-antlrcpp::Any  AsmGen::visitVariableDeclarators(PlayScriptParser::VariableDeclaratorsContext *ctx)
+antlrcpp::Any AsmGen::visitVariableDeclarators(PlayScriptParser::VariableDeclaratorsContext *ctx)
 {
     string sb;
     for (PlayScriptParser::VariableDeclaratorContext *child: ctx->variableDeclarator()) {
@@ -193,7 +194,7 @@ antlrcpp::Any  AsmGen::visitVariableDeclarators(PlayScriptParser::VariableDeclar
     return sb;
 }
 
-antlrcpp::Any  AsmGen::visitVariableDeclarator(PlayScriptParser::VariableDeclaratorContext *ctx)
+antlrcpp::Any AsmGen::visitVariableDeclarator(PlayScriptParser::VariableDeclaratorContext *ctx)
 {
    string varAddress = visitVariableDeclaratorId(ctx->variableDeclaratorId());
    if (ctx->variableInitializer() != nullptr) {
@@ -203,7 +204,7 @@ antlrcpp::Any  AsmGen::visitVariableDeclarator(PlayScriptParser::VariableDeclara
    return varAddress;
 }
 
-antlrcpp::Any  AsmGen::visitVariableDeclaratorId(PlayScriptParser::VariableDeclaratorIdContext *ctx)
+antlrcpp::Any AsmGen::visitVariableDeclaratorId(PlayScriptParser::VariableDeclaratorIdContext *ctx)
 {
     rspOffset += 4; // 本地整型变量占4字节
     string rtn = "-" + rspOffset + "(%rsp)";
@@ -214,7 +215,7 @@ antlrcpp::Any  AsmGen::visitVariableDeclaratorId(PlayScriptParser::VariableDecla
     return rtn;
 }
 
-antlrcpp::Any  AsmGen::visitVariableInitializer(PlayScriptParser::VariableInitializerContext *ctx)
+antlrcpp::Any AsmGen::visitVariableInitializer(PlayScriptParser::VariableInitializerContext *ctx)
 {
     string rtn = "";
     if (ctx->expression() != nullptr) {
@@ -223,7 +224,7 @@ antlrcpp::Any  AsmGen::visitVariableInitializer(PlayScriptParser::VariableInitia
     return rtn;
 }
 
-antlrcpp::Any  AsmGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
+antlrcpp::Any AsmGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
 {
     string address = "";
     // 二元运算
@@ -260,7 +261,7 @@ antlrcpp::Any  AsmGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
     return address;
 }
 
-antlrcpp::Any  AsmGen::visitPrimary(PlayScriptParser::PrimaryContext *ctx)
+antlrcpp::Any AsmGen::visitPrimary(PlayScriptParser::PrimaryContext *ctx)
 {
     string rtn = "";
     if (ctx->literal() != nullptr) {
@@ -275,7 +276,7 @@ antlrcpp::Any  AsmGen::visitPrimary(PlayScriptParser::PrimaryContext *ctx)
     return rtn;
 }
 
-antlrcpp::Any  AsmGen::visitLiteral(PlayScriptParser::LiteralContext *ctx)
+antlrcpp::Any AsmGen::visitLiteral(PlayScriptParser::LiteralContext *ctx)
 {
     string rtn = "";
     if (ctx->integerLiteral() != nullptr) {
@@ -289,7 +290,7 @@ antlrcpp::Any  AsmGen::visitLiteral(PlayScriptParser::LiteralContext *ctx)
     return rtn;
 }
 
-antlrcpp::Any  AsmGen::visitIntegerLiteral(PlayScriptParser::IntegerLiteralContext *ctx)
+antlrcpp::Any AsmGen::visitIntegerLiteral(PlayScriptParser::IntegerLiteralContext *ctx)
 {
     string rtn = "";
     if (ctx->DECIMAL_LITERAL() != nullptr) {
@@ -298,7 +299,7 @@ antlrcpp::Any  AsmGen::visitIntegerLiteral(PlayScriptParser::IntegerLiteralConte
     return rtn;
 }
 
-antlrcpp::Any  AsmGen::visitStatement(PlayScriptParser::StatementContext *ctx)
+antlrcpp::Any AsmGen::visitStatement(PlayScriptParser::StatementContext *ctx)
 {
     string value = "";
     if (ctx->statementExpression != nullptr) {
@@ -318,7 +319,7 @@ antlrcpp::Any  AsmGen::visitStatement(PlayScriptParser::StatementContext *ctx)
     return value;
 }
 
-antlrcpp::Any  AsmGen::visitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
+antlrcpp::Any AsmGen::visitFunctionCall(PlayScriptParser::FunctionCallContext *ctx)
 {
     string address = "%eax";    // 缺省获得返回值的地方
 
@@ -409,23 +410,64 @@ antlrcpp::Any  AsmGen::visitFunctionCall(PlayScriptParser::FunctionCallContext *
     return address;
 }
 
-antlrcpp::Any  AsmGen::visitFunctionDeclaration(PlayScriptParser::FunctionDeclarationContext *ctx)
+antlrcpp::Any AsmGen::visitFunctionDeclaration(PlayScriptParser::FunctionDeclarationContext *ctx)
 {
-    
+    // 给所有参数确定地址
+    Function *func = (Function*)at_->node2Scope[ctx];
+    for (int i = 0; i < func->parameters.size(); i++) {
+        if (i < 6) {
+            // 少于6个参数，使用寄存器
+            localVars[func->parameters[i]] = paramRegisterl[i];
+        } else {
+            int paramOffset = (i - 6) * 8 + 16; // 参数在栈中相对于%rbp的偏移量
+            string paramAddress = "" + paramOffset + "(%rbp)";
+            localVars[func->parameters[i]] = paramAddress;
+        }
+    }
+
+    return visitFunctionBody(ctx->functionBody());
 }
 
-antlrcpp::Any  AsmGen::visitFunctionBody(PlayScriptParser::FunctionBodyContext *ctx){}
+antlrcpp::Any AsmGen::visitFunctionBody(PlayScriptParser::FunctionBodyContext *ctx)
+{
+    string value;
+    if (ctx->block() != nullptr) {
+        value = visitBlock(ctx->block());
+    }
+    return value;
+}
 
-antlrcpp::Any  AsmGen::visitBlock(PlayScriptParser::BlockContext *ctx){}
+antlrcpp::Any AsmGen::visitBlock(PlayScriptParser::BlockContext *ctx)
+{
+    return visitBlockStatements(ctx->blockStatements());
+}
 
-antlrcpp::Any  AsmGen::visitExpressionList(PlayScriptParser::ExpressionListContext *ctx){}
+antlrcpp::Any AsmGen::visitExpressionList(PlayScriptParser::ExpressionListContext *ctx)
+{
+    return PlayScriptBaseVisitor::visitExpressionList(ctx);
+}
 
-antlrcpp::Any  AsmGen::visitFormalParameter(PlayScriptParser::FormalParameterContext *ctx){}
+antlrcpp::Any AsmGen::visitFormalParameter(PlayScriptParser::FormalParameterContext *ctx)
+{
+    return PlayScriptBaseVisitor::visitFormalParameter(ctx);
+}
 
-antlrcpp::Any  AsmGen::visitFormalParameterList(PlayScriptParser::FormalParameterListContext *ctx){}
+antlrcpp::Any AsmGen::visitFormalParameterList(PlayScriptParser::FormalParameterListContext *ctx)
+{
+    return PlayScriptBaseVisitor::visitFormalParameterList(ctx);
+}
 
-antlrcpp::Any  AsmGen::visitFormalParameters(PlayScriptParser::FormalParametersContext *ctx){}
+antlrcpp::Any AsmGen::visitFormalParameters(PlayScriptParser::FormalParametersContext *ctx)
+{
+    return PlayScriptBaseVisitor::visitFormalParameters(ctx);
+}
 
-antlrcpp::Any  AsmGen::visitPrimitiveType(PlayScriptParser::PrimitiveTypeContext *ctx){}
+antlrcpp::Any AsmGen::visitPrimitiveType(PlayScriptParser::PrimitiveTypeContext *ctx)
+{
+    return PlayScriptBaseVisitor::visitPrimitiveType(ctx);
+}
 
-antlrcpp::Any  AsmGen::visitTypeType(PlayScriptParser::TypeTypeContext *ctx){}
+antlrcpp::Any AsmGen::visitTypeType(PlayScriptParser::TypeTypeContext *ctx)
+{
+    return PlayScriptBaseVisitor::visitTypeType(ctx);
+}
