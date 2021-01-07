@@ -55,6 +55,6 @@ void test_case_3() {
 
 int main() {
 
-    test_case_1();
+    test_case_2();
     return 0;
 }
