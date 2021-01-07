@@ -59,8 +59,6 @@ namespace play
 
             // 字符串字面量
             vector<string> stringLiterals;
-            
-
         
         public:
             AsmGen(AnnotatedTree *at):at_(at);
