@@ -25,7 +25,7 @@ string AsmGen::generate()
     }
 
     // 3. 对主程序生成_main函数
-     AsmGen::visitProg((PlayScriptParser::ProgContext*)at_->ast) ;
+    AsmGen::visitProg((PlayScriptParser::ProgContext*)at_->ast) ;
     generateProcedure("main", sb);
 
     // 4. 文本字面量
