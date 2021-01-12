@@ -9,10 +9,16 @@ namespace play
     class ConvertToAsm
     {
         private:
-            string outPutFile_{"asm.s"};
+            string outPutFile_{"asm"};
+            string suffix{".s"};
 
         public:
-            ConvertToAsm()
+            ConvertToAsm(): outPutFile_("")
+            {
+
+            }
+
+            ConvertToAsm(const char *p):outPutFile_(p)
             {
 
             }

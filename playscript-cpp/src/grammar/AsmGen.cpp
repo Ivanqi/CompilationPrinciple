@@ -283,7 +283,7 @@ antlrcpp::Any AsmGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
                 // 为加法运算申请一个临时变量，可以是寄存器和栈
                 address = allocForExpression(ctx);
                 if (address != left) {
-                    bodyAsm.append("\tmov\t").append(left).append(", ").append(address).append("\n");
+                    bodyAsm.append("\tmovl\t").append(left).append(", ").append(address).append("\n");
                 }
                 bodyAsm.append("\taddl\t").append(right).append(", ").append(address).append("\n");
                 break;
@@ -342,7 +342,7 @@ antlrcpp::Any AsmGen::visitLiteral(PlayScriptParser::LiteralContext *ctx)
         }
     } else if (ctx->STRING_LITERAL() != nullptr) {
         string withQuotationMark = ctx->STRING_LITERAL()->getText();
-        withQuotationMark = withQuotationMark.substr(1, withQuotationMark.length() - 1);
+        withQuotationMark = withQuotationMark.substr(1, withQuotationMark.length() - 2);
         rtn = getStringLiteralAddress(withQuotationMark);
     }
 
@@ -376,7 +376,7 @@ antlrcpp::Any AsmGen::visitStatement(PlayScriptParser::StatementContext *ctx)
             // 在 %eax中设置返回值
             bodyAsm.append("\n\t# 返回值\n");
             if (value == "%eax") {
-                bodyAsm.append("\t# 返回值在之前的计算中，已经存入%eax\n");
+                bodyAsm.append("\t# 返回值在之前的计算中, 已经存入%eax\n");
             } else {
                 bodyAsm.append("\tmovl\t" + value + ", %eax\n");
             }
@@ -426,7 +426,7 @@ antlrcpp::Any AsmGen::visitFunctionCall(PlayScriptParser::FunctionCallContext *c
         // 2. 扩展栈
         if (numParams > 6) {
             paramOffset = 8 * (numParams - 6) + offset1;
-            bodyAsm.append("\n\t # 为参数而扩展栈\n");
+            bodyAsm.append("\n\t# 为参数而扩展栈\n");
             bodyAsm.append("\tsubq\t$").append(std::to_string(paramOffset)).append(", %rsp\n");
         }
 
@@ -440,7 +440,7 @@ antlrcpp::Any AsmGen::visitFunctionCall(PlayScriptParser::FunctionCallContext *c
         for (int i = 0; i < numParams; i++) {
             string value = values[i];
             string paramAddress = "";
-            string prefix = value.substr(0, searchStr.length() - 1);
+            string prefix = value.substr(0, searchStr.length());
 
             if (i < 6) {
                
@@ -459,7 +459,7 @@ antlrcpp::Any AsmGen::visitFunctionCall(PlayScriptParser::FunctionCallContext *c
 
             if (searchStr == prefix) {
                 // 传地址
-                bodyAsm.append("\tleaq\t").append(value.substr(0, 4)).append(",").append(paramAddress).append("\n");
+                bodyAsm.append("\tleaq\t").append(value.substr(searchStr.length(), -1)).append(",").append(paramAddress).append("\n");
             } else {
                 bodyAsm.append("\tmovl\t").append(value).append(", ").append(paramAddress).append("\n");
             }

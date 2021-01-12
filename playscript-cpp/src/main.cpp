@@ -7,10 +7,13 @@
 #include "AnnotatedTree.h"
 #include "ConvertToAsm.h"
 #include <iostream>
+#include <string.h>
 
 using namespace antlr4;
 using namespace std;
 using namespace play;
+
+char divider = '/';
 
 int main(int argc, const char* argv[]) {
 
@@ -39,8 +42,9 @@ int main(int argc, const char* argv[]) {
 
     if (!at->hasCompilationError()) {
         if (asmFlag) {
+            const char *p = strrchr(filepath, divider); 
             string result = compiler.AsmExecute(at);
-            ConvertToAsm convert;
+            ConvertToAsm convert(p + 1);
             if (convert.output(result)) {
                 cout << "导出成功" << endl;
             } else {

@@ -8,7 +8,7 @@ using namespace play;
 
 bool ConvertToAsm::output(string text)
 {
-    ofstream out(outPutFile_, std::ios::out | std::ios::binary);
+    ofstream out(outPutFile_ + suffix, std::ios::out | std::ios::binary);
 
     if (out.is_open()) {
         out << text;
