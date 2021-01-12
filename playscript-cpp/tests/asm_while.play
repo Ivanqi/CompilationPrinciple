@@ -1,0 +1,8 @@
+int fun1(int a){
+    while (a < 10){
+        a++;
+    }
+    return a;
+}
+
+println("fun1: %d", fun1(0));
