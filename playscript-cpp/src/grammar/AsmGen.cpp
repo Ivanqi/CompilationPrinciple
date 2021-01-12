@@ -43,7 +43,7 @@ string AsmGen::generate()
 }
 
 // 生成过程体
-void AsmGen::generateProcedure(string name, string sb)
+void AsmGen::generateProcedure(string name, string& sb)
 {
     // 1. 函数标签
     sb.append("\n## 过程: ").append(name).append("\n");
@@ -229,7 +229,7 @@ antlrcpp::Any AsmGen::visitVariableDeclarator(PlayScriptParser::VariableDeclarat
 antlrcpp::Any AsmGen::visitVariableDeclaratorId(PlayScriptParser::VariableDeclaratorIdContext *ctx)
 {
     rspOffset += 4; // 本地整型变量占4字节
-    string rtn = "-" + std::to_string(rspOffset) + "(%rsp)";
+    string rtn = "-" + std::to_string(rspOffset) + "(%rbp)";
 
     Symbol *symbol = at_->symbolOfNode[ctx];
     localVars[(Variable*)symbol] = rtn;
@@ -258,10 +258,10 @@ antlrcpp::Any AsmGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
         string left = visitExpression(ctx->expression(0));
         string right = visitExpression(ctx->expression(1));
 
-        std::cout << "AsmGen::visitExpression/ left: " << left << " | right: " << right << std::endl;
+        // std::cout << "AsmGen::visitExpression/ left: " << left  << " / " << ctx->expression(0)->getText() << " | right: " << right << "/" << ctx->expression(1)->getText() << " | getType: " << ctx->bop->getType() << std::endl;
 
         switch (ctx->bop->getType()) {
-            case PlayScriptParser::AND:
+            case PlayScriptParser::ADD:
                 // 为加法运算申请一个临时变量，可以是寄存器和栈
                 address = allocForExpression(ctx);
                 if (address != left) {
@@ -273,7 +273,7 @@ antlrcpp::Any AsmGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
             case PlayScriptParser::SUB:
                 address = allocForExpression(ctx);
                 bodyAsm.append("\tmovl\t").append(left).append(", ").append(address).append("\n");
-                bodyAsm.append("\tsubl\t").append(left).append(", ").append(address).append("\n");
+                bodyAsm.append("\tsubl\t").append(right).append(", ").append(address).append("\n");
                 break;
             
             case PlayScriptParser::ASSIGN:
@@ -304,6 +304,9 @@ antlrcpp::Any AsmGen::visitPrimary(PlayScriptParser::PrimaryContext *ctx)
     } else if (ctx->IDENTIFIER() != nullptr) {
         Symbol *symbol = at_->symbolOfNode[ctx];
         Variable *tmp = dynamic_cast<Variable*>(symbol);
+        if (ctx->getText() == "c") {
+            std::cout << "c here" << std::endl;
+        }
         if (tmp != nullptr) {
             rtn = localVars[tmp];
         }

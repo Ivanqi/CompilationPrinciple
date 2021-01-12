@@ -117,7 +117,7 @@ namespace play
 
         private:
             // 生成过程体
-            void generateProcedure(string name, string sb);
+            void generateProcedure(string name, string& sb);
 
             string allocForExpression(PlayScriptParser::ExpressionContext *ctx);
 
