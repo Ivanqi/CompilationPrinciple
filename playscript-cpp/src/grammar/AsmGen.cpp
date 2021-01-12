@@ -297,6 +297,36 @@ antlrcpp::Any AsmGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
             case PlayScriptParser::ASSIGN:
                 bodyAsm.append("\tmovl\t").append(right).append(", ").append(left).append("\n");
                 break;
+
+            case PlayScriptParser::EQUAL:   // 相等
+                break;
+
+            case PlayScriptParser::NOTEQUAL:    // 不相等
+                break;
+            
+            case PlayScriptParser::LE:  // 小于等于
+                break;
+            
+            case PlayScriptParser::LT:  // 小于
+                address = allocForExpression(ctx);
+                bodyAsm.append("LBBO_1:\n");
+                bodyAsm.append("\tcmpl\t").append(right).append(", ").append(left).append("\n");
+                bodyAsm.append("\tjge\tLBBO_2\n");
+                bodyAsm.append("\tmovl\t").append(left).append(", ").append(address).append("\n");
+                bodyAsm.append("\taddl\t $1, %eax\n");
+                bodyAsm.append("\tmovl\t").append(address).append(", ").append(left).append("\n");
+                bodyAsm.append("\tjmp\tLBBO_1\n");
+
+                bodyAsm.append("LBBO_2:\n");
+                bodyAsm.append("\tmovl\t").append(left).append(", ").append(address).append("\n");
+                break;
+            
+            case PlayScriptParser::GE:  // 大于等于
+                break;
+            
+            case PlayScriptParser::GT:  // 大于
+                break;
+
         }
     } else if (ctx->primary() != nullptr) {
         tmp = visitPrimary(ctx->primary());
@@ -381,6 +411,10 @@ antlrcpp::Any AsmGen::visitStatement(PlayScriptParser::StatementContext *ctx)
                 bodyAsm.append("\tmovl\t" + value + ", %eax\n");
             }
         }
+    } else if (ctx->WHILE() != nullptr) {
+        if (ctx->parExpression()->expression() != nullptr && ctx->statement(0) != nullptr) {
+            visitExpression(ctx->parExpression()->expression());
+        }
     }
     return value;
 }
@@ -390,7 +424,7 @@ antlrcpp::Any AsmGen::visitFunctionCall(PlayScriptParser::FunctionCallContext *c
     string address = "%eax";    // 缺省获得返回值的地方
 
     string functionName;
-
+    
     Symbol *symbol = at_->symbolOfNode[ctx];
 
     Function *func = dynamic_cast<Function*>(symbol);

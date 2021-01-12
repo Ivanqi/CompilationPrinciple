@@ -5,4 +5,4 @@ int fun1(int a){
     return a;
 }
 
-println("fun1: %d", fun1(0));
+println("fun1: %d", fun1(2));
