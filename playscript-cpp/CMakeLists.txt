@@ -50,6 +50,7 @@ set(src_dir
     src/grammar/ClassObject.cpp
     src/grammar/NullObject.cpp
     src/grammar/AsmGen.cpp
+    src/grammar/ConvertToAsm.cpp
 )
 
 file(GLOB antrl-cpp-src

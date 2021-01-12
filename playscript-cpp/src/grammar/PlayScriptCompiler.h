@@ -34,7 +34,7 @@ namespace play
 
             antlrcpp::Any Execute(AnnotatedTree *at);
 
-            void AsmExecute(AnnotatedTree *at);
+            string AsmExecute(AnnotatedTree *at);
 
     };
 };

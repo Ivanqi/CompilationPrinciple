@@ -5,6 +5,7 @@
 #include "ASTEvaluator.h"
 #include "PlayScriptCompiler.h"
 #include "AnnotatedTree.h"
+#include "ConvertToAsm.h"
 #include <iostream>
 
 using namespace antlr4;
@@ -38,7 +39,13 @@ int main(int argc, const char* argv[]) {
 
     if (!at->hasCompilationError()) {
         if (asmFlag) {
-            compiler.AsmExecute(at);
+            string result = compiler.AsmExecute(at);
+            ConvertToAsm convert;
+            if (convert.output(result)) {
+                cout << "导出成功" << endl;
+            } else {
+                cout << "导出失败" << endl;
+            }
         } else {
             antlrcpp::Any result = compiler.Execute(at);
         }

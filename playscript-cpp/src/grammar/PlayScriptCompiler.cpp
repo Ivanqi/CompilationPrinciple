@@ -103,10 +103,10 @@ antlrcpp::Any PlayScriptCompiler::Execute(AnnotatedTree *at)
     return result;
 }
 
-void PlayScriptCompiler::AsmExecute(AnnotatedTree *at)
+string PlayScriptCompiler::AsmExecute(AnnotatedTree *at)
 {
     AsmGen *visitor = new AsmGen(at);
     string result = visitor->generate();
 
-    std::cout << result << std::endl;
+    return result;
 }

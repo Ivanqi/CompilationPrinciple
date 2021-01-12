@@ -7,7 +7,14 @@
 
 using namespace play;
 
-// 主控程序
+/**
+ * 主控程序
+ * 功能
+ *  1. 生成一个.section伪指令,表明这是一个放文本的代码段
+ *  2. 遍历AST中的所有函数，调用generateProcedure()方法为每个函数生成一段汇编代码，再接着生成一个主程序入口
+ *  3. 在一个新的section中，声明一些全局的常量(字面量)。整个程序的结构跟最后生成的汇编代码的结构一致，所有很容易看懂
+ *  
+ */
 string AsmGen::generate()
 {
     string sb;
@@ -42,7 +49,13 @@ string AsmGen::generate()
     return sb;
 }
 
-// 生成过程体
+/**
+ * 生成过程体
+ * 功能:
+ *  1. 生成函数标签、序曲部分的代码、设置栈顶指针、保护寄存器原有的值
+ *  2. 接着是函数体，比如本地变量初始化、做加法运算等
+ *  3. 最后一系列收尾工作，包括恢复被保护的寄存器的值、恢复栈顶指针，以及尾声部分的代码
+ */
 void AsmGen::generateProcedure(string name, string& sb)
 {
     // 1. 函数标签
@@ -96,6 +109,11 @@ void AsmGen::generateProcedure(string name, string& sb)
     bodyAsm.clear();
 }
 
+/**
+ * 通过allocForExpression方法，为每次加法运算申请一个临时空间(寄存器，也可以是栈里的一个地址)，用来存放加法操作结果
+ * 接着用mov 指令加号左边的值拷贝到这个临时空间
+ * 再用 add 指令加上右边的值
+ */
 string AsmGen::allocForExpression(PlayScriptParser::ExpressionContext *ctx)
 {
     string rtn;
@@ -104,8 +122,10 @@ string AsmGen::allocForExpression(PlayScriptParser::ExpressionContext *ctx)
     if (ctx->bop != nullptr && ctx->expression().size() >= 2) {
         PlayScriptParser::ExpressionContext *left = ctx->expression(0);
         string leftAddress = tempVars[left];
+        // 如果已经存在了，直接复用
         if (leftAddress.length() > 0) {
             tempVars[ctx] = leftAddress;
+            return leftAddress;
         }
     }
 
