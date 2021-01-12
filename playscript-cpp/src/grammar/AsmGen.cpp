@@ -178,7 +178,6 @@ antlrcpp::Any AsmGen::visitBlockStatements(PlayScriptParser::BlockStatementsCont
     for (PlayScriptParser::BlockStatementContext *child: ctx->blockStatement()) {
         tmp = visitBlockStatement(child);
         if (tmp.is<string>()) {
-            std::cout << "AsmGen::visitBlockStatements : " << tmp.as<string>() << std::endl;
             sb.append(tmp.as<string>());
         }
     }
@@ -196,7 +195,6 @@ antlrcpp::Any AsmGen::visitBlockStatement(PlayScriptParser::BlockStatementContex
     }
 
     if (tmp.is<string>()) {
-        std::cout << "AsmGen::visitBlockStatement: " <<  tmp.as<string>() << std::endl;
         sb.append(tmp.as<string>());
     }
     return sb;
@@ -304,9 +302,6 @@ antlrcpp::Any AsmGen::visitPrimary(PlayScriptParser::PrimaryContext *ctx)
     } else if (ctx->IDENTIFIER() != nullptr) {
         Symbol *symbol = at_->symbolOfNode[ctx];
         Variable *tmp = dynamic_cast<Variable*>(symbol);
-        if (ctx->getText() == "c") {
-            std::cout << "c here" << std::endl;
-        }
         if (tmp != nullptr) {
             rtn = localVars[tmp];
         }
