@@ -25,7 +25,7 @@ string AsmGen::generate()
     }
 
     // 3. 对主程序生成_main函数
-    AsmGen::visitProg((PlayScriptParser::ProgContext*)at_->ast) ;
+    AsmGen::visitProg((PlayScriptParser::ProgContext*)at_->ast);
     generateProcedure("main", sb);
 
     // 4. 文本字面量
@@ -231,7 +231,7 @@ antlrcpp::Any AsmGen::visitVariableDeclaratorId(PlayScriptParser::VariableDeclar
 
     Symbol *symbol = at_->symbolOfNode[ctx];
     localVars[(Variable*)symbol] = rtn;
-
+    remedyTemp[ctx->getText()] = rtn;
     return rtn;
 }
 
@@ -304,6 +304,9 @@ antlrcpp::Any AsmGen::visitPrimary(PlayScriptParser::PrimaryContext *ctx)
         Variable *tmp = dynamic_cast<Variable*>(symbol);
         if (tmp != nullptr) {
             rtn = localVars[tmp];
+            if (rtn.size() <= 0) {
+                rtn = remedyTemp[ctx->getText()];
+            }
         }
     }
     return rtn;

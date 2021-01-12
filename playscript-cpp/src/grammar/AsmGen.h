@@ -61,6 +61,8 @@ namespace play
 
             // 字符串字面量
             vector<string> stringLiterals;
+
+            map<string, string> remedyTemp;
         
         public:
             AsmGen(AnnotatedTree *at):at_(at)
