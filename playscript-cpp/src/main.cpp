@@ -38,7 +38,7 @@ int main(int argc, const char* argv[]) {
 
     if (!at->hasCompilationError()) {
         if (asmFlag) {
-            antlrcpp::Any result = compiler.AsmExecute(at);
+            compiler.AsmExecute(at);
         } else {
             antlrcpp::Any result = compiler.Execute(at);
         }

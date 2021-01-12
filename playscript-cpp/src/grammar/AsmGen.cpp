@@ -178,6 +178,7 @@ antlrcpp::Any AsmGen::visitBlockStatements(PlayScriptParser::BlockStatementsCont
     for (PlayScriptParser::BlockStatementContext *child: ctx->blockStatement()) {
         tmp = visitBlockStatement(child);
         if (tmp.is<string>()) {
+            std::cout << "AsmGen::visitBlockStatements : " << tmp.as<string>() << std::endl;
             sb.append(tmp.as<string>());
         }
     }
@@ -195,6 +196,7 @@ antlrcpp::Any AsmGen::visitBlockStatement(PlayScriptParser::BlockStatementContex
     }
 
     if (tmp.is<string>()) {
+        std::cout << "AsmGen::visitBlockStatement: " <<  tmp.as<string>() << std::endl;
         sb.append(tmp.as<string>());
     }
     return sb;
@@ -215,12 +217,13 @@ antlrcpp::Any AsmGen::visitVariableDeclarators(PlayScriptParser::VariableDeclara
 
 antlrcpp::Any AsmGen::visitVariableDeclarator(PlayScriptParser::VariableDeclaratorContext *ctx)
 {
-   string varAddress = visitVariableDeclaratorId(ctx->variableDeclaratorId());
-   if (ctx->variableInitializer() != nullptr) {
+    antlrcpp::Any tmp = visitVariableDeclaratorId(ctx->variableDeclaratorId());
+    string varAddress = tmp.is<string>() ? tmp.as<string>() : "";
+    if (tmp.is<string>() && ctx->variableInitializer() != nullptr) {
        string value = visitVariableInitializer(ctx->variableInitializer());
        bodyAsm.append("\tmovl\t").append(value).append(", ").append(varAddress).append("\n");
-   }
-   return varAddress;
+    }
+    return varAddress;
 }
 
 antlrcpp::Any AsmGen::visitVariableDeclaratorId(PlayScriptParser::VariableDeclaratorIdContext *ctx)
@@ -254,6 +257,8 @@ antlrcpp::Any AsmGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
     if (ctx->bop != nullptr && ctx->expression().size() >= 2) {
         string left = visitExpression(ctx->expression(0));
         string right = visitExpression(ctx->expression(1));
+
+        std::cout << "AsmGen::visitExpression/ left: " << left << " | right: " << right << std::endl;
 
         switch (ctx->bop->getType()) {
             case PlayScriptParser::AND:
@@ -458,7 +463,8 @@ antlrcpp::Any AsmGen::visitFunctionDeclaration(PlayScriptParser::FunctionDeclara
 {
     // 给所有参数确定地址
     Function *func = (Function*)at_->node2Scope[ctx];
-    for (int i = 0; i < func->parameters.size(); i++) {
+    int len = func->parameters.size();
+    for (int i = 0; i < len; i++) {
         if (i < 6) {
             // 少于6个参数，使用寄存器
             localVars[func->parameters[i]] = paramRegisterl[i];
