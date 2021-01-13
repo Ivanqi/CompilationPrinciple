@@ -44,6 +44,7 @@ int main(int argc, const char* argv[]) {
         if (asmFlag) {
             const char *p = strrchr(filepath, divider); 
             string result = compiler.AsmExecute(at);
+            cout << result << endl;
             ConvertToAsm convert(p + 1);
             if (convert.output(result)) {
                 cout << "导出成功" << endl;

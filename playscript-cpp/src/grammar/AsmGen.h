@@ -63,6 +63,8 @@ namespace play
             vector<string> stringLiterals;
 
             map<string, string> remedyTemp;
+
+            string incSymbol_{"++"};
         
         public:
             AsmGen(AnnotatedTree *at):at_(at)

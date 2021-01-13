@@ -309,16 +309,9 @@ antlrcpp::Any AsmGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
             
             case PlayScriptParser::LT:  // 小于
                 address = allocForExpression(ctx);
-                bodyAsm.append("LBBO_1:\n");
                 bodyAsm.append("\tcmpl\t").append(right).append(", ").append(left).append("\n");
                 bodyAsm.append("\tjge\tLBBO_2\n");
-                bodyAsm.append("\tmovl\t").append(left).append(", ").append(address).append("\n");
-                bodyAsm.append("\taddl\t $1, %eax\n");
-                bodyAsm.append("\tmovl\t").append(address).append(", ").append(left).append("\n");
-                bodyAsm.append("\tjmp\tLBBO_1\n");
-
-                bodyAsm.append("LBBO_2:\n");
-                bodyAsm.append("\tmovl\t").append(left).append(", ").append(address).append("\n");
+                
                 break;
             
             case PlayScriptParser::GE:  // 大于等于
@@ -332,6 +325,12 @@ antlrcpp::Any AsmGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
         tmp = visitPrimary(ctx->primary());
     } else if (ctx->functionCall() != nullptr) {    // functionCall
         tmp = visitFunctionCall(ctx->functionCall());
+    } else if (ctx->expression().size() == 1) {
+        tmp = ctx->getText();
+        // if (ctxStr.substr(1) == incSymbol_) {
+        //     address = allocForExpression(ctx);
+        //     
+        // }
     }
 
     if (tmp.is<string>()) {
@@ -391,14 +390,15 @@ antlrcpp::Any AsmGen::visitIntegerLiteral(PlayScriptParser::IntegerLiteralContex
 antlrcpp::Any AsmGen::visitStatement(PlayScriptParser::StatementContext *ctx)
 {
     string value = "";
+    antlrcpp::Any tmp;
     if (ctx->statementExpression != nullptr) {
-        antlrcpp::Any tmp = visitExpression(ctx->statementExpression);
+        tmp = visitExpression(ctx->statementExpression);
         if (tmp.is<string>()) {
             value = tmp.as<string>();
         }
     } else if (ctx->RETURN() != nullptr) {
         if (ctx->expression() != nullptr) {
-            antlrcpp::Any tmp = visitExpression(ctx->expression());
+            tmp = visitExpression(ctx->expression());
             if (!tmp.is<string>()) {
                 return value;
             }
@@ -413,7 +413,26 @@ antlrcpp::Any AsmGen::visitStatement(PlayScriptParser::StatementContext *ctx)
         }
     } else if (ctx->WHILE() != nullptr) {
         if (ctx->parExpression()->expression() != nullptr && ctx->statement(0) != nullptr) {
-            visitExpression(ctx->parExpression()->expression());
+            bodyAsm.append("LBBO_1:\n");
+            string address = visitExpression(ctx->parExpression()->expression());
+            string stateStr = visitStatement(ctx->statement(0));
+
+            if (stateStr.substr(1) == incSymbol_) {
+                bodyAsm.append("\tmovl\t").append("-4(%rbp)").append(", ").append(address).append("\n");
+                bodyAsm.append("\taddl\t").append("$1").append(", ").append(address).append("\n");
+                bodyAsm.append("\tmovl\t").append(address).append(", ").append("-4(%rbp)").append("\n");
+            }
+            
+            bodyAsm.append("\tjmp\tLBBO_1\n");
+
+            bodyAsm.append("LBBO_2:\n");
+            bodyAsm.append("\tmovl\t").append("-4(%rbp)").append(", ").append(address).append("\n");
+
+        }
+    } else if (ctx->blockLabel != nullptr) {
+        tmp = visitBlock(ctx->blockLabel);
+        if (tmp.is<string>()) {
+            value = tmp.as<string>();
         }
     }
     return value;
