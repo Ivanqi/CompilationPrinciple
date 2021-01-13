@@ -276,7 +276,7 @@ antlrcpp::Any AsmGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
         string left = visitExpression(ctx->expression(0));
         string right = visitExpression(ctx->expression(1));
 
-        // std::cout << "AsmGen::visitExpression/ left: " << left  << " / " << ctx->expression(0)->getText() << " | right: " << right << "/" << ctx->expression(1)->getText() << " | getType: " << ctx->bop->getType() << std::endl;
+        std::cout << "AsmGen::visitExpression/ left: " << left  << " / " << ctx->expression(0)->getText() << " | right: " << right << "/" << ctx->expression(1)->getText() << " | getType: " << ctx->bop->getType() << std::endl;
 
         switch (ctx->bop->getType()) {
             case PlayScriptParser::ADD:
@@ -318,6 +318,9 @@ antlrcpp::Any AsmGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
                 break;
             
             case PlayScriptParser::GT:  // 大于
+                address = allocForExpression(ctx);
+                bodyAsm.append("\tcmpl\t").append(right).append(", ").append(left).append("\n");
+                bodyAsm.append("\tjle\t" + segm_.newSegment() +"\n");
                 break;
 
         }
@@ -395,10 +398,9 @@ antlrcpp::Any AsmGen::visitStatement(PlayScriptParser::StatementContext *ctx)
     } else if (ctx->RETURN() != nullptr) {
         if (ctx->expression() != nullptr) {
             tmp = visitExpression(ctx->expression());
-            if (!tmp.is<string>()) {
-                return value;
+            if (tmp.is<string>()) {
+                value = tmp.as<string>();
             }
-            value = tmp.as<string>();
             // 在 %eax中设置返回值
             bodyAsm.append("\n\t# 返回值\n");
             if (value == "%eax") {
@@ -413,25 +415,40 @@ antlrcpp::Any AsmGen::visitStatement(PlayScriptParser::StatementContext *ctx)
             bodyAsm.append(segm1 + ":\n");
             string address = visitExpression(ctx->parExpression()->expression());
             string stateStr = visitStatement(ctx->statement(0));
-            
+            string firstParam = visitExpression(ctx->parExpression()->expression()->expression(0));
+
+            // TODO 有待优化
             if (stateStr.substr(1) == incSymbol_) {
-                string firstParam = visitExpression(ctx->parExpression()->expression()->expression(0));
                 bodyAsm.append("\tmovl\t").append(firstParam).append(", ").append(address).append("\n");
                 bodyAsm.append("\taddl\t").append("$1").append(", ").append(address).append("\n");
                 bodyAsm.append("\tmovl\t").append(address).append(", ").append(firstParam).append("\n");
+            } else {
+                bodyAsm.append("\tmovl\t").append(stateStr).append(", ").append(firstParam).append("\n");
             }
             
             bodyAsm.append("\tjmp\t" + segm1 + "\n");
 
             bodyAsm.append(segm_.nowSegment() + ":\n");
             segm_.clearCounter();
-
         }
     } else if (ctx->blockLabel != nullptr) {
         tmp = visitBlock(ctx->blockLabel);
         if (tmp.is<string>()) {
             value = tmp.as<string>();
         }
+    }  else if (ctx->IF() != nullptr) {
+        string address = visitExpression(ctx->parExpression()->expression());
+
+        string tmp1 = visitStatement(ctx->statement(0));
+        string segm1 = segm_.nowSegment();
+        string segm2 = segm_.newSegment();
+        bodyAsm.append("\tjmp\t" + segm2 + "\n");
+
+        bodyAsm.append(segm1 + ":\n");
+        string tmp2 = visitStatement(ctx->statement(1));
+
+        bodyAsm.append(segm2 + ":\n");
+        segm_.clearCounter();
     }
     return value;
 }

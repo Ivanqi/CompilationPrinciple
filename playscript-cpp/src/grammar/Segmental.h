@@ -24,6 +24,12 @@ namespace play
                 return segm;
             }
 
+            std::string incrSegment()
+            {
+                std::string segm = prefix_ + std::to_string(counter_ + 1);
+                return segm;
+            }
+
             void clearCounter()
             {
                 counter_ = 1;

@@ -1,7 +1,7 @@
 int fun1(int a){
     int b = a;
     while (b < 10){
-        b+1;
+        b+2;
     }
     return b;
 }
