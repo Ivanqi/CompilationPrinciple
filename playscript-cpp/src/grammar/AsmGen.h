@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+#include "Segmental.h"
+
 using std::map;
 using std::string;
 using std::vector;
@@ -65,6 +67,8 @@ namespace play
             map<string, string> remedyTemp;
 
             string incSymbol_{"++"};
+
+            Segmental segm_;
         
         public:
             AsmGen(AnnotatedTree *at):at_(at)

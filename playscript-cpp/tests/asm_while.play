@@ -1,8 +1,9 @@
 int fun1(int a){
-    while (a < 10){
-        a++;
+    int b = a;
+    while (b < 10){
+        b++;
     }
-    return a;
+    return b;
 }
 
 println("fun1: %d", fun1(2));
