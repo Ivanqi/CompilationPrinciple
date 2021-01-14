@@ -271,12 +271,13 @@ antlrcpp::Any AsmGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
 {
     string address = "";
     antlrcpp::Any tmp;
+    string x1, x2, x3;
     // 二元运算
     if (ctx->bop != nullptr && ctx->expression().size() >= 2) {
         string left = visitExpression(ctx->expression(0));
         string right = visitExpression(ctx->expression(1));
 
-        std::cout << "AsmGen::visitExpression/ left: " << left  << " / " << ctx->expression(0)->getText() << " | right: " << right << "/" << ctx->expression(1)->getText() << " | getType: " << ctx->bop->getType() << std::endl;
+        // std::cout << "AsmGen::visitExpression/ left: " << left  << " / " << ctx->expression(0)->getText() << " | right: " << right << "/" << ctx->expression(1)->getText() << " | getType: " << ctx->bop->getType() << std::endl;
 
         switch (ctx->bop->getType()) {
             case PlayScriptParser::ADD:
@@ -292,6 +293,21 @@ antlrcpp::Any AsmGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
                 address = allocForExpression(ctx);
                 bodyAsm.append("\tmovl\t").append(left).append(", ").append(address).append("\n");
                 bodyAsm.append("\tsubl\t").append(right).append(", ").append(address).append("\n");
+                break;
+            
+            case PlayScriptParser::MUL: // *
+                address = allocForExpression(ctx);
+                if (address != left) {
+                    bodyAsm.append("\tmovl\t").append(left).append(", ").append(address).append("\n");
+                }
+                bodyAsm.append("\timull\t").append(right).append(", ").append(address).append("\n");
+                break;
+
+            case PlayScriptParser::DIV: // /
+                address = allocForExpression(ctx);
+                bodyAsm.append("\tmovl\t").append(left).append(", ").append(address).append("\n");
+                bodyAsm.append("\tcltd\t").append("\n");
+                bodyAsm.append("\tidiv\t").append(right).append("\n");
                 break;
             
             case PlayScriptParser::ASSIGN:
