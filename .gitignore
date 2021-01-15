@@ -5,4 +5,4 @@ SqlParsing/build
 SqlParsing/src/grammar/.antlr
 report/build
 report/src/grammar/.antlr
-LLVMJIT/build
+llvm-demo/build

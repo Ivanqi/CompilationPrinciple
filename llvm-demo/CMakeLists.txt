@@ -3,7 +3,7 @@
 # minimum required CMAKE version
 cmake_minimum_required(VERSION 3.5)
 
-project(llvmjit CXX)
+project(llvmdemo CXX)
 
 # compiler must be 11 or 14
 set(CMAKE_CXX_STANDARD 14)
@@ -21,14 +21,27 @@ add_definitions(${LLVM_DEFINITIONS})
 
 # SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
-set(SRC_LIST main.cpp llvmjit.h)
+set(SRC_LIST exampels.cpp llvmjit.h main.cpp )
 
 MESSAGE(STATUS "SRC_LIST: " ${SRC_LIST})
 
-add_executable(llvmjit ${SRC_LIST})
+add_executable(llvmdemo ${SRC_LIST})
 
-llvm_map_components_to_libnames(llvm_libs support core irreader analysis ExecutionEngine InstCombine Object OrcJIT RuntimeDyld ScalarOpts native)
+# llvm_map_components_to_libnames(llvm_libs
+#        support
+#        core
+#        irreader
+#        analysis
+#        ExecutionEngine
+#        InstCombine
+#        Object
+#        OrcJIT
+#        RuntimeDyld
+#        ScalarOpts
+#        native)
+llvm_map_components_to_libnames(llvm_libs all)
 
 message(STATUS "llvm_libs: " ${llvm_libs})
 
-target_link_libraries(llvmjit  ${llvm_libs})
+target_link_libraries(llvmdemo ${llvm_libraries})
+target_link_libraries(llvmdemo  ${llvm_libs})
