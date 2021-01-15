@@ -359,8 +359,61 @@ int emit_object() {
     return 0;
 }
 
+/**
+ * 即时编译并执行
+ * @return
+ */
+int JIT() {
+    // 为JIT做一些初始化
+    InitializeNativeTarget();
+    InitializeNativeTargetAsmPrinter();
+    InitializeNativeTargetAsmParser();
+
+    TheJIT = std::make_unique<LLVMJIT>();
+
+    // 创建模块
+    TheModule = std::make_unique<Module>("llvmdemo", TheContext);
+    TheModule->setDataLayout(TheJIT->getTargetMachine().createDataLayout());
+
+    // 生成IR
+    Function *fun1 = codegen_fun1();
+    Function *fun_ifstmt = codegen_ifstmt();
+    Function *fun_localvar = codegen_localvar();
+    codegen_main();
+
+    // 打印输出
+    TheModule->print(errs(), nullptr);
+
+    // 即时编译
+    // 把模块加入到即时编译的引擎中
+    auto H = TheJIT->addModule(std::move(TheModule));
+
+    // 查找函数
+    auto main = TheJIT->findSymbol("__main");
+    assert(main && "Function not found");
+
+    // 获得函数指针(指针)
+    int32_t (*FP)() = (int32_t (*)())(intptr_t)cantFail(main.getAddress());
+
+    // 执行该函数
+    int rtn = FP();
+
+    // 打印运行结果
+    fprintf(stderr, "__main: %d\n", rtn);
+
+    // 从JTI引擎中删除模块
+    TheJIT->removeModule(H);
+
+    // 生成目标文件
+    emit_object();
+
+    return 0;
+}
+
 int main() {
+    // 即时编译和运行
+    return JIT();
 
     // 编译成静态文件
-    return emit_object();
+    // return emit_object();
 }
