@@ -216,8 +216,94 @@ void second_example() {
     TheModule->print(errs(), nullptr);  // 在终端输出IR
 }
 
+/**
+ * 相当于为下面的函数生成IR：
+  int fun_localvar(int a){
+     int b = 0;
+     if (a > 2)
+         b = 2;
+     else
+         b = 3;
+     return b;
+  }
+ * @return
+ */
+
+void third_example() {
+    TheModule = std::make_unique<Module>("llvmjit", TheContext);
+
+    vector<Type*> argTypes(1, Type::getInt32Ty(TheContext));
+    FunctionType *funType = FunctionType::get(Type::getInt32Ty(TheContext), argTypes, false);
+    Function *fun = Function::Create(funType, Function::ExternalLinkage, "fun_ifstmt", TheModule.get());
+
+    // 入口基本块
+    BasicBlock *entryBB = BasicBlock::Create(TheContext, "", fun);
+    Builder.SetInsertPoint(entryBB);
+
+    // 本地变量b
+    AllocaInst *b = Builder.CreateAlloca(Type::getInt32Ty(TheContext), nullptr, "b");
+    Value *initValue = ConstantInt::get(TheContext, APInt(32, 0, true));
+    
+    Builder.CreateStore(initValue, b);
+
+    // 设置参数名称
+    string argNames[1] = {"a"};
+    unsigned i = 0;
+    for (auto &arg: fun->args()) {
+        arg.setName(argNames[i++]);
+    }
+
+    NamedValues.clear();
+
+    for (auto &Arg: fun->args()) {
+        NamedValues[Arg.getName()] = &Arg;
+    }
+
+    /**
+     * if 语句分为 入口基本块、The基本块、Else基本块和Merge基本块
+    */
+    
+    // 入口基本块. 计算a > 2,并根据这个值，分别跳转到ThenBB和ElseBB
+    Value *L = NamedValues["a"];
+    Value *R = ConstantInt::get(TheContext, APInt(32, 2, true));
+    // CreateICmpUGE (UGE 的意思，是”不大于等于“，也就是小于). 这个指令的返回值是一个1位的整型，也就是int1
+    Value *cond = Builder.CreateICmpUGE(L, R, "cmptmp");
+
+    // 创建另外3个基本块
+    BasicBlock *ThenBB = BasicBlock::Create(TheContext, "then", fun);
+    BasicBlock *ElseBB = BasicBlock::Create(TheContext, "else");
+    BasicBlock *MergeBB = BasicBlock::Create(TheContext, "ifcont");
+    Builder.CreateCondBr(cond, ThenBB, ElseBB);
+
+    // ThenBB
+    Builder.SetInsertPoint(ThenBB);
+    Value *ThenV = ConstantInt::get(TheContext, APInt(32, 2, true));
+    Builder.CreateStore(ThenV, b);
+    Builder.CreateBr(MergeBB);
+
+    // ElseBB
+    fun->getBasicBlockList().push_back(ElseBB); // 把基本块加入到函数中
+    Builder.SetInsertPoint(ElseBB);
+    Value *ElseV = ConstantInt::get(TheContext, APInt(32, 3, true));
+    Builder.CreateStore(ElseV, b);
+    Builder.CreateBr(MergeBB);
+
+    // MergeBB
+    fun->getBasicBlockList().push_back(MergeBB);
+    Builder.SetInsertPoint(MergeBB);
+
+    // 返回值
+    Builder.CreateRet(b);
+
+    // 验证函数的正确性
+    verifyFunction(*fun);
+
+    TheModule->print(errs(), nullptr);  // 在终端输出IR
+}
+
+
 int main() {
-    second_example();  
+    third_example();  
 
     return 0;
 }
