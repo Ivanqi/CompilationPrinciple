@@ -52,13 +52,28 @@ int fun1(int a, int b){
 }
 **/
 
-Function* codegen_fun1() {
+// 第一练习
+void first_example() {
+
+    // 第一步，生成一个LLVM模块，也就是顶层的IR对象
+    TheModule = std::make_unique<Module>("fun1.ll", TheContext);
+
+    /**
+     * 第二步，在模块中定义函数fun1,因为模块最主要的构成元素就是各个函数
+     *  不过定义函数之前，要先定义函数的原型(或者叫函数的类型)
+     *  函数的类型：如果两个函数的返回值相同，并且参数也相同，这两个函数的类型是相同的，这样就可以做函数指针或函数型变量的赋值
+     */
     // 函数类型
     vector<Type*> argTypes(2, Type::getInt32Ty(TheContext));
-    FunctionType *fun1Type = FunctionType::get(Type::getInt32Ty(TheContext), argTypes, false);
+    FunctionType *fun1Type = FunctionType::get(Type::getInt32Ty(TheContext),    // 返回
+                argTypes,   // 两个整型参数
+                false);     // 不是变长参数
 
     // 函数对象
-    Function *fun = Function::Create(fun1Type, Function::ExternalLinkage, "fun1", TheModule.get());
+    Function *fun = Function::Create(fun1Type,
+                    Function::ExternalLinkage,  // 链接类型
+                    "fun1",                     // 函数名称
+                    TheModule.get());           // 所在模块
 
     // 设置参数名称
     string argNames[2] = {"a", "b"};
@@ -67,10 +82,26 @@ Function* codegen_fun1() {
         arg.setName(argNames[i++]);
     }
 
+    /**
+     * 第三步，创建一个基本块
+     *  可以给它命名为"entry"，也可以不命名
+     *  在创建了基本块之后，用了一个辅助类IRBuilder,设置了一个插入点，后序生成指令会插入这个基本块
+     *  (IRBuilder是LLVM为了简化IR生成过程所提供的一个辅助类)
+     *  
+     */
     // 创建一个基本块
-    BasicBlock *BB = BasicBlock::Create(TheContext, "", fun);
-    Builder.SetInsertPoint(BB);
+    BasicBlock *BB = BasicBlock::Create(TheContext, // 上下文
+                "",     // 基本块名称
+                fun);   // 所在函数
+    Builder.SetInsertPoint(BB); // 设置指令
 
+    /**
+     * 第四步，生成"a + b"表达式所对应的IR，插入到基本块中
+     *  a 和 b都是函数fun的参数，把它取出来，分别赋值给L和R(L和R是Value)
+     *  然后用IRBuilder的CreateAdd()方法，生成一条add指令
+     *  这个计算结果存放在addtemp中
+     *
+     */
     /**
      * 在基本块里创建语句
      * 把参数变量存到NamedValues里面备用
@@ -85,18 +116,24 @@ Function* codegen_fun1() {
     Value *R = NamedValues["b"];
     Value *addtmp = Builder.CreateAdd(L, R);
 
+    /**
+     * 第五步，利用刚才获得的addtmp创建一个返回值
+     */
     // 返回值
     Builder.CreateRet(addtmp);
 
+    /**
+     * 最后一步，检查这个函数的正确性
+     *  这相当于做语义检查，比如，基本块的最后一个语句就必须是一个正确的返回指令
+     */
     // 验证函数的正确性
     verifyFunction(*fun);
 
-    return fun;
+    TheModule->print(errs(), nullptr);  // 在终端输出IR
 }
 
 int main() {
-
-    codegen_fun1();
+    first_example();  
 
     return 0;
 }
