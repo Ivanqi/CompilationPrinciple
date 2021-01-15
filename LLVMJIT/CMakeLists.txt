@@ -19,7 +19,7 @@ message(STATUS "LLVM_DEFINITIONS: ${LLVM_DEFINITIONS}")
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
-SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+# SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 set(SRC_LIST main.cpp llvmjit.h)
 
@@ -27,7 +27,7 @@ MESSAGE(STATUS "SRC_LIST: " ${SRC_LIST})
 
 add_executable(llvmjit ${SRC_LIST})
 
-llvm_map_components_to_libnames(llvm_libs all)
+llvm_map_components_to_libnames(llvm_libs support core irreader analysis ExecutionEngine InstCombine Object OrcJIT RuntimeDyld ScalarOpts native)
 
 message(STATUS "llvm_libs: " ${llvm_libs})
 
