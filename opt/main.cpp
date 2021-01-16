@@ -51,6 +51,38 @@ Function* codegen_const_folding() {
     return fun;
 }
 
+Function* codegen_algebra() {
+    // 创建函数
+    vector<Type*> argTypes(1, Type::getInt32Ty(TheContext));
+    FunctionType *funType = FunctionType::get(Type::getInt32Ty(TheContext), argTypes, false);
+    Function *fun = Function::Create(funType, Function::ExternalLinkage, "algebra", TheModule.get());
+
+    // 设置参数名称
+    string argNames[1] = {"a"};
+    unsigned i = 0;
+    for (auto &arg : fun->args()) {
+        arg.setName(argNames[i++]);
+    }
+
+    NamedValues.clear();
+    for (auto &Arg : fun->args()) {
+        NamedValues[Arg.getName()] = &Arg;
+    }
+
+    // 创建一个基本块
+    BasicBlock *BB = BasicBlock::Create(TheContext, "", fun);
+    Builder.SetInsertPoint(BB);
+
+    Value *L = NamedValues["a"];
+    Value *R = ConstantInt::get(TheContext, APInt(32, 0, true));
+
+    Value *tmp = Builder.CreateMul(L, R);
+
+    Builder.CreateRet(tmp);
+
+    return fun;
+}
+
 void InitializeModuleAndPassManager() {
     // 创建一个模块
     TheModule = std::make_unique<Module>("llvmdemo", TheContext);
@@ -77,6 +109,9 @@ int main() {
     InitializeModuleAndPassManager();
 
     Function *const_folding = codegen_const_folding();
+    Function *algebra = codegen_algebra();
+
+    TheFPM->run(*algebra);
 
     TheModule->print(errs(), nullptr);
 

@@ -3,7 +3,7 @@
 # minimum required CMAKE version
 cmake_minimum_required(VERSION 3.5)
 
-project(llvmdemo CXX)
+project(llvmopt CXX)
 
 # compiler must be 11 or 14
 set(CMAKE_CXX_STANDARD 14)
@@ -25,7 +25,7 @@ set(SRC_LIST main.cpp)
 
 MESSAGE(STATUS "SRC_LIST: " ${SRC_LIST})
 
-add_executable(llvmdemo ${SRC_LIST})
+add_executable(llvmopt ${SRC_LIST})
 
 # llvm_map_components_to_libnames(llvm_libs
 #        support
@@ -43,5 +43,4 @@ llvm_map_components_to_libnames(llvm_libs all)
 
 message(STATUS "llvm_libs: " ${llvm_libs})
 
-target_link_libraries(llvmdemo ${llvm_libraries})
-target_link_libraries(llvmdemo  ${llvm_libs})
+target_link_libraries(llvmopt  ${llvm_libs})
