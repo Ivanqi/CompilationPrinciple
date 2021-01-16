@@ -6,3 +6,4 @@ SqlParsing/src/grammar/.antlr
 report/build
 report/src/grammar/.antlr
 llvm-demo/build
+opt/build
