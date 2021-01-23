@@ -51,6 +51,7 @@ set(src_dir
     src/grammar/NullObject.cpp
     src/grammar/AsmGen.cpp
     src/grammar/ConvertToAsm.cpp
+    src/grammar/PlayScriptJIT.cpp
 )
 
 file(GLOB antrl-cpp-src
