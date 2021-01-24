@@ -99,15 +99,15 @@ void PlayScriptCompiler::dumpAST()
 
 antlrcpp::Any PlayScriptCompiler::Execute(AnnotatedTree *at)
 {
-    ASTEvaluator *visitor = new ASTEvaluator(at);
-    antlrcpp::Any result = visitor->visit(at->ast);
+    ASTEvaluator visitor(at);
+    antlrcpp::Any result = visitor.visit(at->ast);
     return result;
 }
 
 string PlayScriptCompiler::AsmExecute(AnnotatedTree *at)
 {
-    AsmGen *visitor = new AsmGen(at);
-    string result = visitor->generate();
+    AsmGen visitor(at);
+    string result = visitor.generate();
 
     return result;
 }
