@@ -52,6 +52,7 @@ set(src_dir
     src/grammar/AsmGen.cpp
     src/grammar/ConvertToAsm.cpp
     src/grammar/PlayScriptJIT.cpp
+    src/grammar/IRGen.cpp
 )
 
 file(GLOB antrl-cpp-src
@@ -65,10 +66,41 @@ file(GLOB antrl-cpp-src
     ../third_party/antlr4-cpp-runtime-4.8/src/tree/xpath/*.cpp
 )
 
+find_package(LLVM REQUIRED CONFIG)
+
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
+message(STATUS "LLVM_INCLUDE_DIRS: ${LLVM_INCLUDE_DIRS}")
+message(STATUS "LLVM_DEFINITIONS: ${LLVM_DEFINITIONS}")
+
+include_directories(${LLVM_INCLUDE_DIRS})
+add_definitions(${LLVM_DEFINITIONS})
+
+MESSAGE(STATUS "SRC_LIST: " ${SRC_LIST})
+
+llvm_map_components_to_libnames(llvm_libs
+                                support
+                                core
+                                irreader
+                                analysis
+                                ExecutionEngine
+                                InstCombine
+                                Object
+                                OrcJIT
+                                RuntimeDyld
+                                ScalarOpts
+                                native)
+
+message(STATUS "llvm_libs: " ${llvm_libs})
+
 LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/lib)
 
 add_library(antlr-cpp-runtime ${antrl-cpp-src})
 
 add_executable(play ${src_dir} src/main.cpp)
 
-target_link_libraries(play antlr-cpp-runtime libantlr4-runtime.a)
+target_link_libraries(play antlr-cpp-runtime)
+
+target_link_libraries(play ${llvm_libraries})
+target_link_libraries(play  ${llvm_libs})

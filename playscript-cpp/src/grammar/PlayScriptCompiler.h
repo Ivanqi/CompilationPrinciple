@@ -36,6 +36,8 @@ namespace play
 
             string AsmExecute(AnnotatedTree *at);
 
+            void JitExecute(AnnotatedTree *at);
+
     };
 };
 

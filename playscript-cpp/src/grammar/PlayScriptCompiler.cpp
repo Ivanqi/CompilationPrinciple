@@ -7,6 +7,7 @@
 #include "ClosureAnalyzer.h"
 #include "ASTEvaluator.h"
 #include "AsmGen.h"
+#include "IRGen.h"
 
 #include <iostream>
 
@@ -109,4 +110,14 @@ string PlayScriptCompiler::AsmExecute(AnnotatedTree *at)
     string result = visitor->generate();
 
     return result;
+}
+
+void PlayScriptCompiler::JitExecute(AnnotatedTree *at)
+{
+    IRGen irGen;
+    irGen.InitializeModuleAndPassManager();
+
+    irGen.visit(at->ast);
+    irGen.PrintIR();
+    irGen.ExecuteJIT();
 }

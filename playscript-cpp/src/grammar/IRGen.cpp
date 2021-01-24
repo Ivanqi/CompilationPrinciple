@@ -15,7 +15,7 @@
 #include "llvm/IR/Verifier.h"
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Transforms/InstCombine/InstCombine.h"
-#include "llvm/Transfroms/Scalar.h"
+#include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Scalar/GVN.h"
 
 using namespace antlrcpp;
@@ -26,16 +26,16 @@ using namespace llvm::orc;
 
 void IRGen::InitializeModuleAndPassManager()
 {
-    TheJIT = llvm::make_unique<PlayScriptJIT>();
+    TheJIT = std::make_unique<PlayScriptJIT>();
 
     // Open a new module
-    TheModule = llvm::make_unique<Module>("playscript", TheContext);
+    TheModule = std::make_unique<Module>("playscript", TheContext);
 
     DataLayout dl = TheJIT->getTargetMachine().createDataLayout();
     TheModule->setDataLayout(dl);
 
     // Create a new pass manager attached to it
-    TheFPM = llvm::make_unique<legacy::FunctionPassManager>(TheModule.get());
+    TheFPM = std::make_unique<legacy::FunctionPassManager>(TheModule.get());
 
     // Do simple "peephole" optimizations and bit-twiddling optzns
     TheFPM->add(createInstructionCombiningPass());
@@ -54,7 +54,7 @@ void IRGen::InitializeModuleAndPassManager()
 
 void IRGen::ExecuteJIT()
 {
-    The->addModule(std::move(TheModule));
+    TheJIT->addModule(std::move(TheModule));
 
     // Search the JIT for the __anon_expr symbol
     auto ExprSymbol = TheJIT->findSymbol("__prog");
@@ -63,7 +63,7 @@ void IRGen::ExecuteJIT()
     /**
      * 获取符号地址并将其强制转换成正确的类型(不带参数，返回double)，以便我们可将其作为本机函数调用
      */
-    double (*FP)() = (double(*)())(input_t)cantFail(ExprSymbol.getAddress());
+    double (*FP)() = (double (*)())(intptr_t)cantFail(ExprSymbol.getAddress());
     fprintf(stdout, "Evaluated to %f\n", FP());
 }
 
@@ -116,7 +116,7 @@ antlrcpp::Any IRGen::visitBlock(PlayScriptParser::BlockContext *ctx)
     return result;
 }
 
-antrlcpp::Any IRGen::visitBlockStatements(PlayScriptParser::BlockStatementsContext *ctx)
+antlrcpp::Any IRGen::visitBlockStatements(PlayScriptParser::BlockStatementsContext *ctx)
 {
     Value *result = nullptr;
     if (ctx->blockStatement().size() > 0) {
@@ -128,7 +128,7 @@ antrlcpp::Any IRGen::visitBlockStatements(PlayScriptParser::BlockStatementsConte
     return result;
 }
 
-antrlcpp::Any IRGen::visitBlockStatement(PlayScriptParser::BlockStatementContext *ctx)
+antlrcpp::Any IRGen::visitBlockStatement(PlayScriptParser::BlockStatementContext *ctx)
 {
     Value *result = nullptr;
     if (ctx->statement()) {
@@ -185,7 +185,7 @@ antlrcpp::Any IRGen::visitExpression(PlayScriptParser::ExpressionContext *ctx)
     return result;
 }
 
-antlrcpp::Any IRGen::visitPrimary(PlayScriptParserPrimaryContext *ctx)
+antlrcpp::Any IRGen::visitPrimary(PlayScriptParser::PrimaryContext *ctx)
 {
     Value *result = nullptr;
     if (ctx->literal()) {
