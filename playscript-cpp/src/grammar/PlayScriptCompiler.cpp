@@ -112,7 +112,7 @@ string PlayScriptCompiler::AsmExecute(AnnotatedTree *at)
     return result;
 }
 
-void PlayScriptCompiler::JitExecute(AnnotatedTree *at)
+void PlayScriptCompiler::IRExecute(AnnotatedTree *at)
 {
     IRGen irGen;
     irGen.InitializeModuleAndPassManager();

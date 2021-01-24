@@ -1,5 +1,5 @@
-#ifndef LLVMJIT_H
-#define LLVMJIT_H
+#ifndef PLAYSCRIPTJIT_H
+#define PLAYSCRIPTJIT_H
 
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/ADT/iterator_range.h"

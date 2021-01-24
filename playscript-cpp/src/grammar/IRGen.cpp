@@ -26,6 +26,11 @@ using namespace llvm::orc;
 
 void IRGen::InitializeModuleAndPassManager()
 {
+    // 为JIT做一些初始化
+    InitializeNativeTarget();
+    InitializeNativeTargetAsmPrinter();
+    InitializeNativeTargetAsmParser();
+
     TheJIT = std::make_unique<PlayScriptJIT>();
 
     // Open a new module

@@ -58,7 +58,7 @@ class PlayScript
                         createASM();
                         break;
                     case 3:
-                        createJIT();
+                        createIR();
                         break;
                     default:
                         cout << "模式选择错误，请重新选择" << endl;
@@ -85,9 +85,9 @@ class PlayScript
             }
         }
 
-        void createJIT()
+        void createIR()
         {
-            compiler_.JitExecute(at_);
+            compiler_.IRExecute(at_);
         }
 
 };
@@ -109,7 +109,7 @@ int main(int argc, const char* argv[]) {
     printf("是否展示符号表(0:关闭,1:开启)\n");
     scanf("%d", &play.symbolSwitch_);
 
-    cout << "请选择模式:(1:普通模式[默认]，2: 生成ASM, 3: 开启JIT)" << endl;
+    cout << "请选择模式:(1:普通模式[默认]，2: 生成ASM, 3: 生成IR)" << endl;
     scanf("%d", &play.modelSwith_);
 
     play.exec();
