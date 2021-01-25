@@ -1,9 +1,9 @@
-#### playscript-cpp 编译使用
-- cd build 目录
-- cmake ..
-- make
+# ANTLR 安装
+- [Antlr的安装、配置和使用](https://github.com/RichardGong/PlayWithCompiler/blob/master/antlr_install.md)
+- [antlr c++ 初入门](https://www.cnblogs.com/zitonglove/p/11364441.html)
 
-#### 语法规则定义
+# ANTLR 使用规则
+## 语法规则定义
 ```
 grammar calculator;
 
@@ -20,7 +20,7 @@ PLUS    :   '+';
 MINUS   :   '-';
 INT     :   '0'..'9'+;
 ```
-#### 解析的整体流程
+## 解析的整体流程
 - 首先是词法分析器处理字符序列（对应CharStream类），生成Token流（对应TokenStream类，这是连接词法分析和语法分析过程的桥梁）传给语法分析器
 - 语法分析器再用它检查语法正确性，然后解析得到语法树（叶子结点对应TerminalNode类，非叶子结点对应RuleNode类
 - ![avatar](./images/pic_1.png)
@@ -42,7 +42,7 @@ INT     :   '0'..'9'+;
     - 这些生成的*Context类（作为生成的语法Parser的静态内部类）可以访问它所对应的词组中的所有元素（图中它的子树）
     - 例如，上图的AssignContext类就可以通过ID()方法访问标识符子结点（返回值是TerminalNode类型），通过expr()方法访问表达式子树（返回值是ExprContext类型）
 
-#### 语法分析器的工作过程
+## 语法分析器的工作过程
 - ANTLR根据给出的语法规则，生成一个递归下降的语法分析器，当待解析的语法规则有多条分支时
 - 语法分析器会去前瞻词法符号（不必是LL(1)，可以前瞻若干个词法符号），这个过程和手写的Parser是类似的
 ```
@@ -67,7 +67,7 @@ stat: assign
     }   
     ```
 
-#### 歧义处理方法
+## 歧义处理方法
 - 如果可以通过多条分支解析输入的文本，那么就说明输入文本是有歧义的，可以有多种语义去解释
 - 例子
     ```
@@ -102,3 +102,135 @@ stat: assign
   - 另一种是C语言里的
     - 如i * j;中 * 是乘号还是指针符号，取决于i的Token是一个表达式还是一个类型（比如int * j;就是定义指针变量，8 * j;则是一个表达式语句）
     - 也就是说这类歧义要通过检查上下文信息解决
+
+# playscript-cpp 项目
+## playscript-cpp 编译使用
+- cd build 目录
+- cmake ..
+- make
+
+## playscript-cpp 使用例子
+#### 普通模式
+- ./x 文件路径
+  - ./play ../tests/test.play
+- AST 展示
+  - ![avatar](./images/test_ast.png)
+
+#### 生成汇编代码
+- ./x 文件路径
+  - ./play ../tests/asm.play
+- AST 展示
+  - ![avatar](./images/asm_ast.png)
+- ASM 展示
+  ```
+  	.section	__TEXT,__text,regular,pure_instructions
+
+    ## 过程: fun1
+        .global _fun1
+    _fun1:
+
+        # 序曲
+        pushq	%rbp
+        movq	%rsp, %rbp
+
+        # 设置栈顶
+        subq	$16, %rsp
+
+        # 过程体
+        movl	$10, -4(%rbp)
+        movl	%edi, %eax
+        addl	%esi, %eax
+        addl	%edx, %eax
+        addl	%ecx, %eax
+        addl	%r8d, %eax
+        addl	%r9d, %eax
+        addl	16(%rbp), %eax
+        addl	24(%rbp), %eax
+        addl	-4(%rbp), %eax
+
+        # 返回值
+        # 返回值在之前的计算中, 已经存入%eax
+
+        # 恢复栈顶
+        addq	$16, %rsp
+
+        # 尾声
+        popq	%rbp
+        retq
+    ## 过程: main
+        .global _main
+    _main:
+
+        # 序曲
+        pushq	%rbp
+        movq	%rsp, %rbp
+
+        # 设置栈顶
+        subq	$0, %rsp
+
+        # 过程体
+
+        # 为参数而扩展栈
+        subq	$16, %rsp
+
+        # 设置参数
+        movl	$1, %edi
+        movl	$2, %esi
+        movl	$3, %edx
+        movl	$4, %ecx
+        movl	$5, %r8d
+        movl	$6, %r9d
+        movl	$7, (%rsp)
+        movl	$8, 8(%rsp)
+
+        # 调用函数
+        callq	_fun1
+
+        # 收回参数的栈空间
+        addq	$16, %rsp
+
+        # 设置参数
+        leaq	L.str.0(%rip),%rdi
+        movl	%eax, %esi
+
+        # 调用函数
+        callq	_printf
+
+        # 恢复栈顶
+        addq	$0, %rsp
+
+        # 返回值
+        xorl	%eax, %eax
+
+        # 尾声
+        popq	%rbp
+        retq
+    # 字符串字面量
+        .section	__TEXT,__cstring,cstring_literals
+    L.str.0:
+        .asciz	"fun1: %d"
+
+  ```
+
+### 生成IR代码
+- ./x 文件路径
+  - ./play ../tests/test.play
+- IR代码展示
+    ```
+    ; ModuleID = 'playscript'
+    source_filename = "playscript"
+    target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
+
+    define double @__prog() {
+    entry:
+        %calltmp = call double @foo(double 3.000000e+00)
+        ret double %calltmp
+    }
+
+    define double @foo(double %x) {
+    entry:
+        %addtmp = fadd double %x, 3.000000e+00
+        %multmp = fmul double %addtmp, %addtmp
+        ret double %multmp
+    }
+    ```
