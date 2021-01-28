@@ -103,6 +103,44 @@ stat: assign
     - 如i * j;中 * 是乘号还是指针符号，取决于i的Token是一个表达式还是一个类型（比如int * j;就是定义指针变量，8 * j;则是一个表达式语句）
     - 也就是说这类歧义要通过检查上下文信息解决
 
+# LLVM安装
+## MAC环境安装
+- 指令: brew install llvm
+- 配置环境
+    ```
+    # 可执行文件的路径
+    export PATH="/usr/local/opt/llvm/bin:$PATH"
+    # 让编译器能够找到LLVM
+    export LDFLAGS="-L/usr/local/opt/llvm/lib"
+    export CPPFLAGS="-I/usr/local/opt/llvm/include”
+    ```
+## Centos7环境安装
+- [CentOS 7 编译安装clang+llvm](https://www.cnblogs.com/BinBinStory/p/7499527.html)
+
+## llvm 基本命令
+- llvm-as - LLVM assembler 汇编器
+- llvm-dis - LLVM disassembler 反汇编器
+- opt - LLVM optimizer 优化器
+- llc - LLVM static compiler 静态编译器
+- lli - directly execute programs from LLVM bitcode 直接执行LLVM 字节码
+- llvm-link - LLVM bitcode linker 字节码连接器
+- llvm-ar - LLVM archiver 归档器
+- llvm-nm -list LLVM bitcode and object file's symbol table 列出LLVM字节码和目标文件中的符号表
+- llvm-config - Print LLVM compilation options 打印LLVM编译选项
+- llvm-diff - LLVM structual 'diff' LLVM结构上的diff
+- llvm-cov - emit coverage information 省略覆盖信息
+- llvm-stress - generate random .ll files 生成随机的.ll文件
+- llvm-symbolizer - convert addresses into source code locations 把地址值转换成源代码位置 ##调试工具
+- bugpoint - automatic test case reduction tool 自动测试用例下降工具
+- llvm-extract - extract a function from an LLVM module 从LLVM模块中抽取一个函数
+- llvm-bcanalyzer - LLVM bitcode analyzer LLVM字节码分析器 ##开发者工具
+- FileCheck - Flexible pattern matching file verifier 弹性模式匹配的文件验证器
+- tblgen - Target Description To C++ Code Generator 目标描述到C++代码生成器
+- lit - LLVM Integrated Tester LLVM集成的测试器
+- llvm-build - LLVM Project Build Utility LLVM项目生成工具
+- llvm-readobj - LLVM Object Reader LLVM目标文件阅读器
+
+
 # playscript-cpp 项目
 ## playscript-cpp 编译使用
 - cd build 目录
