@@ -12,3 +12,4 @@
 [report](/report/) |报表工具 |
 [SqlParsing](/SqlParsing/) | SQL语法分析器 |
 [compiler](/compiler/) | 简单编译器 |
+[lc3VM](/lc3VM/) | LC3虚拟机 |
