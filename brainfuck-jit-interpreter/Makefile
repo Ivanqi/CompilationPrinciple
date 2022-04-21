@@ -1,6 +1,6 @@
 CXX = clang++
 CXXFLAGS = -std=c++17 -O2 -pedantic  # adapt to the linux env.
-interpreter: interpreter.cpp
+interpreter: interpreter.cc
 clean:
 	rm -f ./interpreter
 

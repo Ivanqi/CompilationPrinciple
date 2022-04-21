@@ -18,7 +18,7 @@ constexpr size_t MAX_NESTING = 100;
 template<typename T>
 void debugVec(std::vector<T> &vp) {
     for (auto i = vp.cbegin(); i != vp.cend(); ++i) {
-        std::count << std::hex << static_cast<size_t>(*i) << std::endl;
+        std::cout << std::hex << static_cast<size_t>(*i) << std::endl;
     }
 }
 
@@ -50,16 +50,16 @@ class VM {
         {
             // getpagesize 取得内存分页大小
             auto pageSize = getpagesize();
-            allocatedSize = static_cast<size_t>(std::ceil(machineCode->size() / static_cast<double>(pageSize)) * pageSize)
+            allocatedSize = static_cast<size_t>(std::ceil(machineCode->size() / static_cast<double>(pageSize)) * pageSize);
             mem = allocateExecMem(allocatedSize);
             if (mem == MAP_FAILED) {
-                throw std::runtime_error("[error] can't allocate memory.")
+                throw std::runtime_error("[error] can't allocate memory.");
             }
 
             std::memcpy(mem, machineCode->data(), machineCode->size());
 
             // 设置存储标准输出缓冲区的内存范围
-            stdoutBuf = std::calloc(2048, sizeof(uint8_t))
+            stdoutBuf = std::calloc(2048, sizeof(uint8_t));
         }
 
         void exec()
@@ -76,7 +76,7 @@ class VM {
                 pushq %%rax
                 movq %0, %%rax
                 addq %2, %%rax
-                jmpq *%%q
+                jmpq *%%rax
             )":: "S" (mem), "m" (stdoutBuf), "D" (prependStaticSize));
 
             // 清空栈
@@ -93,7 +93,7 @@ class VM {
         ~VM()
         {
             std::free(stdoutBuf);
-            munmap(mem, allocatedSize)
+            munmap(mem, allocatedSize);
         }
 };
 
@@ -112,7 +112,7 @@ void bfJITCompile(std::vector<char> *program, BFState *state) {
     // 辅助匿名函数
     auto _appendBytecode = [](auto& byteCode, auto& machineCode) {
         machineCode.insert(machineCode.end(), byteCode.begin(), byteCode.end());
-    }
+    };
 
     auto _resolvePtrAddr = [](auto ptrAddr) -> auto {
         // 小端序
@@ -244,7 +244,7 @@ void bfJITCompile(std::vector<char> *program, BFState *state) {
                 _appendBytecode(byteCode, machineCode);
                 break;
             }
-            case '.' {
+            case '.': {
                 /**
                     movq (%rbx), %r12
                     movq %r12, (%r10,%r11)
@@ -419,15 +419,15 @@ void bfInterpret(const char *program, BFState *state) {
 
 inline void bfRunInterpret(const char *sourceCode) {
     BFState bfs;
-    bfInterpret(sourceCode, &bfs):
+    bfInterpret(sourceCode, &bfs);
 }
 
-inline void bfRunJIT(std:;vector<char> *sourceCode) {
+inline void bfRunJIT(std::vector<char> *sourceCode) {
     BFState bfs;
     bfJITCompile(sourceCode, &bfs);
 }
 
-int main() {
+int main(int argc, char** argv) {
     char token;
     std::vector<char> v {};
 

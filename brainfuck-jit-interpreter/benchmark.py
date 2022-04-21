@@ -34,24 +34,25 @@ if __name__ == '__main__':
         exec_cmd('./interpreter ./bfs/FIB.bf --jit', '.out_jit', default_benchmark_time)
 
         # 比较
-        completedprocess = subprocess.run('wc -l .out_interpreter .out_jit', shell=True, capture_output=True)
-        print(str(completedprocess.stdout, 'utf-8'))
-        os.remove('.out_interpreter')
-        os.remove('.out_jit')
-        sys.exit(0)
+        # completedprocess = subprocess.run('wc -l .out_interpreter .out_jit', shell=True)
+        # print(str(completedprocess.stdout, 'utf-8'))
+        # os.remove('.out_interpreter')
+        # os.remove('.out_jit')
+        # sys.exit(0)
     else:
         # 运行可选基准测试
-        if sys.argv[constant_idx_one] == "mandelbrot":
-            time_dict = []
-            def _exec_case(command):
-                print('\nCommand ' + command + ': \n')
-                start_time = time.time()
-                subprocess.call(shlex.split(command))
-                time_dict.append(time.time() - start_time)
+        # if sys.argv[constant_idx_one] == "mandelbrot":
+        #     time_dict = []
+        #     def _exec_case(command):
+        #         print('\nCommand ' + command + ': \n')
+        #         start_time = time.time()
+        #         subprocess.call(shlex.split(command))
+        #         time_dict.append(time.time() - start_time)
             
-            _exec_case('./interpreter ./bfs/MANDELBROT.bf')
-            _exec_case('./interpreter ./bfs/MANDELBROT.bf --jit')
+        #     _exec_case('./interpreter ./bfs/MANDELBROT.bf')
+        #     _exec_case('./interpreter ./bfs/MANDELBROT.bf --jit')
 
-            print('\nBenchmark Result: (lower time is better)\n' + 
-                "{:>10.3f}".format(time_dict[constant_idx_zer]) + 's interpreter\n' +
-                "{:>10.3f}".format(time_dict[constant_idx_one]) + 's jit\n')
+        #     print('\nBenchmark Result: (lower time is better)\n' + 
+        #         "{:>10.3f}".format(time_dict[constant_idx_zer]) + 's interpreter\n' +
+        #         "{:>10.3f}".format(time_dict[constant_idx_one]) + 's jit\n')
+        print("1");
