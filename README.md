@@ -1,6 +1,9 @@
 # CompilationPrinciple
-- 编译原理
-- 课程来源：《编译原理之美》-作者：宫文学
+## 编译原理
+
+## 课程来源
+- 《编译原理之美》-作者：宫文学
+- 《自己动手写Python虚拟机》-作者:海纳
 
 ## 项目列表
 项目 | 描述 | 
@@ -14,3 +17,4 @@
 [SqlParsing](/SqlParsing/) | SQL语法分析器 |
 [compiler](/compiler/) | 简单编译器 |
 [lc3VM](/lc3VM/) | LC3虚拟机 |
+[pythonVm](https://github.com/Ivanqi/pythonVm)| Python 虚拟机|
