@@ -27,8 +27,7 @@ bool CharSet::match(char ch)
     bool rtn = false;
     if (subSets.size() > 0) {
         for (size_t i = 0; i < subSets.size(); i++) {
-            CharSet *subSet = subSets[i].get();
-            rtn = subSet->match(ch);
+            rtn = subSets[i]->match(ch);
             if (rtn){
                 break;
             }
@@ -94,44 +93,63 @@ string CharSet::toString()
  */
 CharSet* CharSet::getShorterForm()
 {
-    if (equals(digit.get())) {
+    if (equals(digit)) {
         return digit.get();
-    } else if (equals(smallLetter.get())) {
+    } else if (equals(smallLetter)) {
         return smallLetter.get();
-    } else if (equals(capitalLeter.get())) {
+    } else if (equals(capitalLeter)) {
         return capitalLeter.get();
-    } else if (equals(letter.get())) {
+    } else if (equals(letter)) {
         return letter.get();
-    } else if (equals(letterOrDigit.get())) {
+    } else if (equals(letterOrDigit)) {
         return letterOrDigit.get();
     } else {
-        CharSet *charSet = getSupplementarySet();
-        charSet->exclude = true;
-        return charSet;
+        shared_ptr<CharSet> charSetPtr = getSupplementarySet();
+        charSetPtr->exclude = true;
+        return charSetPtr.get();
     }
-    
 }
 
+shared_ptr<CharSet> CharSet::getShorterFormx() {
+    if (equals(digit)) {
+        return digit;
+    } else if (equals(smallLetter)) {
+        return smallLetter;
+    } else if (equals(capitalLeter)) {
+        return capitalLeter;
+    } else if (equals(letter)) {
+        return letter;
+    } else if (equals(letterOrDigit)) {
+        return letterOrDigit;
+    } else {
+        shared_ptr<CharSet> charSetPtr = getSupplementarySet();
+        charSetPtr->exclude = true;
+        return charSetPtr;
+    }
+}
 
-// 计算补集
-CharSet* CharSet::getSupplementarySet()
+/**
+ * @brief 计算补集
+ *   1. 当你的chlist = [1-9], 不符合 digit集合的[0-9]，所以通过计算补集，补上一个0
+ *   2. 当的你的chlist = [1-9|a-d], 不符合digit集合的[0-9]和smallLetter的[a-z]，所以要补0和[c-z]
+ * 
+ * @return     shared_ptr<CharSet> 
+ */
+shared_ptr<CharSet> CharSet::getSupplementarySet()
 {
-    auto charSetPtr = shared_ptr<CharSet>(new CharSet());
-    CharSet *charSet = charSetPtr.get();
-
+    shared_ptr<CharSet> charSetPtr = shared_ptr<CharSet>(new CharSet());
+    
     for (char ch: letterAndDigits) {    // TODO 需要直到该词法更准确的字符集
         if (!match(ch)) {
-            auto matchVal = shared_ptr<CharSet>(new CharSet(ch));
-            charSet->addSubSet(matchVal);
+            shared_ptr<CharSet> matchVal = shared_ptr<CharSet>(new CharSet(ch));
+            charSetPtr->addSubSet(matchVal);
         }
     }
 
-    if (charSet->subSets.size() == 0) {
-        charSetPtr = letterOrDigit;
-        charSet = charSetPtr.get();
+    if (charSetPtr->subSets.size() == 0) {
+        charSetPtr.swap(letterOrDigit);
     }
-
-    return charSet;
+    return charSetPtr;
 }
 
 /**
@@ -139,17 +157,17 @@ CharSet* CharSet::getSupplementarySet()
  */
 vector<char> CharSet::asciiDeclare()
 {
-    vector<char> Alphabet;
+    vector<char> alphabet;
 
     for (int i = 0; i < 128; i++) {
-        Alphabet.emplace_back((char)i);
+        alphabet.emplace_back((char)i);
     }
 
-    return Alphabet;
+    return alphabet;
 }
 
 /**
- * 包含字母和数字的字母表
+ * 包含字母和数字的字母表(总数)
  */
 vector<char> CharSet::letterAndDigitsDeclare()
 {
@@ -215,7 +233,31 @@ bool CharSet::equals(Any obj)
             }
         }
     }
-    return false;
+    return true;
+}
+
+/**
+ * @brief charset 比较
+ *  1. 规定了值的范畴，即ascii的范围
+ *  2. 在ascii的范围内，判断obj是否这个范围，在判断this的范围是否符合ascii和obj的范围
+ * 
+ * @param obj 
+ * @return true 
+ * @return false 
+ */
+bool CharSet::equals(shared_ptr<CharSet> obj) {
+    for (char ch: Alphabet) {
+        if (obj->match(ch)) {
+            if (!match(ch)) {
+                return false;
+            }
+        } else {
+            if (match(ch)) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 // 是不是空集

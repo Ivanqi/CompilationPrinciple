@@ -54,17 +54,18 @@ string State::toString()
     sb.append(name);
 
     if (transitions.size() > 0) {
+        sb.append("\n");
         for (size_t i = 0; i < transitions.size(); i++) {
             Transition *transition = transitions[i].get();
             State *state = transition2State[transition];
-            sb.append("\t").append(transition->toString()).append(" -> ").append(state->name).append("\n");
+            sb.append("\t\t").append(transition->toString()).append(" -> ").append(state->name).append("\n");
         }
     } else {
         sb.append("\t(end)").append("\n");
     }
 
     if (isAcceptable()) {
-        sb.append("\t acceptable \n");
+        sb.append("\t\tacceptable \n");
     }
 
     return sb;

@@ -57,7 +57,7 @@ std::string DFAState::toString()
  */
 bool DFAState::isAcceptable()
 {
-    for (State *state: states) {
+    for (State *state: getStatesSet()) {
         if (state->isAcceptable()) {
             return true;
         }

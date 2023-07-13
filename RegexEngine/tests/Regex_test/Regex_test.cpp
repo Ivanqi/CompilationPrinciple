@@ -37,10 +37,10 @@ void test_case_1() {
     cout << endl;
 
     //用DFA来匹配
-    Regex::matchWithDFA(dfaStates[0].get(), "int");
-    Regex::matchWithDFA(dfaStates[0].get(), "intA");
-    Regex::matchWithDFA(dfaStates[0].get(), "23");
-    Regex::matchWithDFA(dfaStates[0].get(), "0A");
+    Regex::matchWithDFA(dfaStates[0], "int");
+    Regex::matchWithDFA(dfaStates[0], "intA");
+    Regex::matchWithDFA(dfaStates[0], "23");
+    Regex::matchWithDFA(dfaStates[0], "0A");
 
     // 销毁内存
     for (int i = 0; i < states.size(); i++) {
@@ -75,10 +75,10 @@ void test_case_2()
     DFAState::showDFAState(dfaStates2);
     cout << endl;
 
-     //用DFA来匹配
-    Regex::matchWithDFA(dfaStates2[0].get(), "abc");
-    Regex::matchWithDFA(dfaStates2[0].get(), "abcbbbcbc");
-    Regex::matchWithDFA(dfaStates2[0].get(), "abcb");
+    //用DFA来匹配
+    Regex::matchWithDFA(dfaStates2[0], "abc");
+    Regex::matchWithDFA(dfaStates2[0], "abcbbbcbc");
+    Regex::matchWithDFA(dfaStates2[0], "abcb");
 
     // 销毁内存
     for (int i = 0; i < states.size(); i++) {

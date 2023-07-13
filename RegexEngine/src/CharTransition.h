@@ -4,6 +4,7 @@
 #include "CharSet.h"
 
 #include <string>
+#include <type_traits>
 
 class Any;
 // 状态转移

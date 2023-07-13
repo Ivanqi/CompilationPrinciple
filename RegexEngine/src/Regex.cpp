@@ -135,7 +135,7 @@ bool Regex::matchWithNFA(State *state, string str)
 
     bool match = index == str.length();
 
-    cout << "matched?: " << match << "\n";
+    cout << "matched?: " << (match ? "success" : "fail") << "\n";
 
     return match;
 }
@@ -166,7 +166,7 @@ int Regex::matchWithNFA(State *state, string str, int index1)
         } else if (transition->match(str[index1])) {  // 消化一个字符，指针前移
             index2++;   // 消耗掉一个字符
 
-            if (index2 < str.length() - 1) {
+            if (index2 < str.length()) {
                 index2 = matchWithNFA(nextState, str, index1 + 1);
             } else {
                 /**
@@ -239,10 +239,10 @@ vector<shared_ptr<DFAState>> Regex::NFA2DFA(State *startState, vector<char> alph
     vector<shared_ptr<DFAState>> dfaStates;
     vector<DFAState*> newStates;
 
-    map<State*, vector<State*>> calculatedClosures;
+    map<State*, set<State*>> calculatedClosures;
 
-    vector<State*> stateSet = calcClosure(startState, calculatedClosures);
-
+    set<State*> stateSet = calcClosure(startState, calculatedClosures);
+    
     DFAState *dfaState = new DFAState(stateSet);
     dfaStates.emplace_back(shared_ptr<DFAState>(dfaState));
     newStates.emplace_back(dfaState);
@@ -255,11 +255,12 @@ vector<shared_ptr<DFAState>> Regex::NFA2DFA(State *startState, vector<char> alph
         vector<DFAState*> calculating = newStates;
         newStates.clear();
 
+        int i = 0;
         for (DFAState *dfaState2 : calculating) {
             // 为字母表中的每个字母循环
             for (char ch: alphabet) {
                 // 计算从某个集合状态，在接受某个字符以后，会迁移到哪些新的集合
-                vector<State*> nextStateSet = move(dfaState2->getStates(), ch);
+                set<State*> nextStateSet = move(dfaState2->getStatesSet(), ch);
                 if (nextStateSet.size() == 0) {
                     continue;
                 }
@@ -276,21 +277,26 @@ vector<shared_ptr<DFAState>> Regex::NFA2DFA(State *startState, vector<char> alph
                     dfaStates.emplace_back(shared_ptr<DFAState>(dfaState));
                     newStates.emplace_back(dfaState);
                     transition = new CharTransition();
+                    // DFA之间建立关联
                     dfaState2->addTransition(transition, dfaState);
                 }
 
                 // 复用已有的迁移
                 if (transition == nullptr) {
+                    // 在已有的DFAState中获取对应的迁移
                     transition = dfaState2->getTransitionTo(dfaState);
                     if (transition == nullptr) {
                         transition = new CharTransition();
+                        // DFA之间建立关联
                         dfaState2->addTransition(transition, dfaState);
                     }
+
                 }
 
                 // 往transition上添加字母
                 shared_ptr<CharSet> tmp = shared_ptr<CharSet>(new CharSet(ch));
                 ((CharTransition*)transition)->condition->addSubSet(tmp);
+                i++;
             }
         }
     }
@@ -301,13 +307,13 @@ vector<shared_ptr<DFAState>> Regex::NFA2DFA(State *startState, vector<char> alph
 /**
  * 根据NFA State集合，查找是否已经存在一个DFAState，包含同样的NFA状态
  */
-DFAState* Regex::findDFAState(vector<shared_ptr<DFAState>> dfaStates, vector<State*> states)
+DFAState* Regex::findDFAState(vector<shared_ptr<DFAState>> dfaStates, set<State*> states)
 {
     DFAState *dfaState = nullptr;
 
     for (size_t i = 0; i < dfaStates.size(); i++) {
         DFAState *dfaState1 = dfaStates[i].get();
-        if (sameStateSet(dfaState1->getStates(), states)) {
+        if (sameStateSet(dfaState1->getStatesSet(), states)) {
             dfaState = dfaState1;
             break;
         }
@@ -318,7 +324,7 @@ DFAState* Regex::findDFAState(vector<shared_ptr<DFAState>> dfaStates, vector<Sta
 /**
  * 比较两个NFA state的集合是否相等
  */
-bool Regex::sameStateSet(vector<State*>stateSet1, vector<State*> stateSet2)
+bool Regex::sameStateSet(set<State*>stateSet1, set<State*> stateSet2)
 {
     if (stateSet1.size() != stateSet2.size()) {
         return false;
@@ -334,29 +340,28 @@ bool Regex::sameStateSet(vector<State*>stateSet1, vector<State*> stateSet2)
 }
 
 /**
- * 比较两个NFA state的集合是否相等
+ * 基于DFA做字符串匹配
  */
-// bool Regex::matchWithDFAsmaeStateSet(vector<State*>stateSet1, vector<State*>stateSet2);
-
-bool Regex::matchWithDFA(DFAState *state, string str)
+bool Regex::matchWithDFA(shared_ptr<DFAState> state, string str)
 {
     cout << "DFA matching : '" << str << "'" << endl;
-    bool match = matchWithDFA(state, str, 0);
+    bool match = matchWithDFA(state.get(), str, 0);
 
-    cout << "matched?: " << match << endl;
+    cout << "matched?: " << (match ? "success" : "fail") << "\n";
     return match;
 }
 
  /**
  * 基于DFA做字符串匹配
  */
-bool Regex::matchWithDFA(DFAState *state, string str, int index)
+bool Regex::matchWithDFA(DFAState* state, string str, int index)
 {
     cout << "trying DFAState: " << state->getName() << ", index = " << index << endl;
 
     // 根据字符，找到下一个状态
     DFAState *nextState = nullptr;
     vector<shared_ptr<Transition>> transitions = state->getTransitions();
+    
     for (size_t i = 0; i < transitions.size(); i++) {
         Transition *transition = transitions[i].get();
         if (transition->match(str[index])) {
@@ -364,7 +369,7 @@ bool Regex::matchWithDFA(DFAState *state, string str, int index)
             break;
         }
     }
-
+    
     if (nextState != nullptr) {
         // 继续匹配字符串
         if (index < str.length() - 1) {
@@ -381,61 +386,56 @@ bool Regex::matchWithDFA(DFAState *state, string str, int index)
     } else {
         return false;
     }
+    return false;
 }
 
 
 /**
  * 计算某个state通过epsilon能到达的所有State
  */
-vector<State*> Regex::calcClosure(State *state, map<State*, vector<State*>>& calculatedClosures)
+set<State*> Regex::calcClosure(State *state, map<State*, set<State*>>& calculatedClosures)
 {
     if (calculatedClosures.find(state) != calculatedClosures.end()) {
         return calculatedClosures[state];
     }
 
-    vector<State*> closure;
-    set<State*> closureTmp;
-    closureTmp.insert(state); // 加上自身
+    set<State*> closure;
+    closure.insert(state); // 加上自身
     vector<shared_ptr<Transition>> transitions = state->getTransitions();
 
     for (size_t i = 0; i < transitions.size(); i++) {
         Transition *transition = transitions[i].get();
         if (transition->isEpsilon()) {
             State *nextState = state->getState(transition);
-            closureTmp.insert(nextState);
-            vector<State*> tmp = calcClosure(nextState, calculatedClosures);
-            closureTmp.insert(tmp.begin(), tmp.end());
+            closure.insert(nextState);
+            set<State*> tmp = calcClosure(nextState, calculatedClosures);
+            closure.insert(tmp.begin(), tmp.end());
         }
     }
 
     calculatedClosures[state] = closure;
-    closure.assign(closureTmp.begin(), closureTmp.end());
     return closure;
 }
 
 /**
  * 计算一个集合的闭包，包活这些状态以及可以通过epsilon到达的状态
  */
-void Regex::calcClosure(vector<State*>& states, map<State*, vector<State*>>& calculatedClosures)
+void Regex::calcClosure(set<State*>& states, map<State*, set<State*>>& calculatedClosures)
 {
     set<State*> newStates; 
-    newStates.insert(states.begin(), states.end());
-
     for (State *state : states) {
-        vector<State*> closure = calcClosure(state, calculatedClosures);
+        set<State*> closure = calcClosure(state, calculatedClosures);
         newStates.insert(closure.begin(), closure.end());
     }
-    
-    states.assign(newStates.begin(), newStates.end());
+    states.insert(newStates.begin(), newStates.end());
 }
 
 /**
  * 计算从某个集合状态，在接受某个字符以后，会迁移到哪些新的集合
  */
-vector<State*> Regex::move(vector<State*> states, char ch)
+set<State*> Regex::move(set<State*> states, char ch)
 {
-    vector<State*> rtn;
-    set<State*> tmp;
+    set<State*> rtn;
     
     for (State *state : states) {
         vector<shared_ptr<Transition>> transitions = state->getTransitions();
@@ -443,11 +443,10 @@ vector<State*> Regex::move(vector<State*> states, char ch)
             Transition *transition = transitions[i].get();
             if (transition->match(ch)) {
                 State *nextState = state->getState(transition);
-                tmp.insert(nextState);
+                rtn.insert(nextState);
             }
         }
     }
-    rtn.assign(tmp.begin(), tmp.end()); // 去重
     return rtn;
 }
 

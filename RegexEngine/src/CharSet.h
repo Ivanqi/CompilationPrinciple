@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <iostream>
 
 #include "Any.h"
 
@@ -88,10 +89,11 @@ class CharSet
          * 比如, a|b|....z就显示成[a - z]就行了
          */
         CharSet* getShorterForm();
+        shared_ptr<CharSet> getShorterFormx();
 
 
         // 计算补集
-        CharSet* getSupplementarySet();
+        shared_ptr<CharSet> getSupplementarySet();
 
         /**
          * 初始化字母表。目前支持整个ASCII表，128个值
@@ -110,6 +112,8 @@ class CharSet
         static CharSet* initWhiteSpaceDeclare();
 
         bool equals(Any obj);
+
+        bool equals(shared_ptr<CharSet> obj);
 
         // 是不是空集
         bool isEmpty();

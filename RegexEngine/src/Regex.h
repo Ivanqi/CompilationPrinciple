@@ -6,6 +6,8 @@
 #include <map>
 #include <algorithm>
 #include <set>
+#include <memory>
+#include <type_traits>
 
 #include "State.h"
 
@@ -50,12 +52,12 @@ class Regex
          */
         static int matchWithNFA(State *state, string str, int index1);
 
-        static bool matchWithDFA(DFAState *state, string str);
+        static bool matchWithDFA(shared_ptr<DFAState> state, string str);
 
         /**
          * 基于DFA做字符串匹配
          */
-        static bool matchWithDFA(DFAState *state, string str, int index);
+        static bool matchWithDFA(DFAState* state, string str, int index);
 
         /**
          * 查找单曲状态是不是一个接受状态，或者可以通过epsilon迁移到一个接受状态
@@ -70,27 +72,27 @@ class Regex
         /**
          * 根据NFA State集合，查找是否已经存在一个DFAState，包含同样的NFA状态
          */
-        static DFAState* findDFAState(vector<shared_ptr<DFAState>> dfaStates, vector<State*> states);
+        static DFAState* findDFAState(vector<shared_ptr<DFAState>> dfaStates, set<State*> states);
 
         /**
          * 比较两个NFA state的集合是否相等
          */
-        static bool sameStateSet(vector<State*>stateSet1, vector<State*>stateSet2);
+        static bool sameStateSet(set<State*>stateSet1, set<State*>stateSet2);
 
         /**
          * 计算某个state通过epsilon能到达的所有State
          */
-        static vector<State*> calcClosure(State *state, std::map<State*, vector<State*>>& calculatedClosures);
+        static set<State*> calcClosure(State *state, std::map<State*, set<State*>>& calculatedClosures);
 
         /**
          * 计算一个集合的闭包，包活这些状态以及可以通过epsilon到达的状态
          */
-        static void calcClosure(vector<State*>& states, map<State*, vector<State*>>& calculatedClosures);
+        static void calcClosure(set<State*>& states, map<State*, set<State*>>& calculatedClosures);
 
         /**
          * 计算从某个集合状态，在接受某个字符以后，会迁移到哪些新的集合
          */
-        static vector<State*> move(vector<State*> states, char ch);
+        static set<State*> move(set<State*> states, char ch);
 
         /**
          * 创建一个示例用的正则表达式

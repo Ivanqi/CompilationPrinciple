@@ -36,10 +36,11 @@ std::string CharTransition::toString()
     if (isEpsilon()){
         return "ε";
     } else {
-        CharSet *charSet = condition;
-        if (charSet->subSets.size() > 10) {
-            charSet = charSet->getShorterForm();
+        if (condition->subSets.size() > 10) {
+            shared_ptr<CharSet> charSetTmp = condition->getShorterFormx();
+            return charSetTmp->toString();
+        } else {
+            return condition->toString();
         }
-        return charSet->toString();
     }
 }

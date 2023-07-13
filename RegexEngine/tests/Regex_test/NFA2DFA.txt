@@ -1,0 +1,122 @@
+NFA to DFA:
+16
+	0
+		ε -> 2
+		ε -> 8
+		ε -> 14
+		acceptable
+
+	2
+		i -> 3
+		acceptable
+
+	8
+		[a - z]|[A - Z] -> 9
+
+	14
+		[0 - 9] -> 15
+
+17
+	1	(end)
+		acceptable
+
+	14
+		[0 - 9] -> 15
+
+	15
+		ε -> 14
+		ε -> 1
+		acceptable
+
+18
+	1	(end)
+		acceptable
+
+	9
+		ε -> 10
+		ε -> 13
+		acceptable
+
+	10
+		[0 - 9]|[a - z]|[A - Z] -> 11
+
+	13
+		ε -> 1
+		acceptable
+
+19
+	1	(end)
+		acceptable
+
+	3
+		n -> 5
+		acceptable
+
+	9
+		ε -> 10
+		ε -> 13
+		acceptable
+
+	10
+		[0 - 9]|[a - z]|[A - Z] -> 11
+
+	13
+		ε -> 1
+		acceptable
+
+20
+	1	(end)
+		acceptable
+
+	10
+		[0 - 9]|[a - z]|[A - Z] -> 11
+
+	11
+		ε -> 10
+		ε -> 13
+		acceptable
+
+	13
+		ε -> 1
+		acceptable
+
+21
+	1	(end)
+		acceptable
+
+	5
+		t -> 7
+		acceptable
+
+	10
+		[0 - 9]|[a - z]|[A - Z] -> 11
+
+	11
+		ε -> 10
+		ε -> 13
+		acceptable
+
+	13
+		ε -> 1
+		acceptable
+
+22
+	1	(end)
+		acceptable
+
+	7
+		ε -> 1
+		acceptable
+
+	10
+		[0 - 9]|[a - z]|[A - Z] -> 11
+
+	11
+		ε -> 10
+		ε -> 13
+		acceptable
+
+	13
+		ε -> 1
+		acceptable
+
