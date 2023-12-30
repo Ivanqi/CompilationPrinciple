@@ -301,7 +301,7 @@ GrammarNode* SampleGrammar::commonLexerGrammar()
 
     //空白字符
     //不设置tokenType，不会生成Token，会忽略掉
-    GrammarNode *whiteSpace = rootNode->createChild("WHITE_SPACE",CharSet::whiteSpace.get());
+    GrammarNode *whiteSpace = rootNode->createChild("WHITE_SPACE", CharSet::whiteSpace.get());
     whiteSpace->setRepeatTimes(0, -1);
     whiteSpace->setNeglect(true);
 

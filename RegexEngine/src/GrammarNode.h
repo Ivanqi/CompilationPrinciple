@@ -61,7 +61,7 @@ class GrammarNode
         unique_ptr<Tokens> tokens_;
 
         // 是否被词法处理器忽略，比如空白字符
-        bool neglect{nullptr};
+        bool neglect{false};
 
         static unique_ptr<GrammarNode> EPSILON_;
     

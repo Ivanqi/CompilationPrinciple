@@ -4,16 +4,19 @@
 #include <algorithm>
 #include <iostream>
 #include <cassert>
+
 /**
- * First, 顾名思义就是关于该符号的所有产生式右部第一个遇到的终结符
- * 
- * 计算First集合
- * 采用了不动点法
+ * @brief First, 顾名思义就是关于该符号的所有产生式右部第一个遇到的终结符
+ *  1. 计算First集合
+ *  2. 采用了不动点法
  * 
  * 不动点法介绍
  *  1. 多次遍历图中的节点，看看每次有没有计算出新的集合成员
  *  2. 比如，第一遍计算的时候，当求First(pri)的时候，它所依赖的First(expression)中的成员可能不全
  *  3. 等下一轮继续计算时，发现有新的集合成员，再加进来就好了，直到所有集合的成员都没有变动为止
+ * 
+ * @param grammar 消除了左递归的语法树
+ * @return map<GrammarNode*, set<string>*> 返回First集合
  */
 map<GrammarNode*, set<string>*> FirstFollowSet::caclFirstSets(GrammarNode* grammar)
 {
@@ -36,11 +39,16 @@ map<GrammarNode*, set<string>*> FirstFollowSet::caclFirstSets(GrammarNode* gramm
     return firstSets;
 }
 
+
 /**
- * 对First集合做一次计算
- * @param grammar
- * @param firstSets
- * @return 如果这次计算，First集合的成员都没有变动，则返回true
+ * @brief 对First集合做一次计算
+ *  1. 对语法树进行递归处理
+ * 
+ * @param grammar 消除了左递归的语法树
+ * @param firstSets First集合
+ * @param calculated 用于递归剪枝
+ * @return true 如果这次计算，First集合的成员都没有变动，则返回true
+ * @return false 
  */
 bool FirstFollowSet::caclFirstSets(GrammarNode* grammar, map<GrammarNode*, set<string>*>& firstSets, set<GrammarNode*>& calculated)
 {
@@ -96,7 +104,7 @@ bool FirstFollowSet::caclFirstSets(GrammarNode* grammar, map<GrammarNode*, set<s
                  * 如果x的开头是非终结符a，那么First(x)要包含First(a)的所有成员
                  * 比如expressionStatement是以expression开头，因此它的First集合要包含First(expression)的全体成员
                  * 
-                 * 最后，如果x是一个非终结符，它有多个产生式可供选择，那么First(x)应包含所有产生式的First()集合的成语
+                 * 最后，如果x是一个非终结符，它有多个产生式可供选择，那么First(x)应包含所有产生式的First()集合的成员
                  * 比如 statement 的First集合要包含if, while 等所有产生式的First集合的成员
                  * 并且，如果这些产生式只要有一个可能产生ε, 那么x就可能产生ε，因此, First(x)就应该包含ε
                  */
@@ -138,13 +146,15 @@ bool FirstFollowSet::caclFirstSets(GrammarNode* grammar, map<GrammarNode*, set<s
 }
 
 /**
- * Follow，顾名思义，就是该符号后面跟着的第一个终结符
- * 求 follow 集合，都是从开始符号S开始推导
+ * @brief Follow，顾名思义，就是该符号后面跟着的第一个终结符
+ *  1. 求 follow 集合，都是从开始符号S开始推导
  * 
  * 计算Follow集合
- * 对所有节点计算
- * @param grammar 入口语法节点
- * @return
+ *  1.  对所有节点计算
+ * 
+ * @param grammar 消除了左递归的语法树
+ * @param firstSets first集合
+ * @return map<GrammarNode*, set<string>*> 
  */
 map<GrammarNode*, set<string>*> FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<string>*> firstSets)
 {
@@ -181,8 +191,17 @@ map<GrammarNode*, set<string>*> FirstFollowSet::caclFollowSets(GrammarNode *gram
     return followSets;
 }
 
+
 /**
- * 计算一遍Follow节点
+ * @brief 计算一遍Follow节点
+ * 
+ * @param grammar 消除了左递归的语法树
+ * @param followSets follow集合
+ * @param rightChildrenSets 右子节点集合
+ * @param firstSets first集合
+ * @param calculated 用于递归剪枝
+ * @return true 
+ * @return false 
  */
 bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<string>*> &followSets,
                                     map<GrammarNode*, set<GrammarNode*>*>& rightChildrenSets, 
@@ -207,78 +226,80 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
             for (int i = 0; i < grammar->getChildCount(); i++) {
                 GrammarNode *left = grammar->getChild(i);
                 // 重复的节点或叶子节点，不递归
-                if (!left->isLeaf() && calculated.find(left) == calculated.end()) {
-                    bool state = caclFollowSets(left, followSets, rightChildrenSets, firstSets, calculated);
-                    if (!state) {
-                        stable = false;
-                    }
-                }
-
-                set<string> *followSet = followSets[left];
-                if (followSet == nullptr) {
-                    followSet = new set<string>();
-                    followSets[left] = followSet;
-                }
-
-                if (i == grammar->getChildCount()) {    // 当 i 等于 grammar 子节点的数量
-                    rightChildren->insert(left);
-                } else {
-                    bool foundNotNull = false;
-                    // 遍历grammar i + 1 的后子节点
-                    for (int j = i + 1; j < grammar->getChildCount(); j++) {
-                        GrammarNode *right = grammar->getChild(j);
-                        set<string> *tempFollowSet = new set<string>();
-                        // 不是叶子节点
-                        if (!right->isLeaf()) {
-                            if (firstSets[right] == nullptr) {
-                                cout << "" << endl;
-                            }
-                            // 如果后面是非终结符，就把它的First集合加到自己的Follow集合中去
-                            tempFollowSet->insert(firstSets[right]->begin(), firstSets[right]->end());
-                        } else if (right->isToken()) {
-                            // 后面跟着的终结符，都加到Follow(x)集合中去
-                            tempFollowSet->insert(right->getToken()->getType());
-                        }
-
-                        assert(tempFollowSet->size() > 0);
-                        v_intersection->clear();
-                        // 求交集
-                        std::set_intersection(followSet->begin(), followSet->end(),
-                                      tempFollowSet->begin(), tempFollowSet->end(),
-                                      std::inserter((*v_intersection), std::begin((*v_intersection))));
-                        // 检查两个集合是否包含相同的元素
-                        if (v_intersection->size() != tempFollowSet->size()) {
-                            followSet->insert(tempFollowSet->begin(), tempFollowSet->end());
+                if (!left->isLeaf()) {
+                    if (calculated.find(left) == calculated.end()) {
+                        bool state = caclFollowSets(left, followSets, rightChildrenSets, firstSets, calculated);
+                        if (!state) {
                             stable = false;
-                        }
-
-                        /**
-                         * 把left的子节点的follow集合和 tempFollowSet 关联起来
-                         */
-                        if (!addToRightChild(left, tempFollowSet, followSets, rightChildrenSets, added)) {
-                            stable = false;
-                        }
-
-                        if (!right->isNullable()) { // 必须找到一个非空的
-                            foundNotNull = true;
-                            break;
                         }
                     }
 
-                    // 本节点也是最右节点
-                    if (!foundNotNull) {
+                    set<string> *followSet = followSets[left];
+                    if (followSet == nullptr) {
+                        followSet = new set<string>();
+                        followSets[left] = followSet;
+                    }
+
+                    if (i == grammar->getChildCount()) {    // 当 i 等于 grammar 子节点的数量
                         rightChildren->insert(left);
+                    } else {
+                        bool foundNotNull = false;
+                        // 遍历grammar i + 1 的后子节点
+                        for (int j = i + 1; j < grammar->getChildCount(); j++) {
+                            GrammarNode *right = grammar->getChild(j);
+                            set<string> *tempFollowSet = new set<string>();
+                            // 不是叶子节点
+                            if (!right->isLeaf()) {
+                                if (firstSets[right] == nullptr) {
+                                    cout << "" << endl;
+                                }
+                                // 如果后面是非终结符，就把它的First集合加到自己的Follow集合中去
+                                tempFollowSet->insert(firstSets[right]->begin(), firstSets[right]->end());
+                            } else if (right->isToken()) {
+                                // 后面跟着的终结符，都加到Follow(x)集合中去
+                                tempFollowSet->insert(right->getToken()->getType());
+                            }
+
+                            assert(tempFollowSet->size() > 0);
+                            // bool containsAllStatus = std::includes(followSet->begin(), followSet->end(), 
+                                                    // tempFollowSet->begin(), tempFollowSet->end());
+
+
+                            // 用于检测 set 是否包含指定set中的所有元素
+                            // if (containsAllStatus) {
+                                followSet->insert(tempFollowSet->begin(), tempFollowSet->end());
+                                stable = false;
+                            // }
+
+                            /**
+                             * 把left的子节点的follow集合和 tempFollowSet 关联起来
+                             */
+                            if (!addToRightChild(left, tempFollowSet, followSets, rightChildrenSets, added)) {
+                                stable = false;
+                            }
+
+                            if (!right->isNullable()) { // 必须找到一个非空的
+                                foundNotNull = true;
+                                break;
+                            }
+                        }
+
+                        // 本节点也是最右节点
+                        if (!foundNotNull) {
+                            rightChildren->insert(left);
+                        }
                     }
                 }
             }
         } else if (grammar->getType() == GrammarNodeType::Or) {
+            
             for (int i = 0; i < grammar->getChildCount(); i++) {
                 GrammarNode *child = grammar->getChild(i);
                 if (!child->isLeaf())  {
                     rightChildren->insert(child);
                     if (calculated.find(child) == calculated.end()) {
                         bool state = caclFollowSets(child, followSets, rightChildrenSets, firstSets, calculated);
-                        if (state) {
+                        if (!state) {
                             stable = false;
                         }
                     }
@@ -291,12 +312,18 @@ bool FirstFollowSet::caclFollowSets(GrammarNode *grammar, map<GrammarNode*, set<
 }
 
 /**
- * 把某个节点的Follow集合，也给它所有右边分支的后代节点?
+ * @brief 把某个节点的Follow集合，也给它所有右边分支的后代节点?
+ *  1. 因为这些孩子节点是父节点最右边的。那么父节点后面会跟什么终结符，这些子节点也会跟这些终结符
+ *  2. 如果一个非终结符位于上一级产生式的最右边，比如: A -> abcdB中的B, (我们用大小写区分终结符和非终结符)，那么找到可能出现在它右边的终结符，实际上也不好找
+ *  3. 要看看A后面都可能跟啥，比如: C -> abcAb, 那么A的Follow集合中有b，B的Follow集合中也要b
  * 
- * 因为这些孩子节点是父节点最右边的。那么父节点后面会跟什么终结符，这些子节点也会跟这些终结符
- * 
- * 如果一个非终结符位于上一级产生式的最右边，比如: A -> abcdB中的B, (我们用大小写区分终结符和非终结符)，那么找到可能出现在它右边的终结符，实际上也不好找
- * 要看看A后面都可能跟啥，比如: C -> abcAb, 那么A的Follow集合中有b，B的Follow集合中也要b
+ * @param grammar 消除了左递归的语法树
+ * @param followSet 临时follow集合
+ * @param followSets follow集合
+ * @param rightChildrenSets 右子节点集合
+ * @param added 用于递归剪枝
+ * @return true 
+ * @return false 
  */
 bool FirstFollowSet::addToRightChild(GrammarNode *grammar, set<string>* followSet, 
                                     map<GrammarNode*, set<string>*>& followSets, 
@@ -311,29 +338,25 @@ bool FirstFollowSet::addToRightChild(GrammarNode *grammar, set<string>* followSe
         return stable;
     }
 
-    set<string> *v_intersection = new set<string>();
     for (auto setIt = rightChildren->begin(); setIt != rightChildren->end(); setIt++) {
         GrammarNode *rightChild = *setIt;
         
         // 重复的节点或叶子节点，不进行操作
-        if (!rightChild->isLeaf() && added.find(rightChild) != added.end()) {
+        if (!rightChild->isLeaf() && added.find(rightChild) == added.end()) {
             set<string> *childFollowSet = followSets[rightChild];
             if (childFollowSet == nullptr) {
                 childFollowSet = new set<string>();
                 followSets[rightChild] = childFollowSet;
             }
 
-            v_intersection->clear();
-
-            // 求交集
-            std::set_intersection(followSet->begin(), followSet->end(),
-                            childFollowSet->begin(), childFollowSet->end(),
-                            std::inserter((*v_intersection), std::begin((*v_intersection))));
             // 检查两个集合是否包含相同的元素
-            if (v_intersection->size() != childFollowSet->size()) {
+            // bool containsAllStatus = std::includes(followSet->begin(), followSet->end(), 
+                                    // childFollowSet->begin(), childFollowSet->end());
+
+            // if (containsAllStatus) {
                 childFollowSet->insert(followSet->begin(), followSet->end());
                 stable = false;
-            }
+            // }
 
             // 递归向下
             if (!addToRightChild(rightChild, followSet, followSets, rightChildrenSets, added)) {

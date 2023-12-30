@@ -45,17 +45,22 @@ vector<Tokens> Lexer::tokenize(string str, DFAState *startState, GrammarNode *ro
     string tokenText;
 
     int strLen = str.length();
+    int pos = 0;
 
-    string ch;
+    string ich;
     string nodeName;
-    char xx;
+    char ch;
 
-    for (int i = 0; i <= strLen; i++) {
-        ch = str[i];
-        xx = ch.c_str()[0];
+
+
+    while (pos < strLen || tokenText.length() > 0) {    // 第二个条件，是为了生成最后一个Token
+        ich = str[pos];
+        ch = ich.c_str()[0];
+
         bool consumed = false;
         while (!consumed) {
-            nextState = currentState->getNextState(xx);
+            nextState = currentState->getNextState(ch);
+            
             if (nextState == nullptr) {
                 if (currentState == startState) {
                     // 不认识的字符
@@ -63,19 +68,15 @@ vector<Tokens> Lexer::tokenize(string str, DFAState *startState, GrammarNode *ro
                 } else if (currentState->isAcceptable()) {
                     // 查找对应的词法规则
                     GrammarNode *grammar = getGrammar(currentState, root);
-                    // assert(grammar != nullptr);
-                    if (grammar == nullptr) {
-                        // tokenText.clear();
-                        currentState = startState;
-                        continue;
-                    }
+                    assert(grammar != nullptr);
 
                     // 创建Token
-                    if (!grammar->isNeglect() && tokenText.length() > 0) {    // 空白字符会被忽略
+                    if (!grammar->isNeglect()) {    // 空白字符会被忽略
                         nodeName = grammar->getName();
                         Tokens token(nodeName, tokenText);
                         tokens.push_back(token);
                     }
+
                     tokenText.clear();
 
                     // 回到初始状态，重新匹配
@@ -88,10 +89,12 @@ vector<Tokens> Lexer::tokenize(string str, DFAState *startState, GrammarNode *ro
                 // 做状态迁移
                 currentState = nextState;
                 // 累积token的文本值
-                tokenText.append(ch);
+                tokenText.append(ich);
                 consumed = true;
             }
         }
+
+        pos++;
     }
 
     return tokens;
@@ -105,7 +108,7 @@ GrammarNode* Lexer::getGrammar(DFAState *state, GrammarNode *root)
 {
     // 找出state符合的所有词法
     set<GrammarNode*> validGrammars;
-    for (State *child : state->getStates()) {
+    for (State *child : state->getStatesSet()) {
         if (child->getGrammarNode() != nullptr) {
             validGrammars.insert(child->getGrammarNode());
         }

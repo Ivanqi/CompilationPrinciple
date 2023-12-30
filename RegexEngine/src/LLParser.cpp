@@ -48,9 +48,28 @@ ASTNode* LLParser::parse(string script, GrammarNode* grammar)
     return nullptr;
 }
 
-ASTNode* LLParser::match(GrammarNode* grammar, 
-                        TokenReader *tokenReader, 
-                        map<GrammarNode*, set<string>*> firstSets,
+/**
+ * @brief LL(1)算法匹配
+ *  1. 对于And类型的，要每个子节点依次全部匹配
+ *      1. 遍历And类型的的子节点，并进行递归下降分析
+ *  2. 对于Or类型的，通过预测，知道采用那个产生式
+ *      1. 预先预测一个token as t,并遍历该Or类型的子节点
+ *      2. 如果子节点是一个token，并于t做类型判断。如果相同就匹配成功
+ *      3. 如果该子节点下还有子节点，那么first集合中找出该子节点对应first集合，并于t进行类型判断，如果相同就匹配成功
+ *      4. 如果该子节点2，3步骤都匹配成功，那么该子节点的子节点进行递归下降分析
+ *      5. 如果最终没有匹配成功，那么就是产生了ε，就该查找该Or类型的follow集合
+ *  3. 如果是ε类型就是给节点设置成ε类型
+ *  4. 如果是字符串类型，预读一个Token。看看自身的类型跟语法要求的是否一致。并设置到当前节点中
+ *  5. 如果全部子节点返回的都是Epsilon, 自身也置为Epsilon
+ * 
+ * @param grammar 消除了左递归的语法树
+ * @param tokenReader token串
+ * @param firstSets first集合
+ * @param followSets follow集合
+ * @return ASTNode* 
+ */
+ASTNode* LLParser::match(GrammarNode* grammar,  TokenReader *tokenReader, 
+                        map<GrammarNode*, set<string>*> firstSets, 
                         map<GrammarNode*, set<string>*> followSets)
 {
     ASTNode *node = new ASTNode(grammar->getName());
@@ -122,7 +141,7 @@ ASTNode* LLParser::match(GrammarNode* grammar,
                 }
 
                 if (!epsilon) {
-                    std::cout << "unable to find a selection for: " << grammar << " | " << grammar->getName() << " | followSet size: "<< followSet->size() << std::endl;
+                    std::cout << "unable to find a selection for: " << grammar << " | " << grammar->toString() << " | followSet size: "<< followSet->size() << std::endl;
                 }
             }
         }
