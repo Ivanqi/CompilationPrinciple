@@ -1,0 +1,5 @@
+<!-- a comment
+-->
+<root><!-- comment --> <message>if salary &lt; 1000</message>
+&apos; <a>hi</a> <foo/>
+</root>
