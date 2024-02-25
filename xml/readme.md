@@ -123,6 +123,52 @@ Identifier : Letter (Letter | Digit | '_')*;
 
 Identifier 规则使用 Letter、Digit 和下划线 _ 来定义一个标识符，而这些片段规则则被包含在 Identifier 中
 
+## -> skip
+在ANTLR中，-> skip 是一个语法规则，用于告诉词法分析器在匹配某个特定的标记或模式时，忽略该标记或模式本身以及其后面的所有内容，而不产生任何词法单元
+
+这通常用在词法分析器的规则中，以避免在语法分析阶段处理不需要的标记
+
+例子:
+```
+TOKEN_IGNORE : ('a'..'z'|'A'..'Z'|'0'..'9'|' ')* -> skip;     
+```
+- 这个规则定义了一个名为TOKEN_IGNORE的词法规则，它匹配由小写字母、大写字母、数字和空格组成的任意字符序列
+- -> skip部分告诉ANTLR在匹配到这个规则时，忽略匹配到的内容，不将其作为词法单元输出
+
+## pushMode
+在 ANTLR（Another Tool for Language Recognition）中，pushMode 是一个用于在解析过程中临时改变词法模式（lexer mode）的机制
+
+词法模式是 ANTLR 用于处理不同词法元素（tokens）的上下文设置，比如，它决定了哪些字符序列被视为单词的一部分
+
+例子:
+```
+
+mode MODE1;
+MODE1 : 'a'..'z' | 'A'..'Z' | '0'..'9' | ' ' -> skip;
+
+mode MODE2;
+MODE2 : '(' -> pushMode(MODE1); // 切换到 MODE1
+        ')' -> popMode;         // 切换回当前模式（MODE2）
+     
+```
+- 在这个例子中，当解析器遇到左括号 ( 时，它会切换到 MODE1 模式，这样就可以正确地识别括号内的字符
+- 当解析器遇到右括号 ) 时，它会切换回之前的模式（在这个例子中是 MODE2）
+- pushMode 和 popMode 方法用于管理这个模式栈
+
+## mode
+在ANTLR（Another Tool for Language Recognition）中，mode是指定词法分析器（lexer）在解析文本时的一种状态或模式
+
+mode通常用于处理不同上下文中的文本，例如，在处理括号内的文本时，可以进入一个模式，处理完括号内的内容后再退出该模式
+
+在ANTLR中，可以通过pushMode()和popMode()方法来切换和退出模式。pushMode()用于进入一个新模式，而popMode()用于返回到之前的模式。这样，lexer就可以在不同的模式之间切换，以便正确地识别和处理文本。
+
+例如
+- 假设我们有一个模式切换的规则，当遇到begin关键字时，我们进入一个名为block的模式
+- 当遇到end关键字时，我们退出block模式返回到之前的模式
+- 这种情况下，mode帮助我们管理不同的解析上下文，确保文本被正确地解析
+
+
+
 # 参考资料
 - [Ubuntu 20.04桌面版 安装Antlr4](https://blog.csdn.net/drutgdh/article/details/122603220)
 - [XML 解析详解 - 四种解析方式](https://zhuanlan.zhihu.com/p/191476342)
