@@ -1,0 +1,6 @@
+lambda myfun() :: Int {
+    return myfun2();
+}
+lambda myfun2() :: Bool {
+    return 3;
+}

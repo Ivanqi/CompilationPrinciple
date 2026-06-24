@@ -1,0 +1,46 @@
+program = { global_decl | function_def | function_decl } ;
+
+var_def = identifier "::" type "=" expr ;
+global_decl = identifier "::" type ;
+function_decl = "lambda " identifier parameter_list :: type ;
+
+number = ["-"] digit { digit } ;
+digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+
+identifier = (* {A-z | 0-9 } *) ;
+call = identifier argument_list ;
+
+type = "Int" | "Bool"
+
+function_def = "lambda " identifier parameter_list "::" type body;
+parameter_list = "(" [identifier "::" type] {"," identifier "::" type} ")" ;
+argument_list = "(" [expr] {"," expr} ")" ;
+body = "{" [stmt] {";" stmt} "}" ;
+stmt = var_def
+    | assign
+    | ifelse
+    | while
+    | return ;
+assign = identifier "=" expr ;
+ifelse = "if" expr "then" body "else" body ;
+while = "while" expr "do" body ;
+return = "return" expr ;
+
+expr = expr "or" expr
+    | expr "xor" expr
+    | term ;
+term = term "and" bterm
+    | bterm ;
+bterm = "not" cterm
+    | cterm ;
+cterm = cterm ">=" factor
+    | cterm "<" factor
+    | cterm "==" factor
+    | factor ;
+factor = factor "+" atom
+    | factor "-" atom
+    | atom ;
+atom = atom "*" unit
+    | atom "/" unit
+    | unit ;
+unit = identifier | "true" | "false" | call | "(" expr ")" | number ;

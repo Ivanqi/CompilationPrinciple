@@ -1,0 +1,1 @@
+lambda fun1()::Int{return fun2();}lambda fun2()::Int {return 5;}
